@@ -14,5 +14,6 @@ inc/
 nytprof.out
 pod2htm*.tmp
 pm_to_blib
-Ado-Plugin-Mess-*
-Ado-Plugin-Mess-*.tar.gz
+Ado-*
+Ado-*.tar.gz
+etc/ado_*.sqlite
