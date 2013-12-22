@@ -1,119 +1,95 @@
 package Ado::Plugin::Mess;
+use Mojo::Base qw(Ado::Plugin);
 
-use 5.006;
-use strict;
-use warnings FATAL => 'all';
+our $VERSION = '0.01';
+
+sub register {
+    my ($self, $app, $conf) = @_;
+    $self->app($app);    #!Needed in $self->config!
+
+    #Merge passed configuration with configuration
+    #from  etc/ado.conf and etc/plugins/routes.conf
+    $conf = {%{$self->config}, %{$conf ? $conf : {}}};
+    $app->log->debug('Plugin ' . $self->name . ' configuration:' . $app->dumper($conf));
+
+    # My magic here! :)
+    push @{$app->routes->namespaces}, @{$conf->{namespaces}}
+      if @{$conf->{namespaces} || []};
+    $app->load_routes($conf->{routes});
+    return $self;
+}
+
+1;
+
+=pod
+
+=encoding utf8
 
 =head1 NAME
 
-Ado::Plugin::Mess - The great new Ado::Plugin::Mess!
+Ado::Plugin::Mess - Messaging services for an Ado system!
 
-=head1 VERSION
+=head1 DESCRIPTION
 
-Version 0.01
-
-=cut
-
-our $VERSION = '0.01';
+TODO                                                        
 
 
 =head1 SYNOPSIS
 
-Quick summary of what the module does.
+  # To use this plugin add it to etc/ado.conf 
+  #plugins section after DSC plugin.
+  plugins => [
+    {name => 'charset', config => {charset => 'UTF-8'}},
+    {   name   => 'DSC',
+        config => {#...
+        },
+    },
+    #...
+    {name => 'mess', config => {}},
+    #...
+ ],
 
-Perhaps a little code snippet.
+=head1 ATTRIBUTES
 
-    use Ado::Plugin::Mess;
+Ado::Plugin::Mess inherits all atributes from L<Ado::Plugin>.
 
-    my $foo = Ado::Plugin::Mess->new();
-    ...
+=head1 METHODS
 
-=head1 EXPORT
+Ado::Plugin::Mess implements the following methods.
 
-A list of functions that can be exported.  You can delete this section
-if you don't export anything, such as for a purely object-oriented module.
+=head2 register
 
-=head1 SUBROUTINES/METHODS
+Loads routes described in C<etc/plugins/mess.conf>.
 
-=head2 function1
 
-=cut
+=head1 SPONSORS
 
-sub function1 {
-}
+The original author
 
-=head2 function2
+=head1 SEE ALSO
 
-=cut
+L<Ado::Control::Ado::Default>,
+L<Ado::Control>, L<Mojolicious::Controller>,
+L<Mojolicious::Guides::Growing/Model_View_Controller>,
+L<Mojolicious::Guides::Growing/Controller_class>
 
-sub function2 {
-}
 
 =head1 AUTHOR
 
-Красимир Беров (Krasimir Berov), C<< <berov at cpan.org> >>
+Красимир Беров (Krasimir Berov)
 
-=head1 BUGS
-
-Please report any bugs or feature requests to C<bug-ado-plugin-mess at rt.cpan.org>, or through
-the web interface at L<http://rt.cpan.org/NoAuth/ReportBug.html?Queue=Ado-Plugin-Mess>.  I will be notified, and then you'll
-automatically be notified of progress on your bug as I make changes.
-
-
-
-
-=head1 SUPPORT
-
-You can find documentation for this module with the perldoc command.
-
-    perldoc Ado::Plugin::Mess
-
-
-You can also look for information at:
-
-=over 4
-
-=item * RT: CPAN's request tracker (report bugs here)
-
-L<http://rt.cpan.org/NoAuth/Bugs.html?Dist=Ado-Plugin-Mess>
-
-=item * AnnoCPAN: Annotated CPAN documentation
-
-L<http://annocpan.org/dist/Ado-Plugin-Mess>
-
-=item * CPAN Ratings
-
-L<http://cpanratings.perl.org/d/Ado-Plugin-Mess>
-
-=item * Search CPAN
-
-L<http://search.cpan.org/dist/Ado-Plugin-Mess/>
-
-=back
-
-
-=head1 ACKNOWLEDGEMENTS
-
-
-=head1 LICENSE AND COPYRIGHT
+=head1 COPYRIGHT AND LICENSE
 
 Copyright 2013 Красимир Беров (Krasimir Berov).
 
-This program is free software; you can redistribute it and/or
-modify it under the terms of the GNU Lesser General Public
-License as published by the Free Software Foundation; either
-version 3 of the License, or (at your option) any later version.
+This program is free software, you can redistribute it and/or
+modify it under the terms of the 
+GNU Lesser General Public License v3 (LGPL-3.0).
+You may copy, distribute and modify the software provided that 
+modifications are open source. However, software that includes 
+the license may release under a different license.
 
-This program is distributed in the hope that it will be useful,
-but WITHOUT ANY WARRANTY; without even the implied warranty of
-MERCHANTABILITY or FITNESS FOR A PARTICULAR PURPOSE.  See the GNU
-Lesser General Public License for more details.
-
-You should have received a copy of the GNU Lesser General Public
-License along with this program.  If not, see
-L<http://www.gnu.org/licenses/>.
-
+See http://opensource.org/licenses/lgpl-3.0.html for more information.
 
 =cut
 
-1; # End of Ado::Plugin::Mess

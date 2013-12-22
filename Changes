@@ -1,5 +1,6 @@
 Revision history for Ado-Plugin-Mess
 
-0.01    Date/time
-        First version, released on an unsuspecting world.
+0.01  2013-12-22 21:45:36 CET
+      - Modifying tests, removing boilerplate.
+      - First version, released on an unsuspecting world.
 

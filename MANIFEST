@@ -1,9 +1,18 @@
 Build.PL
 Changes
+etc/plugins/mess.conf
+lib/Ado/Control/Mess.pm
 lib/Ado/Plugin/Mess.pm
+LICENSE
 MANIFEST			This list of files
+META.json
+META.yml
 README
+t/.perlcriticrc
+t/.perltidyrc
 t/00-load.t
+t/boilerplate.t
 t/manifest.t
+t/perl-critic.t
 t/pod-coverage.t
 t/pod.t
