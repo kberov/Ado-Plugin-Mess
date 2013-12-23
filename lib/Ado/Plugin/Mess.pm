@@ -37,7 +37,7 @@ TODO
 =head1 SYNOPSIS
 
   # To use this plugin add it to etc/ado.conf 
-  #plugins section after DSC plugin.
+  #plugins section *after* DSC plugin.
   plugins => [
     {name => 'charset', config => {charset => 'UTF-8'}},
     {   name   => 'DSC',

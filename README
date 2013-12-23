@@ -6,7 +6,7 @@ DESCRIPTION
 
 SYNOPSIS
       # To use this plugin add it to etc/ado.conf 
-      #plugins section after DSC plugin.
+      #plugins section *after* DSC plugin.
       plugins => [
         {name => 'charset', config => {charset => 'UTF-8'}},
         {   name   => 'DSC',
@@ -25,7 +25,7 @@ METHODS
     Ado::Plugin::Mess implements the following methods.
 
   register
-    Loades routes described in "etc/plugins/mess.conf".
+    Loads routes described in "etc/plugins/mess.conf".
 
 SPONSORS
     The original author
