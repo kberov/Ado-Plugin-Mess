@@ -26,7 +26,7 @@ my $builder = Ado::BuildPlugin->new(
         'Test::More' => 0,
     },
     requires => {
-      Ado => '0.16',
+      Ado => '0.19',
     },
     add_to_cleanup     => [ 'Ado-Plugin-Mess-*' ],
     add_to_cleanup => ['Ado-Plugin-Mess-*', '*.bak'],
