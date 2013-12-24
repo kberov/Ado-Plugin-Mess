@@ -1,42 +1,31 @@
-#!perl -T
-use 5.014;
+#!perl
+use 5.014000;
 use strict;
 use warnings FATAL => 'all';
 use Test::More;
-use File::Basename;
+$SIG{__WARN__} = sub {
+    return if $_[0] =~ m|Wide\scharacter\sin\sprint|x;
+};
 
-BEGIN {
-    unshift @INC, dirname(__FILE__) . '/../lib';
-}
-
-#plan(skip_all => 'Temporarily disabled');
+# Ensure use Test::Pod::Spelling is installed
+eval "use Test::Pod::Spelling";
+plan skip_all => "Test::Pod::Spelling is required for testing POD spelling." if $@;
 if (not $ENV{TEST_AUTHOR}) {
     my $msg = 'Author test.  Set $ENV{TEST_AUTHOR} to a true value to run.';
     plan(skip_all => $msg);
 }
 
-# Ensure a recent version of Test::Pod::Coverage
-my $min_tpc = 1.08;
-eval "use Test::Pod::Coverage $min_tpc";
-plan skip_all => "Test::Pod::Coverage $min_tpc required for testing POD coverage"
-  if $@;
-
-# Test::Pod::Coverage doesn't require a minimum Pod::Coverage version,
-# but older versions don't recognize some common documentation styles
-my $min_pc = 0.18;
-eval "use Pod::Coverage $min_pc";
-plan skip_all => "Pod::Coverage $min_pc required for testing POD coverage"
-  if $@;
-my $trustme = {
-    trustme => [
-        qr/^(
-  ALIASES|CHECKS|COLUMNS|
-  PRIMARY_KEY|TABLE|is_base_class|dbix
-)$/x
-    ]
-};
-all_pod_coverage_ok($trustme);
-
-
+#TODO: Make Lingua::Ispell aware of UTF8
+#or find another way to shut up "Wide character in print" warnings
+add_stopwords(
+    qw(
+      Krasimir Berov Красимир Беров berov http html org
+      Mojolicious Mojo app apps Foo SQLite ActivePerl
+      URI OM ORM CPAN ENV CORS REST JSON ERP TODO API
+      precompiled perldoc RESTful tstamp
+      accessor accessors seq distro bashrc perltidy perltidyrc
+      cpan cpanm perl
+      )
+);
+all_pod_files_spelling_ok();
 done_testing();
-

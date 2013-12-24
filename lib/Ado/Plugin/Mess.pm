@@ -25,9 +25,7 @@ sub _create_table {
     my $dbix = $app->dbix;
     my $table = $dbix->dbh->table_info(undef, undef, 'mess', "'TABLE'")->fetchall_arrayref({});
 
-    #table exists - nothing more to do
-    return if ($table && $table->[0]{TABLE_NAME} eq decamelize($self->name));
-
+    #Always execute this file because we may have table changes
     my $sql_file = $conf->{mess_schema_sql_file};
     my $SQL      = slurp($sql_file);
 
