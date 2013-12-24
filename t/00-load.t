@@ -18,24 +18,22 @@ find(
 
 for my $file (@files) {
     my $module = $file;
-    ok($module,$module);
+    ok($module, $module);
     $module =~ s,\.pm$,,;
     $module =~ s,.*/?lib/,,;
     $module =~ s,/,::,g;
 
     use_ok($module) || diag $@;
 }
-isa_ok('Ado::Plugin::Mess','Ado::Plugin');
+isa_ok('Ado::Plugin::Mess', 'Ado::Plugin');
 
-for ( qw(register config name app))
-{
+for (qw(register config name app)) {
     can_ok('Ado::Plugin::Mess', $_);
 }
 
-isa_ok('Ado::Control::Mess','Ado::Control');
+isa_ok('Ado::Control::Mess', 'Ado::Control');
 
-for ( qw(list add update show disable))
-{
+for (qw(list add update show disable)) {
     can_ok('Ado::Control::Mess', $_);
 }
 

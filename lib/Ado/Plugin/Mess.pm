@@ -1,6 +1,6 @@
 package Ado::Plugin::Mess;
 use Mojo::Base qw(Ado::Plugin);
-
+use Mojo::Util qw(decamelize slurp);
 our $VERSION = '0.01';
 
 sub register {
@@ -15,10 +15,29 @@ sub register {
     # My magic here! :)
     push @{$app->routes->namespaces}, @{$conf->{namespaces}}
       if @{$conf->{namespaces} || []};
+    $self->_create_table($app, $conf);
     $app->load_routes($conf->{routes});
     return $self;
 }
 
+sub _create_table {
+    my ($self, $app, $conf) = @_;
+    my $dbix = $app->dbix;
+    my $table = $dbix->dbh->table_info(undef, undef, 'mess', "'TABLE'")->fetchall_arrayref({});
+
+    #table exists - nothing more to do
+    return if ($table && $table->[0]{TABLE_NAME} eq decamelize($self->name));
+
+    my $sql_file = $conf->{mess_schema_sql_file};
+    my $SQL      = slurp($sql_file);
+
+    #Remove multiline comments
+    $SQL =~ s|/\*.+\*/||gsmx;
+    for my $statement (split /;/, $SQL) {
+        $dbix->dbh->do($statement) if $statement =~ /\S+/;
+    }
+    return;
+}
 1;
 
 =pod
@@ -36,8 +55,8 @@ TODO
 
 =head1 SYNOPSIS
 
-  # To use this plugin add it to etc/ado.conf 
-  #plugins section *after* DSC plugin.
+  # To enable this plugin after installation add it to etc/ado.conf 
+  #"plugins" section *after* DSC plugin.
   plugins => [
     {name => 'charset', config => {charset => 'UTF-8'}},
     {   name   => 'DSC',
@@ -45,7 +64,7 @@ TODO
         },
     },
     #...
-    {name => 'mess', config => {}},
+    {name => 'mess', config => {...}},
     #...
  ],
 
