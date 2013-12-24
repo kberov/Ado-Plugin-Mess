@@ -10,7 +10,8 @@ my $TABLE_NAME = 'mess';
 
 sub TABLE       { return $TABLE_NAME }
 sub PRIMARY_KEY { return 'id' }
-my $COLUMNS = ['id', 'from_uid', 'to_uid', 'subject', 'tstamp', 'message', 'message_assets'];
+my $COLUMNS = ['id', 'from_uid', 'to_uid', 'subject', 'tstamp', 'message',
+    'message_assets'];
 
 sub COLUMNS { return $COLUMNS }
 my $ALIASES = {};

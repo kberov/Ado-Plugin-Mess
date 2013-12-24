@@ -9,7 +9,8 @@ $SIG{__WARN__} = sub {
 
 # Ensure use Test::Pod::Spelling is installed
 eval "use Test::Pod::Spelling";
-plan skip_all => "Test::Pod::Spelling is required for testing POD spelling." if $@;
+plan skip_all => "Test::Pod::Spelling is required for testing POD spelling."
+  if $@;
 if (not $ENV{TEST_AUTHOR}) {
     my $msg = 'Author test.  Set $ENV{TEST_AUTHOR} to a true value to run.';
     plan(skip_all => $msg);

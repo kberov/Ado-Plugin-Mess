@@ -18,8 +18,11 @@ isa_ok($T->app, 'Ado');
 ok($INC{'Ado/Plugin/Mess.pm'}, 'Ado::Plugin::Mess is loaded');
 
 #the thable mess should be created now
-is($dbh->table_info(undef, undef, 'mess', "'TABLE'")->fetchall_arrayref({})->[0]{TABLE_NAME},
-    'mess', 'Table "mess" was created.');
+is( $dbh->table_info(undef, undef, 'mess', "'TABLE'")->fetchall_arrayref({})
+      ->[0]{TABLE_NAME},
+    'mess',
+    'Table "mess" was created.'
+);
 ok($dbh->do('DROP TABLE IF EXISTS mess'), "Table mess was dropped.");
 
 done_testing();

@@ -1,6 +1,7 @@
 Revision history for Ado-Plugin-Mess
 
-0.01  2013-12-24 15:12:30 CET
+0.01  2013-12-24 20:50:40 CET
+      - Perl::Tidy: 80 columns only per row.
       - Writing  tests, removing boilerplate.
       - First version, released on an unsuspecting world.
 

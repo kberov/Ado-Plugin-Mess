@@ -10,7 +10,8 @@ sub register {
     #Merge passed configuration with configuration
     #from  etc/ado.conf and etc/plugins/routes.conf
     $conf = {%{$self->config}, %{$conf ? $conf : {}}};
-    $app->log->debug('Plugin ' . $self->name . ' configuration:' . $app->dumper($conf));
+    $app->log->debug(
+        'Plugin ' . $self->name . ' configuration:' . $app->dumper($conf));
 
     # My magic here! :)
     push @{$app->routes->namespaces}, @{$conf->{namespaces}}
@@ -23,7 +24,8 @@ sub register {
 sub _create_table {
     my ($self, $app, $conf) = @_;
     my $dbix = $app->dbix;
-    my $table = $dbix->dbh->table_info(undef, undef, 'mess', "'TABLE'")->fetchall_arrayref({});
+    my $table = $dbix->dbh->table_info(undef, undef, 'mess', "'TABLE'")
+      ->fetchall_arrayref({});
 
     #Always execute this file because we may have table changes
     my $sql_file = $conf->{mess_schema_sql_file};

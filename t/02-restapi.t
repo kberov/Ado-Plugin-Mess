@@ -20,11 +20,15 @@ $T->get_ok('/mess')->status_is('415', '415 - Unsupported Media Type ')
   ->content_type_is('text/html;charset=UTF-8')->header_like(
     'Content-Location' => qr|http\://localhost\:\d+/mess.json|x,
     'Content-Location points to /mess.json'
-  )->content_like(qr|http://localhost:\d+/mess.json</a>\!|x, 'Error page points to /mess.json');
+  )->content_like(
+    qr|http://localhost:\d+/mess.json</a>\!|x,
+    'Error page points to /mess.json'
+  );
 $T->get_ok('/mess/list')->status_is('404', '404 Not Found');
+
 #with format
-$T->get_ok('/mess.json')->status_is('200', 'Status is 200')->content_type_is('application/json')
-  ->json_has('/data')->json_has('/links')
+$T->get_ok('/mess.json')->status_is('200', 'Status is 200')
+  ->content_type_is('application/json')->json_has('/data')->json_has('/links')
   ->json_is('/links/0/rel' => 'self', '/links/0/rel is self')->json_is(
     '/links/0/href' => '/mess.json?limit=20&offset=0',
     '/links/0/href is /mess.json?limit=20&offset=0'
@@ -40,8 +44,9 @@ $T->get_ok('/mess.json')->status_is('200', 'Status is 200')->content_type_is('ap
         data => []
     }
   );
+
 #{route => '/mess', via => ['POST'], to => 'mess#add',},
-        
+
 
 done_testing();
 
