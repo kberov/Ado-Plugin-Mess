@@ -18,14 +18,26 @@ my $ALIASES = {};
 
 sub ALIASES { return $ALIASES }
 my $CHECKS = {
-    'to_uid'   => {'allow' => qr/(?^x:^-?\d{1,}$)/},
-    'from_uid' => {'allow' => qr/(?^x:^-?\d{1,}$)/},
-    'tstamp'   => {
+    'to_uid' => {
         'required' => 1,
         'defined'  => 1,
         'allow'    => qr/(?^x:^-?\d{1,}$)/
     },
-    'subject'        => {'allow' => qr/(?^x:^.{1,255}$)/},
+    'from_uid' => {
+        'required' => 1,
+        'defined'  => 1,
+        'allow'    => qr/(?^x:^-?\d{1,}$)/
+    },
+    'tstamp' => {
+        'required' => 1,
+        'defined'  => 1,
+        'allow'    => qr/(?^x:^-?\d{1,}$)/
+    },
+    'subject' => {
+        'required' => 1,
+        'defined'  => 1,
+        'allow'    => qr/(?^x:^.{1,255}$)/
+    },
     'id'             => {'allow' => qr/(?^x:^-?\d{1,}$)/},
     'message_assets' => {
         'allow'   => qr/(?^x:^.{1,}$)/,
@@ -79,6 +91,7 @@ Each column from table C<mess> has an accessor method in this class.
 L<DBIx::Simple::Class::Schema>
 
 =head1 SEE ALSO
+
 
 L<Ado::Model>, L<DBIx::Simple::Class>, L<DBIx::Simple::Class::Schema>
 

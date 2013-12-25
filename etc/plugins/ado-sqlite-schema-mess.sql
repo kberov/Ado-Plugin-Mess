@@ -9,10 +9,10 @@
 -- 'This table stores the messages between users'
 CREATE TABLE IF NOT EXISTS mess (
   id INTEGER PRIMARY KEY AUTOINCREMENT,
-  from_uid INTEGER REFERENCES users(id),
+  from_uid INTEGER REFERENCES users(id) NOT NULL,
   -- A comma separated list of user ids
-  to_uid INTEGER REFERENCES users(id),
-  subject VARCHAR(255),
+  to_uid INTEGER REFERENCES users(id) NOT NULL,
+  subject VARCHAR(255) NOT NULL,
   --  'last modification time'
   --  'All dates are stored as seconds since the epoch(1970) in GMT. In Perl we use gmtime as object from Time::Piece'
   tstamp INTEGER NOT NULL DEFAULT 0,
