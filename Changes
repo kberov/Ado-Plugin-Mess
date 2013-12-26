@@ -1,6 +1,7 @@
 Revision history for Ado-Plugin-Mess
 
-0.01  2013-12-24 20:50:40 CET
+0.01  2013-12-26 01:09:26 CET
+      - Implemented POST /mess and GET /mess/:id
       - Perl::Tidy: 80 columns only per row.
       - Writing  tests, removing boilerplate.
       - First version, released on an unsuspecting world.

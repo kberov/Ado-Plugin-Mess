@@ -9,10 +9,13 @@
 -- 'This table stores the messages between users'
 CREATE TABLE IF NOT EXISTS mess (
   id INTEGER PRIMARY KEY AUTOINCREMENT,
-  from_uid INTEGER REFERENCES users(id) NOT NULL,
+  from_uid INT(11) REFERENCES users(id) NOT NULL,
   -- A comma separated list of user ids
-  to_uid INTEGER REFERENCES users(id) NOT NULL,
-  subject VARCHAR(255) NOT NULL,
+  to_uid INT(11) REFERENCES users(id) NOT NULL,
+  -- Subject of the talk. Only the first message in a talk has a subject
+  subject VARCHAR(255) NOT NULL DEFAULT '',
+  -- Id of the first message in a talk. Every next message has this !=0.
+  subject_message_id INT(12) NOT NULL DEFAULT 0,
   --  'last modification time'
   --  'All dates are stored as seconds since the epoch(1970) in GMT. In Perl we use gmtime as object from Time::Piece'
   tstamp INTEGER NOT NULL DEFAULT 0,
@@ -22,4 +25,5 @@ CREATE TABLE IF NOT EXISTS mess (
   message_assets TEXT DEFAULT NULL
 );
 CREATE INDEX IF NOT EXISTS mess_subject ON mess(subject);
+CREATE INDEX IF NOT EXISTS mess_subject_message_id ON mess(subject_message_id);
 

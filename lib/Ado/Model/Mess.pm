@@ -10,8 +10,12 @@ my $TABLE_NAME = 'mess';
 
 sub TABLE       { return $TABLE_NAME }
 sub PRIMARY_KEY { return 'id' }
-my $COLUMNS = ['id', 'from_uid', 'to_uid', 'subject', 'tstamp', 'message',
-    'message_assets'];
+my $COLUMNS = [
+    'id',                 'from_uid',
+    'to_uid',             'subject',
+    'subject_message_id', 'tstamp',
+    'message',            'message_assets'
+];
 
 sub COLUMNS { return $COLUMNS }
 my $ALIASES = {};
@@ -21,12 +25,7 @@ my $CHECKS = {
     'to_uid' => {
         'required' => 1,
         'defined'  => 1,
-        'allow'    => qr/(?^x:^-?\d{1,}$)/
-    },
-    'from_uid' => {
-        'required' => 1,
-        'defined'  => 1,
-        'allow'    => qr/(?^x:^-?\d{1,}$)/
+        'allow'    => qr/(?^x:^-?\d{1,11}$)/
     },
     'tstamp' => {
         'required' => 1,
@@ -36,17 +35,47 @@ my $CHECKS = {
     'subject' => {
         'required' => 1,
         'defined'  => 1,
-        'allow'    => qr/(?^x:^.{1,255}$)/
+        'allow'    => qr/(?^x:^.{1,255}$)/,
+        'default'  => ''
     },
-    'id'             => {'allow' => qr/(?^x:^-?\d{1,}$)/},
     'message_assets' => {
         'allow'   => qr/(?^x:^.{1,}$)/,
         'default' => 'NULL'
     },
-    'message' => {'allow' => qr/(?^x:^.{1,}$)/}
+    'message'  => {'allow' => qr/(?^x:^.{1,}$)/},
+    'from_uid' => {
+        'required' => 1,
+        'defined'  => 1,
+        'allow'    => qr/(?^x:^-?\d{1,11}$)/
+    },
+    'subject_message_id' => {
+        'required' => 1,
+        'defined'  => 1,
+        'allow'    => qr/(?^x:^-?\d{1,12}$)/
+    },
+    'id' => {'allow' => qr/(?^x:^-?\d{1,}$)/}
 };
 
 sub CHECKS { return $CHECKS }
+
+
+sub create {
+    my $self = shift->new(@_);
+
+    #guess the talk by subject or subject_message_id
+    my $started_talk = $self->dbix->query(
+        "SELECT id FROM mess WHERE (subject=? OR id=?) AND subject!='' ",
+        $self->{subject}, $self->subject_message_id)->hash;
+    if ($started_talk && $started_talk->{id}) {#existing talk
+        $self->subject_message_id = $started_talk->{id};
+    }
+    else {
+        $self->subject_message_id(0);    # new talk
+    }
+    $self->insert;
+    return $self;
+}
+
 
 __PACKAGE__->QUOTE_IDENTIFIERS(0);
 
@@ -77,6 +106,8 @@ Each column from table C<mess> has an accessor method in this class.
 =head2 to_uid
 
 =head2 subject
+
+=head2 subject_message_id
 
 =head2 tstamp
 

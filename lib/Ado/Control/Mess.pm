@@ -1,6 +1,6 @@
 package Ado::Control::Mess;
 use Mojo::Base 'Ado::Control';
-
+use Time::Piece;
 
 #available messages on this system
 sub list {
@@ -32,13 +32,74 @@ sub list {
     );
 }
 
+#validation template for action add.
+my $add_input_validation_template = {
+    to_uid => {
+        'required' => 1,
+        like       => qr/^\d{1,11}$/
+    },
+    from_uid => {
+        'required' => 1,
+        like       => qr/^\d{1,11}$/
+    },
+    subject => {
+        'required' => 1,
+        like       => qr/^.{1,255}$/
+    },
+    subject_message_id => {
+        'required' => 1,
+        like       => qr/^\d{1,11}$/
+    },
+    message => {
+        'required' => 1,
+        like       => qr/^.{1,12345}$/
+    },
+    message_assets => {
+        'required' => 0,
+        like       => qr/^.{1,12345}$/
+    },
+};
 
+#Adds a new message. Status 204 on success, 400 on validate,5xx on faill
 sub add {
-    return shift->render(text => 'not implemented...');
+    my $c      = shift;
+    my $result = $c->validate_input($add_input_validation_template);
+
+    #400 Bad Request
+    return $c->render(
+        status => 400,
+        json   => $result->{json}
+    ) if $result->{errors};
+
+    my $message =
+      Ado::Model::Mess->create(%{$result->{output}}, tstamp => gmtime->epoch);
+
+    #TODO: Remove as much as possible hardcodding
+    $c->res->headers->location(
+        $c->url_for('messid', id => $message->id, format => 'json'));
+
+    #201 Created
+    return $c->render(status => 201, text => '');
 }
 
+
 sub show {
-    return shift->render(text => 'not implemented...');
+    my ($c)  = @_;
+    my $id   = $c->stash('id');
+    my $data = Ado::Model::Mess->find($id)->data;
+
+    #404 Not Found
+    return $c->render(
+        status => 404,
+        json   => {
+            code    => 404,
+            status  => 'error',
+            message => "The message with id $id was not found.",
+            data    => 'message_not_found'
+        }
+    ) unless $data;
+
+    return $c->render(json => {data => $data});
 }
 
 sub update {
@@ -95,7 +156,10 @@ L<http://www.w3.org/Protocols/rfc2616/rfc2616-sec14.html#sec14.14>.
 
 =head2 add
 
-Adds a message to the table mess. Not implemented yet
+Adds a message to the table mess. 
+Renders no content with status 201 and a C<Location> header 
+pointing to the new resourse so the user agent can fetch it eventually.
+See http://www.w3.org/Protocols/rfc2616/rfc2616-sec10.html#sec10.2.2
 
 =head2 show
 

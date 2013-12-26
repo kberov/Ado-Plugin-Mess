@@ -10,8 +10,9 @@ sub register {
     #Merge passed configuration with configuration
     #from  etc/ado.conf and etc/plugins/routes.conf
     $conf = {%{$self->config}, %{$conf ? $conf : {}}};
-    $app->log->debug(
-        'Plugin ' . $self->name . ' configuration:' . $app->dumper($conf));
+
+    #$app->log->debug(
+    #    'Plugin ' . $self->name . ' configuration:' . $app->dumper($conf));
 
     # My magic here! :)
     push @{$app->routes->namespaces}, @{$conf->{namespaces}}
