@@ -33,17 +33,13 @@ my $CHECKS = {
         'allow'    => qr/(?^x:^-?\d{1,}$)/
     },
     'subject' => {
-        'required' => 1,
-        'defined'  => 1,
-        'allow'    => qr/(?^x:^.{1,255}$)/,
-        'default'  => ''
+        'defined' => 1,
+        'allow'   => qr/(?^x:^.{0,255}$)/,
+        'default' => ''
     },
-    'message_assets' => {
-        'allow'   => qr/(?^x:^.{1,}$)/,
-        'default' => 'NULL'
-    },
-    'message'  => {'allow' => qr/(?^x:^.{1,}$)/},
-    'from_uid' => {
+    'message_assets' => {'allow' => qr/(?^x:^.{1,}$)/,},
+    'message'        => {'allow' => qr/(?^x:^.{1,}$)/},
+    'from_uid'       => {
         'required' => 1,
         'defined'  => 1,
         'allow'    => qr/(?^x:^-?\d{1,11}$)/
@@ -66,11 +62,12 @@ sub create {
     my $started_talk = $self->dbix->query(
         "SELECT id FROM mess WHERE (subject=? OR id=?) AND subject!='' ",
         $self->{subject}, $self->subject_message_id)->hash;
-    if ($started_talk && $started_talk->{id}) {#existing talk
-        $self->subject_message_id = $started_talk->{id};
+    if ($started_talk && $started_talk->{id}) {    #existing talk
+        $self->subject_message_id($started_talk->{id});
+        $self->subject('');
     }
     else {
-        $self->subject_message_id(0);    # new talk
+        $self->subject_message_id(0);              # new talk
     }
     $self->insert;
     return $self;

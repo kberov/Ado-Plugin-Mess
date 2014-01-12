@@ -10,7 +10,9 @@
 CREATE TABLE IF NOT EXISTS mess (
   id INTEGER PRIMARY KEY AUTOINCREMENT,
   from_uid INT(11) REFERENCES users(id) NOT NULL,
-  -- A comma separated list of user ids
+  -- A user id to which the message is sent. 
+  -- Can be a user group which has a record in the users table.
+  -- This way we can have group talks.
   to_uid INT(11) REFERENCES users(id) NOT NULL,
   -- Subject of the talk. Only the first message in a talk has a subject
   subject VARCHAR(255) NOT NULL DEFAULT '',
@@ -22,7 +24,9 @@ CREATE TABLE IF NOT EXISTS mess (
   -- the message it self
   message TEXT,
   -- File-names of Files attached to this message - TODO
-  message_assets TEXT DEFAULT NULL
+  message_assets TEXT DEFAULT NULL,
+  -- Who can edit this message - usually only the owner.
+  permissions VARCHAR(10) NOT NULL DEFAULT '-rw-r-----' 
 );
 CREATE INDEX IF NOT EXISTS mess_subject ON mess(subject);
 CREATE INDEX IF NOT EXISTS mess_subject_message_id ON mess(subject_message_id);

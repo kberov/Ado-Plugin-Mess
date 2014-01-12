@@ -1,6 +1,8 @@
 Revision history for Ado-Plugin-Mess
 
 0.01  2013-12-26 01:09:26 CET
+      - Added new column "permissions" in table mess.
+        TODO: See permissions in MYDLjE
       - Implemented POST /mess and GET /mess/:id
       - Perl::Tidy: 80 columns only per row.
       - Writing  tests, removing boilerplate.

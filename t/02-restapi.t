@@ -90,19 +90,18 @@ $T->post_ok(
   ->content_like(qr/"message"\:\{"to_uid"\:\["like"/x,
     'erros ok: to_uid is not alike ');
 
-my $messages = 10;
-
-$T->post_ok(
-    '/mess',
-    form => {
-        from_uid           => 3,
-        to_uid             => 4,
-        subject            => 'Какъв приятен разговор',
-        subject_message_id => 0,
-        message            => 'Здравей, Приятел!'
-    }
-  )->status_is('201', 'ok 201 - Created')
-  ->header_is(Location => '/mess/1.json')->content_is('');
+for my $id (1, 3, 5, 7, 9, 11, 13, 15, 17, 19, 21) {
+    $T->post_ok(
+        '/mess',
+        form => {
+            from_uid => 3,
+            to_uid   => 4,
+            subject  => 'Какъв приятен разговор',
+            subject_message_id => ($id == 1 ? 0 : 1),    #same talk
+            message => "Здравей, Приятел! $id"
+        }
+      )->status_is('201', 'ok 201 - Created')
+      ->header_is(Location => "/mess/$id.json")->content_is('');
 
 =pod
 {   route  => '/mess/:id',
@@ -112,19 +111,59 @@ $T->post_ok(
 },
 =cut
 
-$T->get_ok('/mess/1')->status_is('200', 'Status is 200')
-  ->json_is('/data/message', 'Здравей, Приятел!','ok created');
+    $T->get_ok("/mess/$id.json")->status_is('200', 'Status is 200')->json_is(
+        '/data/message',
+        "Здравей, Приятел! $id",
+        "ok created $id"
+    );
+    my $next = $id + 1;
 
-#=pod
-#{   route  => '/mess/:id',
-#    params => {id => qr/\d+/},
-#    via    => ['PUT'],
-#    to     => 'mess#update',
-#},
-#=cut
+    #reply from a friend
+    $T->post_ok(
+        '/mess',
+        form => {
+            to_uid             => 4,
+            from_uid           => 3,
+            subject            => 'Какъв приятен разговор',
+            subject_message_id => 1,
+            message            => "Oh, salut mon ami! $next"
+        }
+      )->status_is('201', 'ok 201 - Created')
+      ->header_is(Location => "/mess/$next.json")->content_is('');
 
-#$T->put_ok('/mess/' . int(rand($messages)))->status_is('200', 'Status is 200')
-#  ->content_is('not implemented...', 'ok not implemented...yet');
+}    # end for my $id
+
+=pod
+{   route  => '/mess/:id',
+    params => {id => qr/\d+/},
+    via    => ['PUT'],
+    to     => 'messupdate',
+},
+=cut
+
+$T->put_ok(
+    '/mess/5',
+    form => {
+        to_uid             => 4,
+        from_uid           => 3,
+        subject            => 'Какъв приятен разговор',
+        subject_message_id => 1,
+        message            => "Let's speak some English."
+    }
+)->status_is('204', 'Status is 204')->content_is('', 'ok updated /mess/5.json');
+
+$T->get_ok('/mess/5.json')->status_is('200', 'Status is 200')
+->json_is(
+    '/data/message',  "Let's speak some English.", 'ok message 5 is updated')
+->json_is(
+    '/data/to_uid',  4, 'ok message 5 to_uid is unchanged')
+->json_is(
+    '/data/from_uid',  3, 'ok message 5 from_uid is unchanged')
+->json_is(#becuse it belongs to a talk with id 1
+    '/data/subject',  '', 'ok message 5 subject is empty')
+->json_is(
+    '/data/subject_message_id',  1, 
+    'ok message 5 subject_message_id is unchanged');
 
 #=pod
 #{   route  => '/mess/:id',

@@ -60,7 +60,7 @@ my $add_input_validation_template = {
     },
 };
 
-#Adds a new message. Status 204 on success, 400 on validate,5xx on faill
+#Adds a new message. Status 201 on success, 400 on validate,5xx on faill
 sub add {
     my $c      = shift;
     my $result = $c->validate_input($add_input_validation_template);
@@ -95,15 +95,53 @@ sub show {
             code    => 404,
             status  => 'error',
             message => "The message with id $id was not found.",
-            data    => 'message_not_found'
+            data    => 'resource_not_found'
         }
     ) unless $data;
 
-    return $c->render(json => {data => $data});
+    return $c->render(
+        status => 200,
+        json   => {
+            code   => 200,
+            status => 'success',
+            data   => $data
+        }
+    );
 }
 
 sub update {
-    return shift->render(text => 'not implemented...');
+    my ($c) = @_;
+    my $id   = $c->stash('id');
+    my $mess = Ado::Model::Mess->find($id);
+    my $data = $mess->data;
+
+    #404 Not Found
+    return $c->render(
+        status => 404,
+        json   => {
+            code    => 404,
+            status  => 'error',
+            message => "The message with id $id was not found.",
+            data    => 'resource_not_found'
+        }
+    ) unless $data;
+    $c->debug('$data:',$c->dumper($data));
+    #Only the message can be updated. This logic belongs to the model maybe?!?
+    my $update_template ={
+      message=>$$add_input_validation_template{message},
+    };
+    
+    my $result = $c->validate_input($update_template);
+
+    #400 Bad Request
+    return $c->render(
+        status => 400,
+        json   => $result->{json}
+    ) if $result->{errors};
+
+
+    $mess->save(%{$result->{output}}, tstamp => gmtime->epoch);
+    return shift->render(status => 204, text => '');
 }
 
 sub disable {
