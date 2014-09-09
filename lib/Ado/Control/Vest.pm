@@ -1,4 +1,4 @@
-package Ado::Control::Mess;
+package Ado::Control::Vest;
 use Mojo::Base 'Ado::Control';
 use Time::Piece;
 
@@ -27,7 +27,7 @@ sub list {
     return $c->respond_to(
         json => $c->list_for_json(
             [$$args{limit}, $$args{offset}],
-            [Ado::Model::Mess->select_range($$args{limit}, $$args{offset})]
+            [Ado::Model::Vest->select_range($$args{limit}, $$args{offset})]
         )
     );
 }
@@ -72,7 +72,7 @@ sub add {
     ) if $result->{errors};
 
     my $message =
-      Ado::Model::Mess->create(%{$result->{output}}, tstamp => gmtime->epoch);
+      Ado::Model::Vest->create(%{$result->{output}}, tstamp => gmtime->epoch);
 
     #TODO: Remove as much as possible hardcodding
     $c->res->headers->location(
@@ -86,7 +86,7 @@ sub add {
 sub show {
     my ($c)  = @_;
     my $id   = $c->stash('id');
-    my $data = Ado::Model::Mess->find($id)->data;
+    my $data = Ado::Model::Vest->find($id)->data;
 
     #404 Not Found
     return $c->render(
@@ -112,7 +112,7 @@ sub show {
 sub update {
     my ($c) = @_;
     my $id   = $c->stash('id');
-    my $mess = Ado::Model::Mess->find($id);
+    my $mess = Ado::Model::Vest->find($id);
     my $data = $mess->data;
 
     #404 Not Found
@@ -156,7 +156,7 @@ sub disable {
 
 =head1 NAME
 
-Ado::Control::Mess - The controller to manage messages. 
+Ado::Control::Vest - The controller to manage messages. 
 
 =head1 SYNOPSIS
 
@@ -171,12 +171,12 @@ Ado::Control::Mess - The controller to manage messages.
 
 =head1 DESCRIPTION
 
-Ado::Control::Mess is the controller class for the end-users' 
+Ado::Control::Vest is the controller class for the end-users' 
 Ado messaging system.
 
 =head1 ATTRIBUTES
 
-L<Ado::Control::Mess> inherits all the attributes from 
+L<Ado::Control::Vest> inherits all the attributes from 
 <Ado::Control> and defines the following ones.
 
 =head1 METHODS/ACTIONS

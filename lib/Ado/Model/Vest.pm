@@ -1,4 +1,4 @@
-package Ado::Model::Mess;    #A table/row class
+package Ado::Model::Vest;    #A table/row class
 use 5.010001;
 use strict;
 use warnings;

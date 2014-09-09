@@ -1,4 +1,4 @@
-package Ado::Plugin::Mess;
+package Ado::Plugin::Vest;
 use Mojo::Base qw(Ado::Plugin);
 use Mojo::Util qw(decamelize slurp);
 our $VERSION = '0.01';
@@ -47,7 +47,7 @@ sub _create_table {
 
 =head1 NAME
 
-Ado::Plugin::Mess - Messaging services for an Ado system!
+Ado::Plugin::Vest - Vestaging services for an Ado system!
 
 =head1 DESCRIPTION
 
@@ -71,11 +71,11 @@ TODO
 
 =head1 ATTRIBUTES
 
-Ado::Plugin::Mess inherits all atributes from L<Ado::Plugin>.
+Ado::Plugin::Vest inherits all atributes from L<Ado::Plugin>.
 
 =head1 METHODS
 
-Ado::Plugin::Mess implements the following methods.
+Ado::Plugin::Vest implements the following methods.
 
 =head2 register
 

@@ -1,5 +1,5 @@
 /**
-  This SQL script creates the table mess in an 
+  This SQL script creates the table vest in an 
   existing ado.sqlite database.
   The following pragmas should be set by DSC plugin
   PRAGMA encoding = "UTF-8"; 
@@ -7,7 +7,7 @@
 */
 
 -- 'This table stores the messages between users'
-CREATE TABLE IF NOT EXISTS mess (
+CREATE TABLE IF NOT EXISTS vest (
   id INTEGER PRIMARY KEY AUTOINCREMENT,
   from_uid INT(11) REFERENCES users(id) NOT NULL,
   -- A user id to which the message is sent. 
