@@ -1,12 +1,12 @@
 NAME
-    Ado::Plugin::Mess - Messaging services for an Ado system!
+    Ado::Plugin::Vest - Vestaging services for an Ado system!
 
 DESCRIPTION
     TODO
 
 SYNOPSIS
-      # To use this plugin add it to etc/ado.conf 
-      #plugins section *after* DSC plugin.
+      # To enable this plugin after installation add it to etc/ado.conf 
+      #"plugins" section *after* DSC plugin.
       plugins => [
         {name => 'charset', config => {charset => 'UTF-8'}},
         {   name   => 'DSC',
@@ -14,18 +14,18 @@ SYNOPSIS
             },
         },
         #...
-        {name => 'mess', config => {}},
+        {name => 'vest', config => {...}},
         #...
      ],
 
 ATTRIBUTES
-    Ado::Plugin::Mess inherits all atributes from Ado::Plugin.
+    Ado::Plugin::Vest inherits all atributes from Ado::Plugin.
 
 METHODS
-    Ado::Plugin::Mess implements the following methods.
+    Ado::Plugin::Vest implements the following methods.
 
   register
-    Loads routes described in "etc/plugins/mess.conf".
+    Loads routes described in "etc/plugins/vest.conf".
 
 SPONSORS
     The original author

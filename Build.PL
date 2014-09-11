@@ -8,7 +8,6 @@ my $builder = Ado::BuildPlugin->new(
     module_name        => 'Ado::Plugin::Vest',
     license            => 'lgpl_3_0',
     dist_version_from  => 'lib/Ado/Plugin/Vest.pm',
-    create_license     => 1,
     create_readme      => 1,
     dist_author        => q{Красимир Беров <berov@cpan.org>},
     release_status     => 'unstable',
