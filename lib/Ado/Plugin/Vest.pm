@@ -1,36 +1,25 @@
 package Ado::Plugin::Vest;
 use Mojo::Base qw(Ado::Plugin);
 use Mojo::Util qw(decamelize slurp);
-our $VERSION = '0.01';
+File::Spec::Functions->import(qw(catfile));
+
+our $VERSION = '0.02';
 
 sub register {
-    my ($self, $app, $conf) = @_;
-    $self->app($app);    #!Needed in $self->config!
-
-    #Merge passed configuration with configuration
-    #from  etc/ado.conf and etc/plugins/routes.conf
-    $conf = {%{$self->config}, %{$conf ? $conf : {}}};
-
-    #$app->log->debug(
-    #    'Plugin ' . $self->name . ' configuration:' . $app->dumper($conf));
-
-    # My magic here! :)
-    push @{$app->routes->namespaces}, @{$conf->{namespaces}}
-      if @{$conf->{namespaces} || []};
+    my ($self, $app, $conf) = shift->initialise(@_);
     $self->_create_table($app, $conf);
-    $app->load_routes($conf->{routes});
     return $self;
 }
 
 sub _create_table {
     my ($self, $app, $conf) = @_;
     my $dbix = $app->dbix;
-    my $table = $dbix->dbh->table_info(undef, undef, 'vest', "'TABLE'")
-      ->fetchall_arrayref({});
+    my $table =
+      $dbix->dbh->table_info(undef, undef, 'vest', "'TABLE'")->fetchall_arrayref({});
 
     #Always execute this file because we may have table changes
-    my $sql_file = $conf->{vest_schema_sql_file};
-    my $SQL      = slurp($sql_file);
+    my $sql_file = catfile($self->config_dir, $conf->{vest_schema_sql_file});
+    my $SQL = slurp($sql_file);
 
     #Remove multiline comments
     $SQL =~ s|/\*.+\*/||gsmx;

@@ -1,10 +1,12 @@
+.perltidyrc
 Build.PL
 Changes
-etc/plugins/ado-sqlite-schema-mess.sql
-etc/plugins/mess.conf
-lib/Ado/Control/Mess.pm
-lib/Ado/Model/Mess.pm
-lib/Ado/Plugin/Mess.pm
+etc/plugins/ado-sqlite-schema-vest.sql
+etc/plugins/routes.conf
+etc/plugins/vest.conf
+lib/Ado/Control/Vest.pm
+lib/Ado/Model/Vest.pm
+lib/Ado/Plugin/Vest.pm
 LICENSE
 MANIFEST			This list of files
 META.json
@@ -13,7 +15,12 @@ README
 t/.perlcriticrc
 t/.perltidyrc
 t/00-load.t
+t/01-basic.t
+t/02-restapi.t
 t/boilerplate.t
+t/etc/ado.conf
+t/etc/ado.sqlite
+t/log/development.log
 t/manifest.t
 t/perl-critic.t
 t/pod-coverage.t

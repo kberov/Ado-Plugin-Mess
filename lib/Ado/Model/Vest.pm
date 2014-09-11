@@ -6,15 +6,13 @@ use utf8;
 use parent qw(Ado::Model);
 
 sub is_base_class { return 0 }
-my $TABLE_NAME = 'mess';
+my $TABLE_NAME = 'vest';
 
 sub TABLE       { return $TABLE_NAME }
 sub PRIMARY_KEY { return 'id' }
 my $COLUMNS = [
-    'id',                 'from_uid',
-    'to_uid',             'subject',
-    'subject_message_id', 'tstamp',
-    'message',            'message_assets'
+    'id',                 'from_uid', 'to_uid',  'subject',
+    'subject_message_id', 'tstamp',   'message', 'message_assets'
 ];
 
 sub COLUMNS { return $COLUMNS }
@@ -59,8 +57,8 @@ sub create {
     my $self = shift->new(@_);
 
     #guess the talk by subject or subject_message_id
-    my $started_talk = $self->dbix->query(
-        "SELECT id FROM mess WHERE (subject=? OR id=?) AND subject!='' ",
+    my $started_talk =
+      $self->dbix->query("SELECT id FROM vest WHERE (subject=? OR id=?) AND subject!='' ",
         $self->{subject}, $self->subject_message_id)->hash;
     if ($started_talk && $started_talk->{id}) {    #existing talk
         $self->subject_message_id($started_talk->{id});
@@ -86,7 +84,7 @@ __PACKAGE__->QUOTE_IDENTIFIERS(0);
 
 =head1 NAME
 
-A class for TABLE mess in schema main
+A class for TABLE vest in schema main
 
 =head1 SYNOPSIS
 
@@ -94,7 +92,7 @@ A class for TABLE mess in schema main
 
 =head1 COLUMNS
 
-Each column from table C<mess> has an accessor method in this class.
+Each column from table C<vest> has an accessor in this class.
 
 =head2 id
 
@@ -112,7 +110,10 @@ Each column from table C<mess> has an accessor method in this class.
 
 =head2 message_assets
 
-=head1 ALIASES
+=head1 METHODS
+
+=head2 create
+
 
 =head1 GENERATOR
 

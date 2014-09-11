@@ -75,8 +75,7 @@ sub add {
       Ado::Model::Vest->create(%{$result->{output}}, tstamp => gmtime->epoch);
 
     #TODO: Remove as much as possible hardcodding
-    $c->res->headers->location(
-        $c->url_for('messid', id => $message->id, format => 'json'));
+    $c->res->headers->location($c->url_for('messid', id => $message->id, format => 'json'));
 
     #201 Created
     return $c->render(status => 201, text => '');
@@ -110,7 +109,7 @@ sub show {
 }
 
 sub update {
-    my ($c) = @_;
+    my ($c)  = @_;
     my $id   = $c->stash('id');
     my $vest = Ado::Model::Vest->find($id);
     my $data = $vest->data;
@@ -125,12 +124,11 @@ sub update {
             data    => 'resource_not_found'
         }
     ) unless $data;
-    $c->debug('$data:',$c->dumper($data));
+    $c->debug('$data:', $c->dumper($data));
+
     #Only the message can be updated. This logic belongs to the model maybe?!?
-    my $update_template ={
-      message=>$$add_input_validation_template{message},
-    };
-    
+    my $update_template = {message => $$add_input_validation_template{message},};
+
     my $result = $c->validate_input($update_template);
 
     #400 Bad Request
