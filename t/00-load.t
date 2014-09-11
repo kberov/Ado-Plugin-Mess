@@ -25,19 +25,19 @@ for my $file (@files) {
 
     use_ok($module) || diag $@;
 }
-isa_ok('Ado::Plugin::Mess', 'Ado::Plugin');
+isa_ok('Ado::Plugin::Vest', 'Ado::Plugin');
 
 for (qw(register config name app)) {
-    can_ok('Ado::Plugin::Mess', $_);
+    can_ok('Ado::Plugin::Vest', $_);
 }
 
-isa_ok('Ado::Control::Mess', 'Ado::Control');
+isa_ok('Ado::Control::Vest', 'Ado::Control');
 
 for (qw(list add update show disable)) {
-    can_ok('Ado::Control::Mess', $_);
+    can_ok('Ado::Control::Vest', $_);
 }
 
 
-diag("Testing loading of Ado $Ado::Plugin::Mess::VERSION, Perl $], $^X");
+diag("Testing loading of Ado $Ado::Plugin::Vest::VERSION, Perl $], $^X");
 
 done_testing();
