@@ -112,8 +112,8 @@ sub show {
 sub update {
     my ($c) = @_;
     my $id   = $c->stash('id');
-    my $mess = Ado::Model::Vest->find($id);
-    my $data = $mess->data;
+    my $vest = Ado::Model::Vest->find($id);
+    my $data = $vest->data;
 
     #404 Not Found
     return $c->render(
@@ -140,7 +140,7 @@ sub update {
     ) if $result->{errors};
 
 
-    $mess->save(%{$result->{output}}, tstamp => gmtime->epoch);
+    $vest->save(%{$result->{output}}, tstamp => gmtime->epoch);
     return shift->render(status => 204, text => '');
 }
 
@@ -161,13 +161,13 @@ Ado::Control::Vest - The controller to manage messages.
 =head1 SYNOPSIS
 
   #in your browser go to
-  http://your-host/mess/list
+  http://your-host/вест/list
   #or
-  http://your-host/mess
+  http://your-host/вест
   #and
-  http://your-host/mess/edit/$id
+  http://your-host/вест/edit/$id
   #and
-  http://your-host/mess/add
+  http://your-host/вест/add
 
 =head1 DESCRIPTION
 
@@ -186,7 +186,7 @@ L<Ado::Control::Vest> inherits all the attributes from
 Displays the messages this system has.
 Uses the request parameters C<limit> and C<offset> to display a range of items
 starting at C<offset> and ending at C<offset>+C<limit>.
-This method serves the resource C</mess/list.json>.
+This method serves the resource C</вест/list.json>.
 If other format is requested returns status 415 with C<Content-location> header
 pointing to the proper URI.
 See L<http://www.w3.org/Protocols/rfc2616/rfc2616-sec10.html#sec10.4.16> and
@@ -194,7 +194,7 @@ L<http://www.w3.org/Protocols/rfc2616/rfc2616-sec14.html#sec14.14>.
 
 =head2 add
 
-Adds a message to the table mess. 
+Adds a message to the table vest. 
 Renders no content with status 201 and a C<Location> header 
 pointing to the new resourse so the user agent can fetch it eventually.
 See http://www.w3.org/Protocols/rfc2616/rfc2616-sec10.html#sec10.2.2
@@ -229,7 +229,7 @@ L<Mojolicious::Guides::Growing/Controller_class>
 
 =head1 COPYRIGHT AND LICENSE
 
-Copyright 2013 Красимир Беров (Krasimir Berov).
+Copyright 2013-2014 Красимир Беров (Krasimir Berov).
 
 This program is free software, you can redistribute it and/or
 modify it under the terms of the 

@@ -5,7 +5,7 @@ use File::Spec::Functions qw(catdir);
 use Ado::BuildPlugin;
 
 my $builder = Ado::BuildPlugin->new(
-    module_name        => 'Ado::Plugin::Mess',
+    module_name        => 'Ado::Plugin::Vest',
     license            => 'lgpl_3_0',
     dist_version_from  => 'lib/Ado/Plugin/Vest.pm',
     create_license     => 1,

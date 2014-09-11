@@ -25,11 +25,11 @@ sub register {
 sub _create_table {
     my ($self, $app, $conf) = @_;
     my $dbix = $app->dbix;
-    my $table = $dbix->dbh->table_info(undef, undef, 'mess', "'TABLE'")
+    my $table = $dbix->dbh->table_info(undef, undef, 'vest', "'TABLE'")
       ->fetchall_arrayref({});
 
     #Always execute this file because we may have table changes
-    my $sql_file = $conf->{mess_schema_sql_file};
+    my $sql_file = $conf->{vest_schema_sql_file};
     my $SQL      = slurp($sql_file);
 
     #Remove multiline comments
@@ -65,7 +65,7 @@ TODO
         },
     },
     #...
-    {name => 'mess', config => {...}},
+    {name => 'vest', config => {...}},
     #...
  ],
 
@@ -79,7 +79,7 @@ Ado::Plugin::Vest implements the following methods.
 
 =head2 register
 
-Loads routes described in C<etc/plugins/mess.conf>.
+Loads routes described in C<etc/plugins/vest.conf>.
 
 
 =head1 SPONSORS
