@@ -5,7 +5,7 @@ use Time::Piece;
 #available messages on this system
 sub list {
     my $c = shift;
-    $c->require_formats(['json']) || return;
+    $c->require_formats('json') || return;
     my $args = Params::Check::check(
         {   limit => {
                 allow => sub { $_[0] =~ /^\d+$/ ? 1 : ($_[0] = 20); }
@@ -64,10 +64,10 @@ my $add_input_validation_template = {
 sub add {
     my $c      = shift;
     my $result = $c->validate_input($add_input_validation_template);
-
+    $c->debug($c->dumper($result));
     #400 Bad Request
     return $c->render(
-        status => 400,
+        status => $result->{json}{code},
         json   => $result->{json}
     ) if $result->{errors};
 
