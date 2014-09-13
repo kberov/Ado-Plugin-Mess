@@ -70,7 +70,7 @@
 ^MANIFEST\.SKIP
 
 # Avoid archives of this distribution
-\bAdo-[\d\.\_]+
+\bAdo-Plugin-Vest-[\d\.\_]+
 
 #Avoid backups made by SQLite Manager
 \betc/ado_\d+\.sqlite
