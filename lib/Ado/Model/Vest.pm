@@ -11,8 +11,9 @@ my $TABLE_NAME = 'vest';
 sub TABLE       { return $TABLE_NAME }
 sub PRIMARY_KEY { return 'id' }
 my $COLUMNS = [
-    'id',                 'from_uid', 'to_uid', 'to_guid', 'subject',
-    'subject_message_id', 'tstamp',   'message', 'message_assets'
+    'id',      'from_uid',           'to_uid', 'to_guid',
+    'subject', 'subject_message_id', 'tstamp', 'message',
+    'message_assets'
 ];
 
 sub COLUMNS { return $COLUMNS }
@@ -20,13 +21,9 @@ my $ALIASES = {};
 
 sub ALIASES { return $ALIASES }
 my $CHECKS = {
-    'to_uid' => {
-        'allow'    => qr/(?^x:^-?\d{1,11}$)/
-    },
-    'to_guid' => {
-        'allow'    => qr/(?^x:^-?\d{1,11}$)/
-    },
-    'tstamp' => {
+    'to_uid'  => {'allow' => qr/(?^x:^-?\d{1,11}$)/},
+    'to_guid' => {'allow' => qr/(?^x:^-?\d{1,11}$)/},
+    'tstamp'  => {
         'required' => 1,
         'defined'  => 1,
         'allow'    => qr/(?^x:^-?\d{1,}$)/

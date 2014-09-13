@@ -65,6 +65,7 @@ sub add {
     my $c      = shift;
     my $result = $c->validate_input($add_input_validation_template);
     $c->debug($c->dumper($result));
+
     #400 Bad Request
     return $c->render(
         status => $result->{json}{code},
