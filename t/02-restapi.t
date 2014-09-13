@@ -2,43 +2,41 @@
 use Mojo::Base -strict;
 use Test::More;
 use Test::Mojo;
-
-my $t = Test::Mojo->new('Ado');
+use Mojo::Util qw(decode);
+my $OE  = $^O =~ /win/i ? 'cp866' : 'utf8';
+my $t   = Test::Mojo->new('Ado');
 my $app = $t->app;
-isa_ok($app->plugin('vest'), 'Ado::Plugin::Vest');
 my $dbh = $app->dbix->dbh;
+ok($dbh->do('DROP TABLE IF EXISTS vest'), "Table vest was dropped.");
+
+# Remove generic routes (for this test only) so newly generated routes can match.
+$app->routes->find('controller')->remove();
+$app->routes->find('controlleraction')->remove();
+$app->routes->find('controlleractionid')->remove();
+
+isa_ok($app->plugin('vest'), 'Ado::Plugin::Vest');
+
 
 #make sure the vest table is empty
-ok($dbh->do('DROP TABLE IF EXISTS vest'), "Table vest was dropped.");
+#ok($dbh->do('DROP TABLE IF EXISTS vest'), "Table vest was dropped.");
 
 #reload
 #{route => '/вест', via => ['GET'],  to => 'vest#list',}
 #no format
 $t->get_ok('/вест')->status_is('415', '415 - Unsupported Media Type ')
-  ->content_type_is('text/html;charset=UTF-8')->header_like(
-    'Content-Location' => qr|http\://localhost\:\d+/вест.json|x,
-    'Content-Location points to /вест.json'
-  )->content_like(qr|http://localhost:\d+/вест.json</a>\!|x, 'Error page points to /вест.json');
+  ->content_type_is('text/html;charset=UTF-8')->header_like('Content-Location' => qr|\.json$|x)
+  ->content_like(qr|\.json</a>\!|x);
 $t->get_ok('/вест/list')->status_is('404', '404 Not Found');
 
-#with format
-$t->get_ok('/вест.json')->status_is('200', 'Status is 200')->content_type_is('application/json')
-  ->json_has('/data')->json_has('/links')
-  ->json_is('/links/0/rel' => 'self', '/links/0/rel is self')->json_is(
-    '/links/0/href' => '/вест.json?limit=20&offset=0',
-    '/links/0/href is /вест.json?limit=20&offset=0'
-  )->json_is('/links/1' => undef, '/links/2 is not present')
 
-  ->json_is('/links/2' => undef, '/links/2 is not present')
-  ->json_is('/data'    => [],    '/data is empty')->json_is(
-    {   links => [
-            {   rel  => 'self',
-                href => '/вест.json?limit=20&offset=0',
-            }
-        ],
-        data => []
-    }
-  );
+#with format
+$t->get_ok('/вест.json')->status_is('200', 'Status is 200')
+  ->content_type_is('application/json')->json_has('/data')->json_has('/links')
+  ->json_is('/links/0/rel' => 'self', '/links/0/rel is self')
+  ->json_like('/links/0/href' => qr'\.json\?limit=20\&offset=0')
+  ->json_is('/links/1' => undef, '/links/1 is not present')
+  ->json_is('/data'    => [],    '/data is empty');
+
 
 #Play with several messages.
 #{route => '/вест', via => ['POST'], to => 'vest#add',},
@@ -57,9 +55,22 @@ $t->post_ok(
         'data'    => 'validate_input',
         'message' => {'to_uid' => ['required'],},
         'status'  => 'error'
-    },
-    'erros ok: to_uid is required '
+    }
   );
+
+# fixed bug - missing "required" validation on second POST
+$t->post_ok(
+    '/вест',
+    form => {
+        from_uid           => 3,
+        subject_message_id => 0,
+
+        #to_uid   => 4,
+        subject => 'Какъв приятен разговор!',
+        message => 'Здравей, Приятел!'
+    }
+)->status_is('400', 'Status is 400');
+
 $t->post_ok(
     '/вест',
     form => {
@@ -69,21 +80,23 @@ $t->post_ok(
         subject            => 'Какъв приятен разговор!',
         message            => 'Здравей, Приятел!'
     }
-  )->status_is('400', 'Status is 400')
+  )->status_is('400', 'Status is 400')->json_is('/message/to_uid/0/', 'like')
   ->content_like(qr/"message"\:\{"to_uid"\:\["like"/x, 'erros ok: to_uid is not alike ');
-
-for my $id (1, 3, 5, 7, 9, 11, 13, 15, 17, 19, 21) {
+my $s_m_id = 0;
+for my $id (1, 3, 5) {
     $t->post_ok(
         '/вест',
         form => {
             from_uid           => 3,
             to_uid             => 4,
-            subject            => 'Какъв приятен разговор',
-            subject_message_id => ($id == 1 ? 0 : 1),                             #same talk
+            subject            => 'разговор' . time,
+            subject_message_id => $s_m_id,                                # 0=>same talk
             message            => "Здравей, Приятел! $id"
         }
-      )->status_is('201', 'ok 201 - Created')->header_is(Location => "/вест/$id.json")
+      )->status_is('201', 'ok 201 - Created')->header_like(Location => qr/\/id\/\d+/)
       ->content_is('');
+    ($s_m_id) = $t->tx->res->headers->header('Location') =~ qr/\/id\/(\d+)/
+      unless $s_m_id;
 
 =pod
 {   route  => '/вест/:id',
@@ -97,6 +110,8 @@ for my $id (1, 3, 5, 7, 9, 11, 13, 15, 17, 19, 21) {
       ->json_is('/data/message', "Здравей, Приятел! $id", "ok created $id");
     my $next = $id + 1;
 
+#=pod
+
     #reply from a friend
     $t->post_ok(
         '/вест',
@@ -104,11 +119,13 @@ for my $id (1, 3, 5, 7, 9, 11, 13, 15, 17, 19, 21) {
             to_uid             => 4,
             from_uid           => 3,
             subject            => 'Какъв приятен разговор',
-            subject_message_id => 1,
+            subject_message_id => $s_m_id,
             message            => "Oh, salut mon ami! $next"
         }
-      )->status_is('201', 'ok 201 - Created')->header_is(Location => "/вест/$next.json")
+      )->status_is('201', 'ok 201 - Created')->header_like(Location => qr"/id/$next")
       ->content_is('');
+
+#=cut
 
 }    # end for my $id
 
@@ -118,7 +135,6 @@ for my $id (1, 3, 5, 7, 9, 11, 13, 15, 17, 19, 21) {
     via    => ['PUT'],
     to     => 'messupdate',
 },
-=cut
 
 $t->put_ok(
     '/вест/5',
@@ -138,6 +154,7 @@ $t->get_ok('/вест/5.json')->status_is('200', 'Status is 200')
   ->json_is(    #becuse it belongs to a talk with id 1
     '/data/subject', '', 'ok message 5 subject is empty'
   )->json_is('/data/subject_message_id', 1, 'ok message 5 subject_message_id is unchanged');
+=cut
 
 #=pod
 #{   route  => '/вест/:id',

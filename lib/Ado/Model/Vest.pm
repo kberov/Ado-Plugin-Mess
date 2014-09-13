@@ -21,8 +21,8 @@ my $ALIASES = {};
 
 sub ALIASES { return $ALIASES }
 my $CHECKS = {
-    'to_uid'  => {'allow' => qr/(?^x:^-?\d{1,11}$)/},
-    'to_guid' => {'allow' => qr/(?^x:^-?\d{1,11}$)/},
+    'to_uid'  => {default => 0, 'allow' => qr/(?^x:^-?\d{1,11}$)/},
+    'to_guid' => {default => 0, 'allow' => qr/(?^x:^-?\d{1,11}$)/},
     'tstamp'  => {
         'required' => 1,
         'defined'  => 1,

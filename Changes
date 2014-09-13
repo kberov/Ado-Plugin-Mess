@@ -1,7 +1,8 @@
 Revision history for Ado-Plugin-Vest
-0.02 2014-09-13
+0.02 2014-09-14
     - Renamed Ado-Plugin-Mess to Ado-Plugin-Vest.
     - Lots of cleanups.
+    - Refactored tests.
 
 0.01 2013-12-26 01:09:26 CET
     - Added new column "permissions" in table mess.

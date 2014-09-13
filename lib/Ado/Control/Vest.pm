@@ -34,11 +34,11 @@ sub list {
 
 #validation template for action add.
 my $add_input_validation_template = {
-    to_uid => {
+    from_uid => {
         'required' => 1,
         like       => qr/^\d{1,11}$/
     },
-    from_uid => {
+    to_uid => {
         'required' => 1,
         like       => qr/^\d{1,11}$/
     },
@@ -64,7 +64,8 @@ my $add_input_validation_template = {
 sub add {
     my $c      = shift;
     my $result = $c->validate_input($add_input_validation_template);
-    $c->debug($c->dumper($result));
+    $c->debug('$add_input_validation_template:' . $c->dumper($add_input_validation_template));
+    $c->debug('$result:' . $c->dumper($result));
 
     #400 Bad Request
     return $c->render(
@@ -76,7 +77,8 @@ sub add {
       Ado::Model::Vest->create(%{$result->{output}}, tstamp => gmtime->epoch);
 
     #TODO: Remove as much as possible hardcodding
-    $c->res->headers->location($c->url_for('messid', id => $message->id, format => 'json'));
+    $c->res->headers->location(
+        $c->url_for('/' . $c->current_route . '/id/' . $message->id => format => 'json'));
 
     #201 Created
     return $c->render(status => 201, text => '');
