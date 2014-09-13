@@ -11,7 +11,7 @@ my $TABLE_NAME = 'vest';
 sub TABLE       { return $TABLE_NAME }
 sub PRIMARY_KEY { return 'id' }
 my $COLUMNS = [
-    'id',                 'from_uid', 'to_uid',  'subject',
+    'id',                 'from_uid', 'to_uid', 'to_guid', 'subject',
     'subject_message_id', 'tstamp',   'message', 'message_assets'
 ];
 
@@ -21,8 +21,9 @@ my $ALIASES = {};
 sub ALIASES { return $ALIASES }
 my $CHECKS = {
     'to_uid' => {
-        'required' => 1,
-        'defined'  => 1,
+        'allow'    => qr/(?^x:^-?\d{1,11}$)/
+    },
+    'to_guid' => {
         'allow'    => qr/(?^x:^-?\d{1,11}$)/
     },
     'tstamp' => {
@@ -35,7 +36,7 @@ my $CHECKS = {
         'allow'   => qr/(?^x:^.{0,255}$)/,
         'default' => ''
     },
-    'message_assets' => {'allow' => qr/(?^x:^.{1,}$)/,},
+    'message_assets' => {'allow' => qr/(?^x:^.{1,}$)/},
     'message'        => {'allow' => qr/(?^x:^.{1,}$)/},
     'from_uid'       => {
         'required' => 1,
@@ -70,9 +71,7 @@ sub create {
     $self->insert;
     return $self;
 }
-
-
-__PACKAGE__->QUOTE_IDENTIFIERS(0);
+sub QUOTE_IDENTIFIERS {0}
 
 #__PACKAGE__->BUILD;#build accessors during load
 
@@ -99,6 +98,8 @@ Each column from table C<vest> has an accessor in this class.
 =head2 from_uid
 
 =head2 to_uid
+
+=head2 to_guid
 
 =head2 subject
 

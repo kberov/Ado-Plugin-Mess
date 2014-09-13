@@ -13,10 +13,11 @@ sub register {
 
 sub _create_table {
     my ($self, $app, $conf) = @_;
+    return unless $conf->{vest_schema_sql_file};
     my $dbix = $app->dbix;
     my $table =
       $dbix->dbh->table_info(undef, undef, 'vest', "'TABLE'")->fetchall_arrayref({});
-
+    $app->log->debug('table:'.$app->dumper($table));
     #Always execute this file because we may have table changes
     my $sql_file = catfile($self->config_dir, $conf->{vest_schema_sql_file});
     my $SQL = slurp($sql_file);

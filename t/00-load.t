@@ -3,39 +3,21 @@ use 5.014;
 use strict;
 use warnings FATAL => 'all';
 use Test::More;
-use File::Find;
-
-#TODO: Think about abstracting $ENV{XXX} usage via $app->env
-# so we can run under -T switch. Disable -T switch because of Mojo till then.
-#$ENV{MOJO_BASE_DEBUG}=0;
-my @files;
-find(
-    {   wanted => sub { /\.pm$/ and push @files, $_ },
-        no_chdir => 1
-    },
-    -e 'blib' ? 'blib' : 'lib',
-);
-
-for my $file (@files) {
-    my $module = $file;
-    ok($module, $module);
-    $module =~ s,\.pm$,,;
-    $module =~ s,.*/?lib/,,;
-    $module =~ s,/,::,g;
-
-    use_ok($module) || diag $@;
-}
+my $module = 'Ado::Plugin::Vest';
+use_ok($module);
 isa_ok('Ado::Plugin::Vest', 'Ado::Plugin');
-
 for (qw(register config name app)) {
     can_ok('Ado::Plugin::Vest', $_);
 }
-
+use_ok('Ado::Control::Vest');
 isa_ok('Ado::Control::Vest', 'Ado::Control');
 
 for (qw(list add update show disable)) {
     can_ok('Ado::Control::Vest', $_);
 }
+
+use_ok('Ado::Model::Vest');
+isa_ok('Ado::Model::Vest', 'Ado::Model');
 
 
 diag("Testing loading of Ado $Ado::Plugin::Vest::VERSION, Perl $], $^X");
