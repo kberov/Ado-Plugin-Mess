@@ -135,7 +135,7 @@ for my $id (1, 3, 5) {
     via    => ['PUT'],
     to     => 'messupdate',
 },
-
+=cut
 $t->put_ok(
     '/вест/5',
     form => {
@@ -145,7 +145,7 @@ $t->put_ok(
         subject_message_id => 1,
         message            => "Let's speak some English."
     }
-)->status_is('204', 'Status is 204')->content_is('', 'ok updated /вест/5.json');
+)->status_is('204', 'Status is 204')->content_is('', 'ok updated id 5');
 
 $t->get_ok('/вест/5.json')->status_is('200', 'Status is 200')
   ->json_is('/data/message',  "Let's speak some English.", 'ok message 5 is updated')
@@ -154,7 +154,6 @@ $t->get_ok('/вест/5.json')->status_is('200', 'Status is 200')
   ->json_is(    #becuse it belongs to a talk with id 1
     '/data/subject', '', 'ok message 5 subject is empty'
   )->json_is('/data/subject_message_id', 1, 'ok message 5 subject_message_id is unchanged');
-=cut
 
 #=pod
 #{   route  => '/вест/:id',
