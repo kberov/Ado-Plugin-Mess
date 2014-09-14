@@ -13,8 +13,13 @@ my $builder = Ado::BuildPlugin->new(
     release_status     => 'unstable',
     configure_requires => {'Module::Build' => '0',},
     build_requires     => {'Test::More' => '0',},
-    requires           => {Ado => '0.64',},
-    add_to_cleanup     => ['Ado-Plugin-Vest-*', '*.bak'],
+    requires           => {
+        'Ado'                             => '0.64',
+        'Mojolicious'                     => '0',
+        'Mojolicious::Plugin::DSC'        => '0',
+        'Mojolicious::Plugin::SemanticUI' => '0'
+    },
+    add_to_cleanup => ['Ado-Plugin-Vest-*', '*.bak'],
 );
 
 $builder->create_build_script();
