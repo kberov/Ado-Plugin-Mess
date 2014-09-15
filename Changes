@@ -1,8 +1,9 @@
 Revision history for Ado-Plugin-Vest
-0.02 2014-09-14
+0.02 2014-09-15
     - Renamed Ado-Plugin-Mess to Ado-Plugin-Vest.
     - Lots of cleanups.
     - Refactored tests.
+    - Implemented listing of talks and messages from a talk.
 
 0.01 2013-12-26 01:09:26 CET
     - Added new column "permissions" in table mess.

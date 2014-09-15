@@ -3,9 +3,10 @@ use Mojo::Base -strict;
 use Test::More;
 use Test::Mojo;
 use Mojo::Util qw(decode);
+
 my $OE  = $^O =~ /win/i ? 'cp866' : 'utf8';
-my $t   = Test::Mojo->new('Ado');
-my $app = $t->app;
+my $t1  = Test::Mojo->new('Ado');
+my $app = $t1->app;
 my $dbh = $app->dbix->dbh;
 ok($dbh->do('DROP TABLE IF EXISTS vest'), "Table vest was dropped.");
 
@@ -16,21 +17,53 @@ $app->routes->find('controlleractionid')->remove();
 
 isa_ok($app->plugin('vest'), 'Ado::Plugin::Vest');
 
+#$t1 login first
+subtest 't1_login' => sub {
+    $t1->get_ok('/login/ado');
 
-#make sure the vest table is empty
-#ok($dbh->do('DROP TABLE IF EXISTS vest'), "Table vest was dropped.");
+#get the csrf fields
+    my $form       = $t1->tx->res->dom->at('#login_form');
+    my $csrf_token = $form->at('[name="csrf_token"]')->{value};
+    my $form_hash  = {
+        _method        => 'login/ado',
+        login_name     => 'test1',
+        login_password => '',
+        csrf_token     => $csrf_token,
+        digest         => Mojo::Util::sha1_hex($csrf_token . Mojo::Util::sha1_hex('test1test1')),
+    };
+    $t1->post_ok('/login' => {} => form => $form_hash)->status_is(302);
+};
+
+# $t2 login
+my $t2 = Test::Mojo->new('Ado');
+subtest 't2_login' => sub {
+    $t2->get_ok('/login/ado');
+
+    #get the csrf fields
+    my $form       = $t2->tx->res->dom->at('#login_form');
+    my $csrf_token = $form->at('[name="csrf_token"]')->{value};
+    my $form_hash  = {
+        _method        => 'login/ado',
+        login_name     => 'test2',
+        login_password => '',
+        csrf_token     => $csrf_token,
+        digest         => Mojo::Util::sha1_hex($csrf_token . Mojo::Util::sha1_hex('test2test2')),
+    };
+    $t2->post_ok('/login' => {} => form => $form_hash)->status_is(302);
+};
 
 #reload
 #{route => '/вест', via => ['GET'],  to => 'vest#list',}
 #no format
-$t->get_ok('/вест')->status_is('415', '415 - Unsupported Media Type ')
+$t1->get_ok('/вест')->status_is('415', '415 - Unsupported Media Type ')
   ->content_type_is('text/html;charset=UTF-8')->header_like('Content-Location' => qr|\.json$|x)
   ->content_like(qr|\.json</a>\!|x);
-$t->get_ok('/вест/list')->status_is('404', '404 Not Found');
+$t1->get_ok('/вест/list')->status_is('404', '404 Not Found');
 
+#=pod
 
 #with format
-$t->get_ok('/вест.json')->status_is('200', 'Status is 200')
+$t1->get_ok('/вест.json')->status_is('200', 'Status is 200')
   ->content_type_is('application/json')->json_has('/data')->json_has('/links')
   ->json_is('/links/0/rel' => 'self', '/links/0/rel is self')
   ->json_like('/links/0/href' => qr'\.json\?limit=20\&offset=0')
@@ -40,7 +73,7 @@ $t->get_ok('/вест.json')->status_is('200', 'Status is 200')
 
 #Play with several messages.
 #{route => '/вест', via => ['POST'], to => 'vest#add',},
-$t->post_ok(
+$t1->post_ok(
     '/вест',
     form => {
         from_uid           => 3,
@@ -59,7 +92,7 @@ $t->post_ok(
   );
 
 # fixed bug - missing "required" validation on second POST
-$t->post_ok(
+$t1->post_ok(
     '/вест',
     form => {
         from_uid           => 3,
@@ -71,7 +104,7 @@ $t->post_ok(
     }
 )->status_is('400', 'Status is 400');
 
-$t->post_ok(
+$t1->post_ok(
     '/вест',
     form => {
         from_uid           => 3,
@@ -84,18 +117,20 @@ $t->post_ok(
   ->content_like(qr/"message"\:\{"to_uid"\:\["like"/x, 'erros ok: to_uid is not alike ');
 my $s_m_id = 0;
 for my $id (1, 3, 5) {
-    $t->post_ok(
+    $t1->post_ok(
         '/вест',
         form => {
-            from_uid           => 3,
-            to_uid             => 4,
-            subject            => 'разговор' . time,
-            subject_message_id => $s_m_id,                                # 0=>same talk
+            from_uid => 3,
+            to_uid   => 4,
+            subject  => 'разговор' . time,
+
+            # $s_m_id==0 =>new talk
+            subject_message_id => $s_m_id,
             message            => "Здравей, Приятел! $id"
         }
       )->status_is('201', 'ok 201 - Created')->header_like(Location => qr/\/id\/\d+/)
       ->content_is('');
-    ($s_m_id) = $t->tx->res->headers->header('Location') =~ qr/\/id\/(\d+)/
+    ($s_m_id) = $t1->tx->res->headers->header('Location') =~ qr/\/id\/(\d+)/
       unless $s_m_id;
 
 =pod
@@ -106,18 +141,18 @@ for my $id (1, 3, 5) {
 },
 =cut
 
-    $t->get_ok("/вест/$id.json")->status_is('200', 'Status is 200')
+    $t2->get_ok("/вест/$id.json")->status_is('200', 'Status is 200')
       ->json_is('/data/message', "Здравей, Приятел! $id", "ok created $id");
     my $next = $id + 1;
 
 #=pod
 
     #reply from a friend
-    $t->post_ok(
+    $t2->post_ok(
         '/вест',
         form => {
-            to_uid             => 4,
-            from_uid           => 3,
+            from_uid           => 4,
+            to_uid             => 3,
             subject            => 'Какъв приятен разговор',
             subject_message_id => $s_m_id,
             message            => "Oh, salut mon ami! $next"
@@ -136,7 +171,8 @@ for my $id (1, 3, 5) {
     to     => 'messupdate',
 },
 =cut
-$t->put_ok(
+
+$t1->put_ok(
     '/вест/5',
     form => {
         to_uid             => 4,
@@ -147,13 +183,15 @@ $t->put_ok(
     }
 )->status_is('204', 'Status is 204')->content_is('', 'ok updated id 5');
 
-$t->get_ok('/вест/5.json')->status_is('200', 'Status is 200')
+$t1->get_ok('/вест/5.json')->status_is('200', 'Status is 200')
   ->json_is('/data/message',  "Let's speak some English.", 'ok message 5 is updated')
   ->json_is('/data/to_uid',   4,                           'ok message 5 to_uid is unchanged')
   ->json_is('/data/from_uid', 3,                           'ok message 5 from_uid is unchanged')
   ->json_is(    #becuse it belongs to a talk with id 1
     '/data/subject', '', 'ok message 5 subject is empty'
   )->json_is('/data/subject_message_id', 1, 'ok message 5 subject_message_id is unchanged');
+
+#=cut
 
 #=pod
 #{   route  => '/вест/:id',
@@ -163,9 +201,9 @@ $t->get_ok('/вест/5.json')->status_is('200', 'Status is 200')
 #},
 #=cut
 
-#$t->delete_ok('/вест/' . int(rand($messages)))
-#  ->status_is('200', 'Status is 200')
-#  ->content_is('not implemented...', 'ok not implemented...yet');
+$t1->delete_ok('/вест/1')->status_is('200', 'Status is 200')
+  ->content_is('not implemented...', 'ok not implemented...yet');
+ok($dbh->do('DROP TABLE IF EXISTS vest'), "Table vest was dropped.");
 
 done_testing();
 

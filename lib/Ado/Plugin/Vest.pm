@@ -38,11 +38,14 @@ sub _create_table {
 
 =head1 NAME
 
-Ado::Plugin::Vest - Vestaging services for an Ado system!
+Ado::Plugin::Vest - Messaging services for an Ado system!
 
 =head1 DESCRIPTION
 
-TODO                                                        
+L<Ado::Plugin::Vest> implements a (not too) naive messaging application.
+It can be used as a chat between two users or as commenting widged under some article.
+Other uses are also possible. Just create your HTML application and start making Ajax 
+or Websocket (TODO) requests.
 
 
 =head1 SYNOPSIS

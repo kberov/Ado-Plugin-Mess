@@ -2,18 +2,21 @@ package Ado::Control::Vest;
 use Mojo::Base 'Ado::Control';
 use Time::Piece;
 
+my $list_args_checks = {
+    limit => {
+        allow => sub { $_[0] =~ /^\d+$/ ? 1 : ($_[0] = 20); }
+    },
+    offset => {
+        allow => sub { $_[0] =~ /^\d+$/ ? 1 : defined($_[0] = 0); }
+    },
+};
+
 #available messages on this system
 sub list {
     my $c = shift;
     $c->require_formats('json') || return;
     my $args = Params::Check::check(
-        {   limit => {
-                allow => sub { $_[0] =~ /^\d+$/ ? 1 : ($_[0] = 20); }
-            },
-            offset => {
-                allow => sub { $_[0] =~ /^\d+$/ ? 1 : defined($_[0] = 0); }
-            },
-        },
+        $list_args_checks,
         {   limit  => $c->req->param('limit')  || 20,
             offset => $c->req->param('offset') || 0,
         }
@@ -30,6 +33,54 @@ sub list {
             [Ado::Model::Vest->select_range($$args{limit}, $$args{offset})]
         )
     );
+}
+
+sub list_messages {
+    my ($c) = @_;
+    my $s_m_id = $c->stash('id');
+    $s_m_id || return $c->render(
+        status => 400,
+        json   => {
+            'code'    => 400,
+            'data'    => 'validate_input',
+            'message' => {'id' => ['required'],},
+            'status'  => 'error'
+        }
+    );
+    my $args = Params::Check::check(
+        $list_args_checks,
+        {   limit  => $c->req->param('limit')  || 20,
+            offset => $c->req->param('offset') || 0,
+        }
+    );
+    my @messages =
+      Ado::Model::Vest->by_subject_message_id($c->user, $s_m_id, $$args{limit}, $$args{offset});
+    $c->res->headers->content_range(
+        "messages $$args{offset}-${\($$args{limit} + $$args{offset})}/*");
+    $c->debug("rendering json only [$$args{limit}, $$args{offset}]");
+
+    #content negotiation (json only for now)
+    return $c->respond_to(
+        json => $c->list_for_json([$$args{limit}, $$args{offset}], [@messages]));
+
+}
+
+sub list_talks {
+    my ($c) = @_;
+    my $args = Params::Check::check(
+        $list_args_checks,
+        {   limit  => $c->req->param('limit')  || 20,
+            offset => $c->req->param('offset') || 0,
+        }
+    );
+    my @messages = Ado::Model::Vest->talks($c->user, $$args{limit}, $$args{offset});
+    $c->res->headers->content_range(
+        "messages $$args{offset}-${\($$args{limit} + $$args{offset})}/*");
+    $c->debug("rendering json only [$$args{limit}, $$args{offset}]");
+
+    #content negotiation (json only for now)
+    return $c->respond_to(
+        json => $c->list_for_json([$$args{limit}, $$args{offset}], [@messages]));
 }
 
 #validation template for action add.

@@ -53,11 +53,14 @@ sub CHECKS { return $CHECKS }
 
 sub create {
     my $self = shift->new(@_);
+    state $dbh = $self->dbh;
 
     #guess the talk by subject or subject_message_id
+    state $sth =
+      $dbh->prepare_cached("SELECT id FROM vest WHERE (subject=? OR id=?) AND subject!='' ");
     my $started_talk =
-      $self->dbix->query("SELECT id FROM vest WHERE (subject=? OR id=?) AND subject!='' ",
-        $self->{subject}, $self->subject_message_id)->hash;
+      $dbh->selectrow_hashref($sth, {}, $self->subject, $self->subject_message_id);
+
     if ($started_talk && $started_talk->{id}) {    #existing talk
         $self->subject_message_id($started_talk->{id});
         $self->subject('');
@@ -65,9 +68,41 @@ sub create {
     else {
         $self->subject_message_id(0);              # new talk
     }
-    $self->insert;
+    $self->insert();
     return $self;
 }
+
+my $MESSAGES_SQL = __PACKAGE__->SQL('SELECT') . <<SQL;
+     WHERE subject_message_id = ? 
+        AND (
+            to_guid IN(SELECT group_id FROM user_group WHERE user_id=?)
+            OR(to_uid =?) OR(from_uid =?)
+        )
+SQL
+
+# Selects messages from a talk within a given range by talk id.
+sub by_subject_message_id {
+    my ($class, $user, $subject_message_id, $limit, $offset) = @_;
+    my $uid = $user->id;
+    state $SQL = <<SQL;
+    $MESSAGES_SQL
+    UNION
+    ${\ __PACKAGE__->SQL('SELECT') }
+    WHERE id = ?  ORDER BY id DESC
+    ${\ __PACKAGE__->SQL_LIMIT('?','?') }
+SQL
+
+    return $class->dbix->query($SQL, $subject_message_id, $uid, $uid, $uid, $subject_message_id,
+        $limit, $offset)->objects($class);
+}
+
+sub talks {
+    my ($class, $user, $limit, $offset) = @_;
+    my $uid = $user->id;
+    my $SQL = $MESSAGES_SQL . $class->SQL_LIMIT($limit, $offset) . ' ';
+    return $class->dbix->query($SQL, 0, $uid, $uid, $uid)->objects($class);
+}
+
 sub QUOTE_IDENTIFIERS {0}
 
 #__PACKAGE__->BUILD;#build accessors during load
@@ -112,6 +147,20 @@ Each column from table C<vest> has an accessor in this class.
 
 =head2 create
 
+=head1 METHODS
+
+L<Ado::Model::Vest> inherits all methods from L<Ado::Model> 
+and implements the following new ones.
+
+=head2 by_subject_message_id
+
+Selects messages from a talk within a given range by talk id
+and returns a list of Ado::Model::Vest instances.
+only messages that are viewable by the current user are selected
+
+    my @messages = Ado::Model::Vest->by_subject_message_id(
+        $c->user, $subject_message_id, $limit, $offset
+    );
 
 =head1 GENERATOR
 
