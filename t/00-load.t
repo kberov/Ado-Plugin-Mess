@@ -16,9 +16,6 @@ for (qw(list add update show disable)) {
     can_ok('Ado::Control::Vest', $_);
 }
 
-use_ok('Ado::Model::Vest');
-isa_ok('Ado::Model::Vest', 'Ado::Model');
-
 
 diag("Testing loading of Ado $Ado::Plugin::Vest::VERSION, Perl $], $^X");
 
