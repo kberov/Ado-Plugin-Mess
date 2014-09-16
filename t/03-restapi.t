@@ -121,6 +121,13 @@ subtest 't2_login' => sub {
 
 
 # Listing talks of the current user - usually in the left sidebar
+$t1->get_ok('/вест/talks.json')->status_is('200', 'Status is 200')
+  ->content_type_is('application/json')->json_has('/data')
+  ->json_is('/data/2/id' => 1, 'my first talk')->json_is('/data/1/id' => 5, 'my second talk')
+  ->json_is('/data/0/id' => 26, 'my third talk');
+$t2->get_ok('/вест/talks.json')->json_is('/data/0/id' => 1, 'my first talk')
+  ->json_is('/data/1/id' => undef, 'no second talk')
+  ->json_is('/data/2/id' => undef, 'no third talk');
 
 # Listing messages from a talk for the current user
 $t1->get_ok('/вест/messages/1.json')->status_is('200', 'Status is 200')
@@ -129,12 +136,11 @@ $t1->get_ok('/вест/messages/1.json')->status_is('200', 'Status is 200')
   ->json_is('/data/0/id'      => 4,                  '/data is sorted properly')
   ->json_is('/data/3/id'      => 1,                  '/data is sorted properly')
   ->json_is('/data/3/subject' => 'разговор', '/data/0/subject is ok');
-$t1->get_ok('/вест/messages/5.json?limit=10')->status_is('200', 'Status is 200')
-  ->content_type_is('application/json')->json_has('/data')->json_is(
+$t1->get_ok('/вест/messages/5.json?limit=10')->json_is(
     '/links/1' =>
       {"rel" => "next", "href" => "/%D0%B2%D0%B5%D1%81%D1%82/messages/5.json?limit=10&offset=10"},
     '/links/1 is present'
-  )->json_is('/data/0/id' => 25, '/data is sorted properly');
+)->json_is('/data/0/id' => 25, '/data is sorted properly');
 
 
 done_testing;

@@ -99,8 +99,8 @@ SQL
 sub talks {
     my ($class, $user, $limit, $offset) = @_;
     my $uid = $user->id;
-    my $SQL = $MESSAGES_SQL . $class->SQL_LIMIT($limit, $offset) . ' ';
-    return $class->dbix->query($SQL, 0, $uid, $uid, $uid)->objects($class);
+    state $SQL = $MESSAGES_SQL . ' ORDER BY id DESC ' . $class->SQL_LIMIT('?', '?');
+    return $class->dbix->query($SQL, 0, $uid, $uid, $uid, $limit, $offset)->objects($class);
 }
 
 sub QUOTE_IDENTIFIERS {0}
