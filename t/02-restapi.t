@@ -36,8 +36,8 @@ subtest 't1_login' => sub {
     $t1->post_ok('/login' => {} => form => $form_hash)->status_is(302);
 };
 
-# $t2 login
-my $t2 = Test::Mojo->new('Ado');
+# $t2 login - use the same running app instance
+my $t2 = Test::Mojo->new($app);
 subtest 't2_login' => sub {
     $t2->get_ok('/login/ado');
 
@@ -57,15 +57,14 @@ subtest 't2_login' => sub {
 #reload
 #{route => '/вест', via => ['GET'],  to => 'vest#list',}
 #no format
-$t1->get_ok('/вест')->status_is('415', '415 - Unsupported Media Type ')
+$t1->get_ok('/вест/list')->status_is('415', '415 - Unsupported Media Type ')
   ->content_type_is('text/html;charset=UTF-8')->header_like('Content-Location' => qr|\.json$|x)
   ->content_like(qr|\.json</a>\!|x);
-$t1->get_ok('/вест/list')->status_is('404', '404 Not Found');
 
 #=pod
 
 #with format
-$t1->get_ok('/вест.json')->status_is('200', 'Status is 200')
+$t1->get_ok('/вест/list.json')->status_is('200', 'Status is 200')
   ->content_type_is('application/json')->json_has('/data')->json_has('/links')
   ->json_is('/links/0/rel' => 'self', '/links/0/rel is self')
   ->json_like('/links/0/href' => qr'\.json\?limit=20\&offset=0')

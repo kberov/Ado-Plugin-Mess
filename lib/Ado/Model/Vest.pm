@@ -52,7 +52,8 @@ sub CHECKS { return $CHECKS }
 
 
 sub create {
-    my $self = shift->new(@_);
+    my ($self, @args) = @_;
+    $self = $self->new(@args);
     state $dbh = $self->dbh;
 
     #guess the talk by subject or subject_message_id
@@ -72,7 +73,7 @@ sub create {
     return $self;
 }
 
-my $MESSAGES_SQL = __PACKAGE__->SQL('SELECT') . <<SQL;
+my $MESSAGES_SQL = __PACKAGE__->SQL('SELECT') . <<"SQL";
      WHERE subject_message_id = ? 
         AND (
             to_guid IN(SELECT group_id FROM user_group WHERE user_id=?)
@@ -84,7 +85,7 @@ SQL
 sub by_subject_message_id {
     my ($class, $user, $subject_message_id, $limit, $offset) = @_;
     my $uid = $user->id;
-    state $SQL = <<SQL;
+    state $SQL = <<"SQL";
     $MESSAGES_SQL
     UNION
     ${\ __PACKAGE__->SQL('SELECT') }
@@ -103,7 +104,7 @@ sub talks {
     return $class->dbix->query($SQL, 0, $uid, $uid, $uid, $limit, $offset)->objects($class);
 }
 
-sub QUOTE_IDENTIFIERS {0}
+sub QUOTE_IDENTIFIERS { return 0; }
 
 #__PACKAGE__->BUILD;#build accessors during load
 
@@ -115,7 +116,7 @@ sub QUOTE_IDENTIFIERS {0}
 
 =head1 NAME
 
-A class for TABLE vest in schema main
+Ado::Model::Vest - A class for TABLE vest in schema main
 
 =head1 SYNOPSIS
 
