@@ -58,7 +58,7 @@ sub create {
 
     #guess the talk by subject or subject_message_id
     state $sth =
-      $dbh->prepare_cached("SELECT id FROM vest WHERE (subject=? OR id=?) AND subject!='' ");
+      $dbh->prepare_cached("SELECT id FROM vest WHERE (subject=? OR id=?) AND subject != '' ");
     my $started_talk =
       $dbh->selectrow_hashref($sth, {}, $self->subject, $self->subject_message_id);
 
@@ -73,20 +73,21 @@ sub create {
     return $self;
 }
 
-my $MESSAGES_SQL = __PACKAGE__->SQL('SELECT') . <<"SQL";
+sub _MESSAGES_SQL {
+    return state $MESSAGES_SQL = __PACKAGE__->SQL('SELECT') . <<"SQL";
      WHERE subject_message_id = ? 
         AND (
             to_guid IN(SELECT group_id FROM user_group WHERE user_id=?)
             OR(to_uid =?) OR(from_uid =?)
         )
 SQL
-
+}
 # Selects messages from a talk within a given range by talk id.
 sub by_subject_message_id {
     my ($class, $user, $subject_message_id, $limit, $offset) = @_;
     my $uid = $user->id;
     state $SQL = <<"SQL";
-    $MESSAGES_SQL
+    ${\ _MESSAGES_SQL }
     UNION
     ${\ __PACKAGE__->SQL('SELECT') }
     WHERE id = ?  ORDER BY id DESC
@@ -100,11 +101,11 @@ SQL
 sub talks {
     my ($class, $user, $limit, $offset) = @_;
     my $uid = $user->id;
-    state $SQL = $MESSAGES_SQL . ' ORDER BY id DESC ' . $class->SQL_LIMIT('?', '?');
+    state $SQL = _MESSAGES_SQL . ' ORDER BY id DESC ' . $class->SQL_LIMIT('?', '?');
     return $class->dbix->query($SQL, 0, $uid, $uid, $uid, $limit, $offset)->objects($class);
 }
 
-sub QUOTE_IDENTIFIERS { return 0; }
+__PACKAGE__->QUOTE_IDENTIFIERS(0);
 
 #__PACKAGE__->BUILD;#build accessors during load
 
@@ -155,13 +156,22 @@ and implements the following new ones.
 
 =head2 by_subject_message_id
 
-Selects messages from a talk within a given range by talk id
+Selects messages from a talk within a given range, ordered by talk id descending
 and returns a list of Ado::Model::Vest instances.
 only messages that are viewable by the current user are selected
 
     my @messages = Ado::Model::Vest->by_subject_message_id(
         $c->user, $subject_message_id, $limit, $offset
     );
+
+=head2 talks
+
+Selects records which contain talk subjects(topics) from all messages 
+within a given range, ordered by talk id descending
+and returns a list of Ado::Model::Vest instances.
+only messages that are viewable by the current user are selected.
+
+    my @messages = Ado::Model::Vest->talks($c->user, $limit, $offset);
 
 =head1 GENERATOR
 
