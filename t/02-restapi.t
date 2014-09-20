@@ -275,6 +275,7 @@ for ($talk_z_id .. 40) {
 }
 
 # Insert the messages
+note('Creating ' . (@talk_x+ @talk_y+ @talk_z) . ' messages in 3 talks.');
 my $time = time;
 Ado::Model::Vest->create(%$_, tstamp => $time) for (@talk_x, @talk_y, @talk_z);
 

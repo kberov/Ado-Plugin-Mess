@@ -22,3 +22,5 @@ t/manifest.t
 t/perl-critic.t
 t/pod-coverage.t
 t/pod.t
+templates/layouts/vest.html.ep
+templates/vest/screen.html.ep
