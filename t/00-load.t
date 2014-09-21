@@ -12,12 +12,12 @@ for (qw(register config name app)) {
 use_ok('Ado::Control::Vest');
 isa_ok('Ado::Control::Vest', 'Ado::Control');
 
-for (qw(list add update show disable)) {
+for (qw(list add update show disable screen)) {
     can_ok('Ado::Control::Vest', $_);
 }
 
 use_ok('Ado::Model::Vest');
-isa_ok('Ado::Model::Vest', 'Ado::Model');
+isa_ok('Ado::Model::Vest', 'Ado::Model'); 
 
 for (qw(is_base_class TABLE PRIMARY_KEY COLUMNS ALIASES CHECKS 
   create _MESSAGES_SQL by_subject_message_id talks)) {

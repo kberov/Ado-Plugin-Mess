@@ -73,14 +73,14 @@ sub list_talks {
             offset => $c->req->param('offset') || 0,
         }
     );
-    my @messages = Ado::Model::Vest->talks($c->user, $$args{limit}, $$args{offset});
+    my @talks = Ado::Model::Vest->talks($c->user, $$args{limit}, $$args{offset});
     $c->res->headers->content_range(
         "messages $$args{offset}-${\($$args{limit} + $$args{offset})}/*");
     $c->debug("rendering json only [$$args{limit}, $$args{offset}]");
 
     #content negotiation (json only for now)
     return $c->respond_to(
-        json => $c->list_for_json([$$args{limit}, $$args{offset}], [@messages]));
+        json => $c->list_for_json([$$args{limit}, $$args{offset}], [@talks]));
 }
 
 #validation template for action add.

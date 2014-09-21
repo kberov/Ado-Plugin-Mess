@@ -94,15 +94,15 @@ sub by_subject_message_id {
     ${\ __PACKAGE__->SQL_LIMIT('?','?') }
 SQL
 
-    return $class->dbix->query($SQL, $subject_message_id, $uid, $uid, $uid, $subject_message_id,
-        $limit, $offset)->objects($class);
+    return $class->query($SQL, $subject_message_id, $uid, $uid, $uid, $subject_message_id,
+        $limit, $offset);
 }
 
 sub talks {
     my ($class, $user, $limit, $offset) = @_;
     my $uid = $user->id;
     state $SQL = _MESSAGES_SQL . ' ORDER BY id DESC ' . $class->SQL_LIMIT('?', '?');
-    return $class->dbix->query($SQL, 0, $uid, $uid, $uid, $limit, $offset)->objects($class);
+    return $class->query($SQL, 0, $uid, $uid, $uid, $limit, $offset);
 }
 
 __PACKAGE__->QUOTE_IDENTIFIERS(0);
