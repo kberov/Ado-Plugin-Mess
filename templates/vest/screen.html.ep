@@ -1,4 +1,6 @@
-% #screen.html.ep
+<!-- screen.html.ep -->
 % layout 'vest';
-
-hello
+%= include 'vest/menu'
+<main class="ui container">
+%= include 'vest/talks'
+</main>

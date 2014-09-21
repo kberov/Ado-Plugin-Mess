@@ -1,0 +1,27 @@
+<!-- talks.html.ep -->
+% my $user = user;
+<div id="talks_button" class="ui labeled icon button">
+  <i class="comments icon"></i>  Talks
+</div>
+<aside id="talks" class="ui sidebar">
+% my @talks = Ado::Model::Vest->talks($user, 20, 0);
+  <ul>
+% foreach my $talk (@talks) { $c->debug(dumper $talk);
+% # TODO: add group talks in case to_guid !=0
+    <li>
+      <%= Ado::Model::Users->find($talk->to_uid)->name %> 
+        (<%= $talk->subject %>)
+    </li>
+%}
+  </ul>
+% # TODO add previous X and next X talks menu 
+% # at the bottom of the sidebar
+</aside>
+%= javascript begin
+  //Initialize the left sidebar
+  $('#talks').sidebar();
+  $('#talks_button').on('click',function (){
+    $('#talks').sidebar('toggle');
+  });
+
+%= end

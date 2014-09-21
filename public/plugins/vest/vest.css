@@ -1,0 +1,19 @@
+i.icon.vede:before {
+  content: "Ⰲ";
+}
+
+.vest main.container {
+  position: relative;
+  margin: auto;
+  /* top right bottom left */
+  padding: 4em 0em 1em 0em;
+  background: #FAFAFA;
+  height: 100%;
+ 
+}
+#talks.sidebar {
+    background: #FAFAFA;
+}
+#talks.menu.header.item {
+  width:100%;
+}
