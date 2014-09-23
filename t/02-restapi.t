@@ -275,7 +275,7 @@ for ($talk_z_id .. 40) {
 }
 
 # Insert the messages
-note('Creating ' . (@talk_x+ @talk_y+ @talk_z) . ' messages in 3 talks.');
+note('Creating ' . (@talk_x + @talk_y + @talk_z) . ' messages in 3 talks.');
 my $time = time;
 Ado::Model::Vest->create(%$_, tstamp => $time) for (@talk_x, @talk_y, @talk_z);
 
@@ -301,7 +301,27 @@ $t1->get_ok('/вест/messages/5.json?limit=10')->json_is(
     '/links/1 is present'
 )->json_is('/data/0/id' => 25, '/data is sorted properly');
 
+#Make some more talks for UI tests
+note('Creating more messages in many talks. This may take a while...');
 
+for my $talk (4 .. 25) {
+    my $to_uid      = int(rand(4));
+    my $from_uid    = 3;
+    my @from_to     = ($from_uid, $to_uid);
+    my $time        = time;
+    my $subject     = "Разговор " . ucfirst(join(' ', shuffle(@message[0 .. 6])) . '.');
+    my $lastmessage = 2;
+    for my $message_id (1 .. ($talk > 24 ? $lastmessage**3 : $lastmessage)) {
+        Ado::Model::Vest->create(
+            from_uid           => $from_to[($talk + $message_id) % 2],
+            to_uid             => $from_to[int(rand(@from_to))],
+            subject            => $subject,
+            subject_message_id => 0,
+            message => ucfirst(join(' ', shuffle(@message[0 .. int(rand(@message))])) . '.'),
+            tstamp  => $time
+        );
+    }
+}
 
 done_testing();
 
