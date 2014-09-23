@@ -82,6 +82,7 @@ sub _MESSAGES_SQL {
         )
 SQL
 }
+
 # Selects messages from a talk within a given range by talk id.
 sub by_subject_message_id {
     my ($class, $user, $subject_message_id, $limit, $offset) = @_;

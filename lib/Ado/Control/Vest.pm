@@ -79,8 +79,7 @@ sub list_talks {
     $c->debug("rendering json only [$$args{limit}, $$args{offset}]");
 
     #content negotiation (json only for now)
-    return $c->respond_to(
-        json => $c->list_for_json([$$args{limit}, $$args{offset}], [@talks]));
+    return $c->respond_to(json => $c->list_for_json([$$args{limit}, $$args{offset}], [@talks]));
 }
 
 #validation template for action add.
