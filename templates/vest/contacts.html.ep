@@ -1,0 +1,18 @@
+<!-- talks.html.ep -->
+
+<aside id="contacts" class="ui right floating styled sidebar">
+  <p>Ivan Petrov</p>
+  <p>Петър Иванов</p>
+  <p>Ivan Petrov</p>
+  <p>Петър Иванов</p>
+  <p>Ivan Petrov</p>
+  <p>Петър Иванов</p>
+</aside>
+%= javascript begin
+  //Initialize the left sidebar
+  $('#contacts').sidebar();
+  $('#contacts_button').on('click',function (){
+    $('#contacts').sidebar('toggle');
+  });
+
+%= end

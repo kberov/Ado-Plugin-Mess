@@ -1,0 +1,45 @@
+<!-- Messages in the current talk messages.html.ep -->
+<ul id="messages" class="ui list">
+  <li class="item">
+    <img class="ui avatar image" src="/images/avatar/small/daniel.jpg">
+    <div class="content">
+      <div class="small header">Nikolai</div>
+      <div class="description">Last seen watching <a><b>Bob's Burgers</b></a> 10 hours ago.</div>
+    </div>
+  </li>
+  <li class="item">
+    <img class="ui avatar image" src="/images/avatar/small/daniel.jpg">
+    <div class="content">
+      <div class="small header">Nikolai</div>
+      <div class="description">Last seen watching <a><b>Bob's Burgers</b></a> 10 hours ago.</div>
+    </div>
+  </li>
+  <li class="item">
+    <img class="ui avatar image" src="/images/avatar/small/daniel.jpg">
+    <div class="content">
+      <div class="small header">Nikolai</div>
+      <div class="description">Last seen watching <a><b>Bob's Burgers</b></a> 10 hours ago.</div>
+    </div>
+  </li>
+  <li class="item">
+    <img class="ui avatar image" src="/images/avatar/small/daniel.jpg">
+    <div class="content">
+      <div class="small header">Nikolai</div>
+      <div class="description">Last seen watching <a><b>Bob's Burgers</b></a> 10 hours ago.</div>
+    </div>
+  </li>
+  <li class="item">
+    <img class="ui avatar image" src="/images/avatar/small/daniel.jpg">
+    <div class="content">
+      <div class="small header">Nikolai</div>
+      <div class="description">Last seen watching <a><b>Bob's Burgers</b></a> 10 hours ago.</div>
+    </div>
+  </li>
+  <li class="item">
+    <img class="ui avatar image" src="/images/avatar/small/daniel.jpg">
+    <div class="content">
+      <div class="small header">Nikolai</div>
+      <div class="description">Last seen watching <a><b>Bob's Burgers</b></a> 10 hours ago.</div>
+    </div>
+  </li>  
+</ul>

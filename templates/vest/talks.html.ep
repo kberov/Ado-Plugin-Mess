@@ -1,9 +1,6 @@
 <!-- talks.html.ep -->
 % my $user = user;
-<div id="talks_button" class="ui labeled icon button">
-  <i class="comments icon"></i>  Talks
-</div>
-<aside id="talks" class="ui sidebar">
+<aside id="talks" class="ui floating styled sidebar">
 % my @talks = Ado::Model::Vest->talks($user, int(param('limit')||20), 0);
   <ul>
 % foreach my $talk (@talks) { $c->debug(dumper $talk);

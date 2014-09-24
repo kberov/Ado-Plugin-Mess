@@ -1,6 +1,10 @@
-<!-- screen.html.ep -->
+<!-- the whole application screen.html.ep -->
 % layout 'vest';
 %= include 'vest/menu'
 <main class="ui container">
 %= include 'vest/talks'
+%= include 'vest/contacts'
+
+%= include 'vest/messages'
+%= include 'vest/message_form'
 </main>
