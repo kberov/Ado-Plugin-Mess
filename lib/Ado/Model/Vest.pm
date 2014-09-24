@@ -75,12 +75,38 @@ sub create {
 
 sub _MESSAGES_SQL {
     return state $MESSAGES_SQL = __PACKAGE__->SQL('SELECT') . <<"SQL";
-     WHERE subject_message_id = ? 
+      WHERE subject_message_id = ? 
         AND (
             to_guid IN(SELECT group_id FROM user_group WHERE user_id=?)
             OR(to_uid =?) OR(from_uid =?)
         )
 SQL
+}
+
+# Gets user and group names and adds them to the resultset rows.
+sub _map_hashes {
+    my $hashes = shift;
+
+    #users'/groups names
+    state $names = {};
+    for my $h (@$hashes) {
+        if (!exists $names->{$h->{to_uid}}) {
+            $h->{to_uid_name} = $names->{$h->{to_uid}} =
+              Ado::Model::Users->find($h->{to_uid})->name;
+        }
+        else { $h->{to_uid_name} = $names->{$h->{to_uid}}; }
+        if (!exists $names->{$h->{from_uid}}) {
+            $h->{from_uid_name} = $names->{$h->{from_uid}} =
+              Ado::Model::Users->find($h->{from_uid})->name;
+        }
+        else { $h->{from_uid_name} = $names->{$h->{from_uid}}; }
+        if (!exists $names->{$h->{to_guid}}) {
+            $h->{to_guid_name} = $names->{$h->{to_guid}} =
+              Ado::Model::Groups->find($h->{to_guid})->name;
+        }
+        else { $h->{to_guid_name} = $names->{$h->{to_guid}}; }
+    }
+    return $hashes;
 }
 
 # Selects messages from a talk within a given range by talk id.
@@ -94,16 +120,18 @@ sub by_subject_message_id {
     WHERE id = ?  ORDER BY id DESC
     ${\ __PACKAGE__->SQL_LIMIT('?','?') }
 SQL
-
-    return $class->query($SQL, $subject_message_id, $uid, $uid, $uid, $subject_message_id,
-        $limit, $offset);
+    my $hashes =
+      $class->dbix->query($SQL, $subject_message_id, $uid, $uid, $uid, $subject_message_id,
+        $limit, $offset)->hashes;
+    return _map_hashes($hashes);
 }
 
 sub talks {
     my ($class, $user, $limit, $offset) = @_;
     my $uid = $user->id;
     state $SQL = _MESSAGES_SQL . ' ORDER BY id DESC ' . $class->SQL_LIMIT('?', '?');
-    return $class->query($SQL, 0, $uid, $uid, $uid, $limit, $offset);
+    my $hashes = $class->dbix->query($SQL, 0, $uid, $uid, $uid, $limit, $offset)->hashes;
+    return _map_hashes($hashes);
 }
 
 __PACKAGE__->QUOTE_IDENTIFIERS(0);
@@ -158,10 +186,10 @@ and implements the following new ones.
 =head2 by_subject_message_id
 
 Selects messages from a talk within a given range, ordered by talk id descending
-and returns a list of Ado::Model::Vest instances.
-only messages that are viewable by the current user are selected
+and returns an ARRAYref of HASHES.
+Only messages that are viewable by the current user are selected
 
-    my @messages = Ado::Model::Vest->by_subject_message_id(
+    my $messages = Ado::Model::Vest->by_subject_message_id(
         $c->user, $subject_message_id, $limit, $offset
     );
 
@@ -169,10 +197,10 @@ only messages that are viewable by the current user are selected
 
 Selects records which contain talk subjects(topics) from all messages 
 within a given range, ordered by talk id descending
-and returns a list of Ado::Model::Vest instances.
-only messages that are viewable by the current user are selected.
+and returns an ARRAYref of HASHES.
+Only messages that are viewable by the current user are selected.
 
-    my @messages = Ado::Model::Vest->talks($c->user, $limit, $offset);
+    my $messages = Ado::Model::Vest->talks($c->user, $limit, $offset);
 
 =head1 GENERATOR
 

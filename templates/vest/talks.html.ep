@@ -1,13 +1,12 @@
 <!-- talks.html.ep -->
 % my $user = user;
 <aside id="talks" class="ui floating styled sidebar">
-% my @talks = Ado::Model::Vest->talks($user, int(param('limit')||20), 0);
+% my $talks = Ado::Model::Vest->talks($user, int(param('limit')||20), 0);
   <ul>
-% foreach my $talk (@talks) { $c->debug(dumper $talk);
+% foreach my $talk (@$talks) {
 % # TODO: add group talks in case to_guid !=0
     <li>
-      <%= Ado::Model::Users->find($talk->to_uid)->name %> 
-        (<%= $talk->subject %>)
+      <%= $talk->{to_uid_name} %> (<%= $talk->{subject} %>)
     </li>
 %}
   </ul>

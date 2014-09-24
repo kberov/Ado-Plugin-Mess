@@ -53,15 +53,14 @@ sub list_messages {
             offset => $c->req->param('offset') || 0,
         }
     );
-    my @messages =
+    my $messages =
       Ado::Model::Vest->by_subject_message_id($c->user, $s_m_id, $$args{limit}, $$args{offset});
     $c->res->headers->content_range(
         "messages $$args{offset}-${\($$args{limit} + $$args{offset})}/*");
     $c->debug("rendering json only [$$args{limit}, $$args{offset}]");
 
     #content negotiation (json only for now)
-    return $c->respond_to(
-        json => $c->list_for_json([$$args{limit}, $$args{offset}], [@messages]));
+    return $c->respond_to(json => $c->list_for_json([$$args{limit}, $$args{offset}], $messages));
 
 }
 
@@ -73,13 +72,13 @@ sub list_talks {
             offset => $c->req->param('offset') || 0,
         }
     );
-    my @talks = Ado::Model::Vest->talks($c->user, $$args{limit}, $$args{offset});
+    my $talks = Ado::Model::Vest->talks($c->user, $$args{limit}, $$args{offset});
     $c->res->headers->content_range(
         "messages $$args{offset}-${\($$args{limit} + $$args{offset})}/*");
     $c->debug("rendering json only [$$args{limit}, $$args{offset}]");
 
     #content negotiation (json only for now)
-    return $c->respond_to(json => $c->list_for_json([$$args{limit}, $$args{offset}], [@talks]));
+    return $c->respond_to(json => $c->list_for_json([$$args{limit}, $$args{offset}], $talks));
 }
 
 #validation template for action add.
