@@ -45,7 +45,8 @@ my $CHECKS = {
         'defined'  => 1,
         'allow'    => qr/(?^x:^-?\d{1,12}$)/
     },
-    'id' => {'allow' => qr/(?^x:^-?\d{1,}$)/}
+    'id' => {'allow' => qr/(?^x:^-?\d{1,}$)/},
+    'seen' => {'allow' => qr/^\d$/}
 };
 
 sub CHECKS { return $CHECKS }

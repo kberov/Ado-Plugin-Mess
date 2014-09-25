@@ -36,7 +36,9 @@ CREATE TABLE IF NOT EXISTS vest (
   -- File-paths (relative to app->home) of Files attached to this message - TODO
   message_assets TEXT DEFAULT NULL,
   -- Who can edit this message - usually only the owner.
-  permissions VARCHAR(10) NOT NULL DEFAULT '-rw-r-----' 
+  permissions VARCHAR(10) NOT NULL DEFAULT '-rw-r-----',
+  -- Was this message seen by the "to_uid" user?
+  seen INT(1) DEFAULT 0
 );
 CREATE INDEX IF NOT EXISTS vest_subject ON vest(subject);
 CREATE INDEX IF NOT EXISTS vest_subject_message_id ON vest(subject_message_id);
