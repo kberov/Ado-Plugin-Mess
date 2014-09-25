@@ -250,7 +250,7 @@ L<http://www.w3.org/Protocols/rfc2616/rfc2616-sec14.html#sec14.14>.
 
 Adds a message to the table vest. 
 Renders no content with status 201 and a C<Location> header 
-pointing to the new resourse so the user agent can fetch it eventually.
+pointing to the new resource so the user agent can fetch it eventually.
 See http://www.w3.org/Protocols/rfc2616/rfc2616-sec10.html#sec10.2.2
 
 =head2 list_messages
