@@ -20,12 +20,18 @@ i.icon.vede:before {
 }
 
 #messages {
-  position: relative;
+ /* position: relative;
   height: 80%;
   margin: 1em;
   padding: 1em;
+  */
 }
+
 #messages ul.list li.item {
   list-style: none none none;
+}
+
+#message_form {
+ 
 }
 
