@@ -39,38 +39,40 @@
       // get the messages
       $.get(a.href,
         //success
-        function(json_messages){
-          var messages = $('#messages .ui.list');
-          messages.html('');
-
-          //console.log(json_messages);
-          var prev_message_from_uid=0;
-          $(json_messages.data).each(function(i,msg){
-              var template = $($('#message_template').html());//copy
-              template.attr('id','msg'+msg.id);
-              var date = new Date(msg.tstamp);
-              template.find('.date').html(date.toTimeString());
-              template.find('.message').html(msg.message);
-              if(prev_message_from_uid == msg.from_uid){
-                template.find('.from_uid_name').html('...');
-              }
-              else{
-                template.find('.from_uid_name').html(msg.from_uid_name + ':');
-              }
-              prev_message_from_uid = msg.from_uid;
-              /* template.find('.ui.avatar.image')
-                .attr('src',
-                  'https://secure.gravatar.com/avatar/'
-                  + msg.from_uid_gravatar
-                  +'?s=40&amp;d=identicon'
-                );
-              */
-              template.appendTo(messages);
-            });
-          // Scroll down to the last message
-          messages.parent().scrollTop(messages.height());
-
-        });
+        list_talk_messages_from_json
+        );
       return false;
   }
+
+  // Fills in mesages list box from received json
+  function list_talk_messages_from_json(json_messages){
+    var messages = $('#messages .ui.list');
+    messages.html('');
+
+    //console.log(json_messages);
+    var prev_message_from_uid = 0;
+    $(json_messages.data).each(function(i,msg){
+        var template = $($('#message_template').html());//copy
+        template.attr('id','msg'+msg.id);
+        var date = new Date(msg.tstamp);
+        template.find('.date').html(date.toTimeString());
+        template.find('.message').html(msg.message);
+        if(prev_message_from_uid == msg.from_uid){
+          template.find('.from_uid_name').html('...');
+        }
+        else{
+          template.find('.from_uid_name').html(msg.from_uid_name + ':');
+        }
+        prev_message_from_uid = msg.from_uid;
+        /* template.find('.ui.avatar.image')
+          .attr('src',
+            'https://secure.gravatar.com/avatar/'
+            + msg.from_uid_gravatar
+            +'?s=40&amp;d=identicon'
+          ); */
+        template.appendTo(messages);
+      });
+    // Scroll down to the last message
+    messages.parent().scrollTop(messages.height());
+  }// end function list_talk_messages_from_json
 %= end
