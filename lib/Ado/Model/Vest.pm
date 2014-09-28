@@ -90,17 +90,25 @@ sub _map_hashes {
 
     #users'/groups names
     state $names = {};
+    state $gravatars = {};
     for my $h (@$hashes) {
         if (!exists $names->{$h->{to_uid}}) {
-            $h->{to_uid_name} = $names->{$h->{to_uid}} =
-              Ado::Model::Users->find($h->{to_uid})->name;
+            my $user =  Ado::Model::Users->find($h->{to_uid});
+            $h->{to_uid_name} = $names->{$h->{to_uid}} = $user->name;
         }
-        else { $h->{to_uid_name} = $names->{$h->{to_uid}}; }
+        else { 
+            $h->{to_uid_name} = $names->{$h->{to_uid}};
+        }
         if (!exists $names->{$h->{from_uid}}) {
-            $h->{from_uid_name} = $names->{$h->{from_uid}} =
-              Ado::Model::Users->find($h->{from_uid})->name;
+            my $user =  Ado::Model::Users->find($h->{from_uid});
+            $h->{from_uid_name} = $names->{$h->{from_uid}} = $user->name;
+            $h->{from_uid_gravatar} = $gravatars->{$h->{from_uid}} = 
+                Digest::MD5::md5_hex($user->email);
         }
-        else { $h->{from_uid_name} = $names->{$h->{from_uid}}; }
+        else { 
+            $h->{from_uid_name} = $names->{$h->{from_uid}};
+            $h->{from_uid_gravatar} = $gravatars->{$h->{from_uid}}; 
+        }
         if (!exists $names->{$h->{to_guid}}) {
             $h->{to_guid_name} = $names->{$h->{to_guid}} =
               Ado::Model::Groups->find($h->{to_guid})->name;
