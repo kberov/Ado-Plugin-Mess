@@ -11,6 +11,7 @@ LICENSE
 MANIFEST			This list of files
 META.json
 META.yml
+public/plugins/vest/vest.css
 README
 t/.perlcriticrc
 t/.perltidyrc
@@ -23,4 +24,9 @@ t/perl-critic.t
 t/pod-coverage.t
 t/pod.t
 templates/layouts/vest.html.ep
+templates/vest/contacts.html.ep
+templates/vest/head.html.ep
+templates/vest/menu.html.ep
+templates/vest/messages.html.ep
 templates/vest/screen.html.ep
+templates/vest/talks.html.ep

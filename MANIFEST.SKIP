@@ -72,6 +72,10 @@
 # Avoid archives of this distribution
 \bAdo-Plugin-Vest-[\d\.\_]+
 
-#Avoid backups made by SQLite Manager
+# Avoid backups made by SQLite Manager
 \betc/ado_\d+\.sqlite
+
+# Avoid ctags files
+\.?tags(\w)*?
+
 
