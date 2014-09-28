@@ -6,5 +6,4 @@
 %= include 'vest/contacts'
 
 %= include 'vest/messages'
-%= include 'vest/message_form'
 </main>

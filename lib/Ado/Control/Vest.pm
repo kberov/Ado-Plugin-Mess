@@ -34,7 +34,7 @@ sub list {
         )
     );
 }
-
+#Lists messages from a talk of the current user (by subject_message_id)
 sub list_messages {
     my ($c) = @_;
     my $s_m_id = $c->stash('id');

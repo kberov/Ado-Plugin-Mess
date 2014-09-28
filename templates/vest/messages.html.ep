@@ -1,61 +1,103 @@
 <!-- Messages in the current talk: messages.html.ep -->
-
-<h5 class="ui top attached header">
+<h5 class="ui header">
   Talk:Here is the topik of the talk
 </h5>
-<div id="talk" class="ui grid">
-  <div id="messages" class="row">
-    <div class="ui list">
-      <span class="item">
-        <img class="ui avatar image" src="https://secure.gravatar.com/avatar/eae0eb4092a9f63426c13408e343b803?s=40&amp;d=identicon" />
-        <div class="content">
-          <div class="small header">Nikolai</div>
-          <div class="description">Last seen watching <a><b>Bob's Burgers</b></a> 10 hours ago.</div>
-        </div>
-      </span>
-      <span class="item">
-        <img class="ui avatar image" src="/images/avatar/small/daniel.jpg">
-        <div class="content">
-          <div class="small header">Nikolai</div>
-          <div class="description">Last seen watching <a><b>Bob's Burgers</b></a> 10 hours ago.</div>
-        </div>
-      </span>
-      <span class="item">
-        <img class="ui avatar image" src="/images/avatar/small/daniel.jpg">
-        <div class="content">
-          <div class="small header">Nikolai</div>
-          <div class="description">Last seen watching <a><b>Bob's Burgers</b></a> 10 hours ago.</div>
-        </div>
-      </span>
-      <span class="item">
-        <img class="ui avatar image" src="/images/avatar/small/daniel.jpg">
-        <div class="content">
-          <div class="small header">Nikolai</div>
-          <div class="description">Last seen watching <a><b>Bob's Burgers</b></a> 10 hours ago.</div>
-        </div>
-      </span>
-      <span class="item">
-        <img class="ui avatar image" src="/images/avatar/small/daniel.jpg">
-        <div class="content">
-          <div class="small header">Nikolai</div>
-          <div class="description">Last seen watching <a><b>Bob's Burgers</b></a> 10 hours ago.</div>
-        </div>
-      </span>
-      <span class="item">
-        <img class="ui avatar image" src="/images/avatar/small/daniel.jpg">
-        <div class="content">
-          <div class="small header">Nikolai</div>
-          <div class="description">Last seen watching <a><b>Bob's Burgers</b></a> 10 hours ago.</div>
-        </div>
-      </span>  
-    </div> <!-- end div class="ui list" -->
-  </div> <!-- end div id="messages" -->
-  <div id="message_form" class="row">
-    
-  </div>
-</div> <!-- div id="talk" class="ui grid" -->
-<template id="message_template">
+<div id="messages" class="ui segment">
+
+  <div class="ui list">
     <span class="item">
+      <img class="ui avatar image" src="https://secure.gravatar.com/avatar/eae0eb4092a9f63426c13408e343b803?s=40&amp;d=identicon" />
+      <div class="content">
+        <div class="small header">Nikolai</div>
+        <div class="description">Last seen watching <a><b>Bob's Burgers</b></a> 10 hours ago.</div>
+      </div>
+    </span>
+    <span class="item">
+      <img class="ui avatar image" src="https://secure.gravatar.com/avatar/eae0eb4092a9f63426c13408e343b803?s=40&amp;d=identicon" />
+      <div class="content">
+        <div class="small header">Nikolai</div>
+        <div class="description">Last seen watching <a><b>Bob's Burgers</b></a> 10 hours ago.</div>
+      </div>
+    </span>
+    <span class="item">
+      <img class="ui avatar image" src="https://secure.gravatar.com/avatar/eae0eb4092a9f63426c13408e343b803?s=40&amp;d=identicon" />
+      <div class="content">
+        <div class="small header">Nikolai</div>
+        <div class="description">Last seen watching <a><b>Bob's Burgers</b></a> 10 hours ago.</div>
+      </div>
+    </span>
+    <span class="item">
+      <img class="ui avatar image" src="https://secure.gravatar.com/avatar/eae0eb4092a9f63426c13408e343b803?s=40&amp;d=identicon" />
+      <div class="content">
+        <div class="small header">Nikolai</div>
+        <div class="description">Last seen watching <a><b>Bob's Burgers</b></a> 10 hours ago.</div>
+      </div>
+    </span>
+    <span class="item">
+      <img class="ui avatar image" src="https://secure.gravatar.com/avatar/eae0eb4092a9f63426c13408e343b803?s=40&amp;d=identicon" />
+      <div class="content">
+        <div class="small header">Nikolai</div>
+        <div class="description">Last seen watching <a><b>Bob's Burgers</b></a> 10 hours ago.</div>
+      </div>
+    </span>
+    <span class="item">
+      <img class="ui avatar image" src="https://secure.gravatar.com/avatar/eae0eb4092a9f63426c13408e343b803?s=40&amp;d=identicon" />
+      <div class="content">
+        <div class="small header">Nikolai</div>
+        <div class="description">Last seen watching <a><b>Bob's Burgers</b></a> 10 hours ago.</div>
+      </div>
+    </span>
+    <span class="item">
+      <img class="ui avatar image" src="https://secure.gravatar.com/avatar/eae0eb4092a9f63426c13408e343b803?s=40&amp;d=identicon" />
+      <div class="content">
+        <div class="small header">Nikolai</div>
+        <div class="description">Last seen watching <a><b>Bob's Burgers</b></a> 10 hours ago.</div>
+      </div>
+    </span>
+    <span class="item">
+      <img class="ui avatar image" src="https://secure.gravatar.com/avatar/eae0eb4092a9f63426c13408e343b803?s=40&amp;d=identicon" />
+      <div class="content">
+        <div class="small header">Nikolai</div>
+        <div class="description">Last seen watching <a><b>Bob's Burgers</b></a> 10 hours ago.</div>
+      </div>
+    </span>
+    <span class="item">
+      <img class="ui avatar image" src="https://secure.gravatar.com/avatar/eae0eb4092a9f63426c13408e343b803?s=40&amp;d=identicon" />
+      <div class="content">
+        <div class="small header">Nikolai</div>
+        <div class="description">Last seen watching <a><b>Bob's Burgers</b></a> 10 hours ago.</div>
+      </div>
+    </span>
+    <span class="item">
+      <img class="ui avatar image" src="https://secure.gravatar.com/avatar/eae0eb4092a9f63426c13408e343b803?s=40&amp;d=identicon" />
+      <div class="content">
+        <div class="small header">Nikolai</div>
+        <div class="description">Last seen watching <a><b>Bob's Burgers</b></a> 10 hours ago.</div>
+      </div>
+    </span>
+    <span class="item">
+      <img class="ui avatar image" src="https://secure.gravatar.com/avatar/eae0eb4092a9f63426c13408e343b803?s=40&amp;d=identicon" />
+      <div class="content">
+        <div class="small header">Nikolai</div>
+        <div class="description">Last seen watching <a><b>Bob's Burgers</b></a> 10 hours ago.</div>
+      </div>
+    </span>
+  </div> <!-- end div class="ui list" -->
+</div><!-- div class="ui segment" -->
+<!-- form for sending a message to the other person in the talk -->
+<form id="message_form" class="ui form segment" action="<%= url_for('/вест') %>" method="POST">
+  <input type="hidden" name="from_uid" value="" />
+  <input type="hidden" name="to_uid" value="" />
+  <input type="hidden" name="subject" value="" />
+  <input type="hidden" name="subject_message_id" value="" />
+  <div class="field">
+    <label>Message</label>
+    <textarea name="message"></textarea>
+  </div>
+</form><!-- form class="ui form segment" -->
+
+<template id="message_template"
+  ><span class="item">
       <img class="ui avatar image" src="/images/avatar/small/daniel.jpg">
       <div class="content">
         <span class="small header">Бай Ганьо</span>

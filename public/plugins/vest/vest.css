@@ -6,7 +6,7 @@ i.icon.vede:before {
   position: relative;
   margin: auto;
   /* top right bottom left */
-  padding: 4em 0em 1em 0em;
+  padding: 4em 1.5em 0em 1.5em;
   background: #FAFAFA;
   height: 100%;
  
@@ -20,18 +20,24 @@ i.icon.vede:before {
 }
 
 #messages {
- /* position: relative;
-  height: 80%;
+ position: relative;
+ /* 
   margin: 1em;
-  padding: 1em;
   */
+    /* top right bottom left */
+  padding: 1em;
+  overflow: auto;
+  height: 300px;
+  max-height: 300px;
+  
 }
 
-#messages ul.list li.item {
-  list-style: none none none;
+form.ui.form.segment{
+ position: relative;
+  
 }
-
-#message_form {
- 
+form#message_form.ui.form.segment .field textarea {
+  min-height:2em;
+  height: 5em;
+  padding: 1ex;
 }
-

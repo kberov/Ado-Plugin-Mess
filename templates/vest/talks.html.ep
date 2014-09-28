@@ -6,18 +6,50 @@
 % foreach my $talk (@$talks) {
 % # TODO: add group talks in case to_guid !=0
     <li>
+      %= link_to '/вест/messages/'.$talk->{id}.'.json'=> begin
       <%= $talk->{to_uid_name} %> (<%= $talk->{subject} %>)
+      %= end
     </li>
 %}
   </ul>
-% # TODO add previous X and next X talks menu 
+% # TODO: add previous X and next X talks menu 
 % # at the bottom of the sidebar
 </aside>
 %= javascript begin
-  //Initialize the left sidebar
-  $('#talks').sidebar();
-  $('#talks_button').on('click',function (){
-    $('#talks').sidebar('toggle');
-  });
+  jQuery(function($){
+    //Initialize the left sidebar
+    $('#talks').sidebar();
+    $('#talks_button').click(function (){
+      $('#talks').sidebar('toggle');
+    });
+    // Fill in #messages with the last talk and 
+    // bind onclick to filling in messages in the #messages
+    $('#talks ul li a').click(show_talk_messages);
+    //$('#talks_button').click();
+    //$('#talks ul li a').click();
 
+  });//jQuery(function($)...
+  // Lists messages from a talk
+  function show_talk_messages(e){
+      console.log(e.target);
+      var a = e.target;
+      // close the sidebar
+      $('#talks').sidebar('hide');
+
+      // get the messages
+      $.get(a.href,function(json_messages){
+          var messages = $('#messages');
+          messages.html('');
+
+          console.log(json_messages);
+          
+          $(json_messages.data).each(function(i,msg){
+              var template = $($('#message_template').html());//copy
+              template.find('.header').html(msg.from_uid_name);
+              template.find('.description').html(msg.message);
+              template.appendTo(messages);
+            });
+        });
+      return false;
+  }
 %= end
