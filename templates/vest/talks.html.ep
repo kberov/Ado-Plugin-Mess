@@ -26,7 +26,7 @@
     // bind onclick to filling in messages in the #messages
     $('#talks ul li a').click(show_talk_messages);
     //$('#talks_button').click();
-    //$('#talks ul li a').click();
+    $('#talks ul li a:first').click();
 
   });//jQuery(function($)...
   // Lists messages from a talk
@@ -52,6 +52,14 @@
     //console.log(json_messages);
     var prev_message_from_uid = 0;
     $(json_messages.data).each(function(i,msg){
+        // Last message in the resultset is the topic message.
+        // Set the topic and continue!
+        if(msg.subject_message_id==0){
+          $('#talk_topic').html(msg.message)
+          return;
+        }
+        
+        // fill in template and display the message
         var template = $($('#message_template').html());//copy
         template.attr('id','msg'+msg.id);
         var date = new Date(msg.tstamp);
