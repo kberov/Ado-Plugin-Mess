@@ -58,9 +58,7 @@
         // Last message in the resultset is the topic message.
         // Set the topic and continue!
         if(msg.subject_message_id==0){
-          $('#talk_topic').html(msg.message.substring(0,30)+'...');
-          $('#talk_topic').attr('title',msg.message);
-          console.log(msg)
+          set_talk(msg);
           return;
         }
         
@@ -88,4 +86,24 @@
     // Scroll down to the last message
     messages.parent().scrollTop(messages.height());
   }// end function list_talk_messages_from_json
+
+  // Sets the current talk title and hidden fields in the message form
+  function set_talk(msg) {
+    if(msg.subject_message_id!=0){
+        alert('subject_message_id!=0')
+        return false;
+    }
+    $('#talk_topic').html(msg.message.substring(0,30)+'...');
+    $('#talk_topic').attr('title',msg.message);
+    $('#message_form [name="from_uid"]').attr('value',msg.from_uid);
+    $('#message_form [name="to_uid"]').attr('value',msg.to_uid);
+    $('#message_form [name="to_guid"]').attr('value',msg.to_guid);
+    $('#message_form [name="subject"]').attr('value',msg.subject);
+    $('#message_form [name="subject_message_id"]')
+      .attr('value',msg.subject_message_id);
+    $('#message_form [name="message_assets"]').attr('value',msg.message_assets);
+    console.log(msg)
+
+  }// end function set_talk(msg)
+
 %= end

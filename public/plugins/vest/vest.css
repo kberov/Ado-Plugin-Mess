@@ -19,23 +19,17 @@ i.icon.vede:before {
   width:100%;
 }
 
+#talk_topic {
+ /* height:2em; */
+}
 #messages {
- position: relative;
- /* 
-  margin: 1em;
-  */
-    /* top right bottom left */
+  /* top right bottom left */
   padding: 1em;
+  height: 55vh;
   overflow: auto;
-  height: 300px;
-  max-height: 300px;
-  
 }
+#messages .ul.list {}
 
-form.ui.form.segment{
- position: relative;
-  
-}
 form#message_form.ui.form.segment .field textarea {
   min-height:2em;
   height: 5em;

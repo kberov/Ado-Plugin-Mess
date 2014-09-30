@@ -5,19 +5,23 @@
 <div id="messages" class="ui segment">
   <div class="ui list">
   </div> <!-- end div class="ui list" -->
+
 </div><!-- div class="ui segment" -->
-<!-- form for sending a message to the other person in the talk -->
+  <!-- form for sending a message to the other person in the talk -->
 <form id="message_form" class="ui form segment" action="<%= url_for('/вест') %>" method="POST">
   <input type="hidden" name="from_uid" value="" />
   <input type="hidden" name="to_uid" value="" />
+  <input type="hidden" name="to_guid" value="" />
   <input type="hidden" name="subject" value="" />
   <input type="hidden" name="subject_message_id" value="" />
+  <input type="hidden" name="message_assets" value="" /><!-- TODO -->
+  <input type="hidden" name="sent" value="0" />
   <div class="field">
     <label>Message</label>
     <textarea name="message"></textarea>
+    <button type="submit" class="ui button"><i class="send icon"></i>Submit</buton>
   </div>
 </form><!-- form class="ui form segment" -->
-
 <template id="message_template"
   ><p class="item" id="12345">
       %# <!-- TODO: implement gravatars later <img class="ui avatar image" src=""> -->
