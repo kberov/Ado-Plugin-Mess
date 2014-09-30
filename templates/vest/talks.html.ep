@@ -6,8 +6,10 @@
 % foreach my $talk (@$talks) {
 % # TODO: add group talks in case to_guid !=0
     <li>
-      %= link_to '/вест/messages/'.$talk->{id}.'.json'=> begin
-      <%= $talk->{to_uid_name} %> (<%= $talk->{subject} %>)
+      <%= link_to '/вест/messages/'.$talk->{id}.'.json'
+        => (id=>'talk'.$talk->{id}) =>begin %>
+      <%= $talk->{from_uid} eq $user->id?$talk->{to_uid_name}:$talk->{from_uid_name} %> 
+            (<%= $talk->{subject} %>)
       %= end
     </li>
 %}
@@ -16,6 +18,7 @@
 % # at the bottom of the sidebar
 </aside>
 %= javascript begin
+  //var user = <%== Mojo::JSON::encode_json($user->data) %>;
   jQuery(function($){
     //Initialize the left sidebar
     $('#talks').sidebar();
@@ -55,7 +58,9 @@
         // Last message in the resultset is the topic message.
         // Set the topic and continue!
         if(msg.subject_message_id==0){
-          $('#talk_topic').html(msg.message)
+          $('#talk_topic').html(msg.message.substring(0,30)+'...');
+          $('#talk_topic').attr('title',msg.message);
+          console.log(msg)
           return;
         }
         
