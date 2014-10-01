@@ -7,6 +7,7 @@ our $VERSION = '0.02';
 
 sub register {
     my ($self, $app, $conf) = shift->initialise(@_);
+    $app->defaults('vest_base_url' => $$conf{vest_base_url});
     $self->_create_table($app, $conf);
     return $self;
 }
