@@ -43,8 +43,8 @@ Ado::Plugin::Vest - Messaging services for an Ado system!
 =head1 DESCRIPTION
 
 L<Ado::Plugin::Vest> implements a (not too) naive messaging application.
-It can be used as a chat between two users or as commenting widged under some article.
-Other uses are also possible. Just create your HTML application and start making Ajax 
+It can be used as a chat between two users or as commenting widget under some article.
+Other uses are also possible. Just create your client (HTML5 or desktop) application and start making Ajax 
 or Websocket (TODO) requests.
 
 
@@ -94,7 +94,7 @@ L<Mojolicious::Guides::Growing/Controller_class>
 
 =head1 COPYRIGHT AND LICENSE
 
-Copyright 2013 Красимир Беров (Krasimir Berov).
+Copyright 2014 Красимир Беров (Krasimir Berov).
 
 This program is free software, you can redistribute it and/or
 modify it under the terms of the 
