@@ -124,14 +124,32 @@ sub add {
     ) if $result->{errors};
 
     my $message =
-      Ado::Model::Vest->create(%{$result->{output}}, tstamp => gmtime->epoch);
-
-    #TODO: Remove as much as possible hardcodding
-    $c->res->headers->location(
-        $c->url_for('/' . $c->current_route . '/id/' . $message->id => format => 'json'));
-
-    #201 Created
-    return $c->render(status => 201, text => '');
+      eval { Ado::Model::Vest->create(%{$result->{output}}, tstamp => gmtime->epoch) };
+    if ($message) {
+        $c->render(
+            status => 200,
+            json   => {
+                code   => 200,
+                status => 'success',
+                data   => $message->data
+            }
+        );
+    }
+    else {
+        my $err_data = 'Error in POST ' . $c->current_route;
+        $c->app->log->error($err_data . ': ' . $@);
+        return $c->render(
+            status => 500,
+            json   => {
+                code    => 500,
+                status  => 'error',
+                message => 'The message could not be created on the server. '
+                  . 'The administrator is informed about the error.',
+                data => ($c->app->mode eq 'development' ? $@ : $err_data)
+            }
+        );
+    }
+    return;
 }
 
 
