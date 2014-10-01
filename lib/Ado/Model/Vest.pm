@@ -45,7 +45,7 @@ my $CHECKS = {
         'defined'  => 1,
         'allow'    => qr/(?^x:^-?\d{1,12}$)/
     },
-    'id' => {'allow' => qr/(?^x:^-?\d{1,}$)/},
+    'id'   => {'allow' => qr/(?^x:^-?\d{1,}$)/},
     'seen' => {'allow' => qr/^\d$/}
 };
 
@@ -89,25 +89,25 @@ sub _map_hashes {
     my $hashes = shift;
 
     #users'/groups names
-    state $names = {};
+    state $names     = {};
     state $gravatars = {};
     for my $h (@$hashes) {
         if (!exists $names->{$h->{to_uid}}) {
-            my $user =  Ado::Model::Users->find($h->{to_uid});
+            my $user = Ado::Model::Users->find($h->{to_uid});
             $h->{to_uid_name} = $names->{$h->{to_uid}} = $user->name;
         }
-        else { 
+        else {
             $h->{to_uid_name} = $names->{$h->{to_uid}};
         }
         if (!exists $names->{$h->{from_uid}}) {
-            my $user =  Ado::Model::Users->find($h->{from_uid});
+            my $user = Ado::Model::Users->find($h->{from_uid});
             $h->{from_uid_name} = $names->{$h->{from_uid}} = $user->name;
-            $h->{from_uid_gravatar} = $gravatars->{$h->{from_uid}} = 
-                Digest::MD5::md5_hex($user->email);
+            $h->{from_uid_gravatar} = $gravatars->{$h->{from_uid}} =
+              Digest::MD5::md5_hex($user->email);
         }
-        else { 
-            $h->{from_uid_name} = $names->{$h->{from_uid}};
-            $h->{from_uid_gravatar} = $gravatars->{$h->{from_uid}}; 
+        else {
+            $h->{from_uid_name}     = $names->{$h->{from_uid}};
+            $h->{from_uid_gravatar} = $gravatars->{$h->{from_uid}};
         }
         if (!exists $names->{$h->{to_guid}}) {
             $h->{to_guid_name} = $names->{$h->{to_guid}} =
