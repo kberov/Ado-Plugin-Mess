@@ -126,7 +126,7 @@ sub by_subject_message_id {
     ${\ _MESSAGES_SQL }
     UNION
     ${\ __PACKAGE__->SQL('SELECT') }
-    WHERE id = ?  ORDER BY id DESC
+    WHERE id = ?  ORDER BY id ASC
     ${\ __PACKAGE__->SQL_LIMIT('?','?') }
 SQL
     my $hashes =
