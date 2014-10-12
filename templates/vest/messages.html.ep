@@ -24,7 +24,7 @@
   </div>
 </form><!-- form class="ui form segment" -->
 <template id="message_template"
-  ><p class="item" id="12345">
+  ><p class="item" id="12345" title="">
       %# <!-- TODO: implement gravatars later <img class="ui avatar image" src=""> -->
   [<i class="date"></i>]
   <b class="from_uid_name">Бай Ганьо</b>

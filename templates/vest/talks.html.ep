@@ -25,9 +25,9 @@
     $('#talks_button').click(function (){
       $('#talks').sidebar('toggle');
     });
-    // Fill in #messages with the last talk and 
+    // Fill in #messages with the last talk and
     // bind onclick to filling in messages in the #messages
-    $('#talks ul li a').click(show_talk_messages);
+    $('#talks ul li a').click(list_messages);
     // List messages from the last talk.
     $('#talks ul li a:first').click();
     // to send or not to send the message?
@@ -35,44 +35,47 @@
 
   });// jQuery(function($)...
   // Lists messages from a talk
-  function show_talk_messages(e){
-      console.log(e.target);
+  function list_messages(e){
+      //console.log(e.target);
       var a = e.target;
       // close the sidebar
       $('#talks').sidebar('hide');
 
       // get the messages
-      $.get(a.href, list_talk_messages_from_json);
+      $.get(a.href, list_messages_from_json);
       return false;
   }
 
   // Fills in mesages list box from received json
-  function list_talk_messages_from_json(json_messages){
+  function list_messages_from_json(json_messages){
     var messages = $('#messages .ui.list');
     messages.html('');
 
     //console.log(json_messages);
-    var prev_message_from_uid = 0;
+    var prev_msg = {};
     $(json_messages.data).each(function(i,msg){
-        
-        if(msg.subject_message_id==0) { // This is the message defining the topic (the parent).
+
+        // This is the message defining the topic (the parent message).
+        if(msg.subject_message_id == 0) {
           set_talk_form(msg); // Set the topic and continue!
-          return;
         }
-        
+
         // fill in template and display the message
         var template = $($('#message_template').html());//copy
         template.attr('id','msg'+msg.id);
+        //just to debug order by
+        template.attr('title','msg'+msg.id);
+
         var date = new Date(msg.tstamp);
         template.find('.date').html(date.toTimeString());
         template.find('.message').html(msg.message);
-        if(prev_message_from_uid == msg.from_uid){
+        if(prev_msg.from_uid == msg.from_uid){
           template.find('.from_uid_name').html('...');
         }
         else{
           template.find('.from_uid_name').html(msg.from_uid_name + ':');
         }
-        prev_message_from_uid = msg.from_uid;
+        prev_msg = msg;
         /* template.find('.ui.avatar.image')
           .attr('src',
             'https://secure.gravatar.com/avatar/'
@@ -93,9 +96,14 @@
     }
     $('#talk_topic').html(msg.message.substring(0,30)+'...');
     $('#talk_topic').attr('title',msg.message);
-    var fields = ['from_uid','to_uid','to_guid','subject',
-      'subject_message_id','message_assets'];
-      $.each(fields, function(i,k) { $('#message_form [name="'+k+'"]').val(msg[k]);});
+    var fields = ['to_guid','subject','subject_message_id','message_assets'];
+    $.each(fields, function(i,k) { $('#message_form [name="'+k+'"]').val(msg[k]);});
+    var uid = $('#message_form [name="from_uid"]').val();
+    $('#message_form [name="to_uid"]').val(
+      // to_uid points to the other participant in the talk
+      uid == msg.to_uid ? msg.from_uid : msg.to_uid);
+    
+
   }// end function set_talk(msg)
 
   function validate_message(e){

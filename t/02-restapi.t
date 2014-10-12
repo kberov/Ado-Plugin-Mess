@@ -307,8 +307,8 @@ $t1->get_ok("$vest_base_url/messages/5.json?limit=10")->json_is(
 note('Creating more messages in many talks. This may take a while...');
 
 for my $talk (4 .. 25) {
-    my $to_uid      = int(rand(4));
-    my $from_uid    = 3;
+    my $to_uid      = 4;#Test 2
+    my $from_uid    = 3;#Test 1
     my @from_to     = ($from_uid, $to_uid);
     my $time        = time;
     my $subject     = "Разговор " . ucfirst(join(' ', shuffle(@message[0 .. 6])) . '.');
