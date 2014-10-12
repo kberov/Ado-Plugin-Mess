@@ -57,7 +57,9 @@
 
         // This is the message defining the topic (the parent message).
         if(msg.subject_message_id == 0) {
-          set_talk_form(msg); // Set the topic and continue!
+          set_talk_form(msg); // Set the topic
+          //append the first message if there is no offset
+          if(json_messages.links[0].href.match("offset=[1-9]")) return;
         }
 
         // fill in template and display the message
