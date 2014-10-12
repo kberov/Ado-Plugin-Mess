@@ -114,8 +114,9 @@ my $add_input_validation_template = {
 sub add {
     my $c      = shift;
     my $result = $c->validate_input($add_input_validation_template);
-    $c->debug('$add_input_validation_template:' . $c->dumper($add_input_validation_template));
-    $c->debug('$result:' . $c->dumper($result));
+
+    #$c->debug('$add_input_validation_template:' . $c->dumper($add_input_validation_template));
+    #$c->debug('$result:' . $c->dumper($result));
 
     #400 Bad Request
     return $c->render(
@@ -126,14 +127,20 @@ sub add {
     my $message =
       eval { Ado::Model::Vest->create(%{$result->{output}}, tstamp => gmtime->epoch) };
     if ($message) {
-        $c->render(
-            status => 200,
-            json   => {
-                code   => 200,
-                status => 'success',
-                data   => $message->data
-            }
-        );
+
+        # May be?
+        # $c->render(
+        #     status => 200,
+        #     json   => {
+        #         code   => 200,
+        #         status => 'success',
+        #         data   => $message->data
+        #     }
+        # );
+        # Or just 201 Created?
+        $c->res->headers->location(
+            $c->url_for('/' . $c->current_route . '/id/' . $message->id => format => 'json'));
+        return $c->render(status => 201, text => '');
     }
     else {
         my $err_data = 'Error in POST ' . $c->current_route;
