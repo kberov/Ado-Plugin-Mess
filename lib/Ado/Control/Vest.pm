@@ -35,7 +35,7 @@ sub list {
     );
 }
 
-#Lists messages from a talk of the current user (by subject_message_id)
+#Lists last 20 messages from a talk of the current user (by subject_message_id)
 sub list_messages {
     my ($c) = @_;
     my $s_m_id = $c->stash('id');
@@ -48,14 +48,24 @@ sub list_messages {
             'status'  => 'error'
         }
     );
+    my $user = $c->user;
+
+    # Count the messages in a talk
+    my $count = Ado::Model::Vest->count_messages($user, $s_m_id);
+    my $limit = ($c->req->param('limit') || 20);    
+    my $offset = $c->req->param('offset') || 0;
+
+    # Default to last 20 messages (including first message)
+    $offset = $offset > 0 ? $offset : ($limit > $count ? $offset : $count - $limit);
+
     my $args = Params::Check::check(
         $list_args_checks,
-        {   limit  => $c->req->param('limit')  || 20,
-            offset => $c->req->param('offset') || 0,
+        {   limit  => $limit,
+            offset => $offset,
         }
     );
     my $messages =
-      Ado::Model::Vest->by_subject_message_id($c->user, $s_m_id, $$args{limit}, $$args{offset});
+      Ado::Model::Vest->by_subject_message_id($user, $s_m_id, $$args{limit}, $$args{offset});
     $c->res->headers->content_range(
         "messages $$args{offset}-${\($$args{limit} + $$args{offset})}/*");
     $c->debug("rendering json only [$$args{limit}, $$args{offset}]");
@@ -282,6 +292,7 @@ See http://www.w3.org/Protocols/rfc2616/rfc2616-sec10.html#sec10.2.2
 =head2 list_messages
 
 Lists messages from a talk. Renders JSON.
+If offset is not passed, lists last (19+first message) messages.
 
 
 =head2 screen
