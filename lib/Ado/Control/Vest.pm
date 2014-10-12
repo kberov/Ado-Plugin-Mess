@@ -52,12 +52,11 @@ sub list_messages {
 
     # Count the messages in a talk
     my $count = Ado::Model::Vest->count_messages($user, $s_m_id);
-    my $limit = ($c->req->param('limit') || 20);    
+    my $limit = ($c->req->param('limit') || 20);
     my $offset = $c->req->param('offset') || 0;
 
     # Default to last 20 messages (including first message)
     $offset = $offset > 0 ? $offset : ($limit > $count ? $offset : $count - $limit);
-
     my $args = Params::Check::check(
         $list_args_checks,
         {   limit  => $limit,

@@ -129,9 +129,10 @@ sub by_subject_message_id {
     SELECT * FROM (${\ _MESSAGES_SQL } ${\ __PACKAGE__->SQL_LIMIT('?','?') })
     ORDER BY id ASC 
 SQL
+
+#warn "$SQL $s_m_id, $s_m_id, $uid, $uid, $uid, $limit, $offset";
     my $hashes =
-      $class->dbix->query($SQL, $s_m_id, $s_m_id, $uid, $uid, $uid,
-        $limit, $offset)->hashes;
+      $class->dbix->query($SQL, $s_m_id, $s_m_id, $uid, $uid, $uid, $limit, $offset)->hashes;
     return _map_hashes($hashes);
 }
 
