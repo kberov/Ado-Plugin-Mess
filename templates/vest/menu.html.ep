@@ -1,5 +1,4 @@
 <!-- the top menu with buttons menu.html.ep -->
-% my $user = user;
 <nav id="vestbar" class="ui blue inverted fixed small menu">
   <a class="item"><i class="circular vede icon"></i></a>
   <div id="talks_button" class="item ui labeled icon button">

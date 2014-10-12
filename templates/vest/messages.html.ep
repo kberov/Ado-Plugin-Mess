@@ -10,7 +10,7 @@
   <!-- form for sending a message to the other person in the talk -->
 <form id="message_form" name="message_form"
   class="ui form segment" action="<%= url_for($vest_base_url) %>" method="POST">
-  <input type="hidden" name="from_uid" value="" />
+  <input type="hidden" name="from_uid" value="<%= $user->id %>" />
   <input type="hidden" name="to_uid" value="" />
   <input type="hidden" name="to_guid" value="" />
   <input type="hidden" name="subject" value="" />

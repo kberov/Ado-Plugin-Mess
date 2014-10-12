@@ -1,5 +1,4 @@
 <!-- talks.html.ep -->
-% my $user = user;
 <aside id="talks" class="ui floating styled sidebar">
 % my $talks = Ado::Model::Vest->talks($user, int(param('limit')||20), 0);
   <ul>
@@ -18,7 +17,6 @@
 % # at the bottom of the sidebar
 </aside>
 %= javascript begin
-  //var user = <%== Mojo::JSON::encode_json($user->data) %>;
   var post_message_url = '<%= url_for $vest_base_url %>';
   'use strict';
   jQuery(function($){
