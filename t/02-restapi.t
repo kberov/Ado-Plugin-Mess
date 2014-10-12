@@ -18,6 +18,7 @@ $app->routes->find('controlleraction')->remove();
 $app->routes->find('controlleractionid')->remove();
 
 isa_ok($app->plugin('vest'), 'Ado::Plugin::Vest');
+my $vest_base_url = $app->config('Ado::Plugin::Vest')->{vest_base_url};
 
 #$t1 login first
 subtest 't1_login' => sub {
@@ -55,16 +56,16 @@ subtest 't2_login' => sub {
 };
 
 #reload
-#{route => '/вест', via => ['GET'],  to => 'vest#list',}
+#{route => '/$vest_base_url', via => ['GET'],  to => 'vest#list',}
 #no format
-$t1->get_ok('/вест/list')->status_is('415', '415 - Unsupported Media Type ')
+$t1->get_ok("$vest_base_url/list")->status_is('415', '415 - Unsupported Media Type ')
   ->content_type_is('text/html;charset=UTF-8')->header_like('Content-Location' => qr|\.json$|x)
   ->content_like(qr|\.json</a>\!|x);
 
 #=pod
 
 #with format
-$t1->get_ok('/вест/list.json')->status_is('200', 'Status is 200')
+$t1->get_ok("$vest_base_url/list.json")->status_is('200', 'Status is 200')
   ->content_type_is('application/json')->json_has('/data')->json_has('/links')
   ->json_is('/links/0/rel' => 'self', '/links/0/rel is self')
   ->json_like('/links/0/href' => qr'\.json\?limit=20\&offset=0')
@@ -75,7 +76,7 @@ $t1->get_ok('/вест/list.json')->status_is('200', 'Status is 200')
 #Play with several messages.
 #{route => '/вест', via => ['POST'], to => 'vest#add',},
 $t1->post_ok(
-    '/вест',
+    $vest_base_url,
     form => {
         from_uid           => 3,
         subject_message_id => 0,
@@ -94,7 +95,7 @@ $t1->post_ok(
 
 # fixed bug - missing "required" validation on second POST
 $t1->post_ok(
-    '/вест',
+    $vest_base_url,
     form => {
         from_uid           => 3,
         subject_message_id => 0,
@@ -106,7 +107,7 @@ $t1->post_ok(
 )->status_is('400', 'Status is 400');
 
 $t1->post_ok(
-    '/вест',
+    $vest_base_url,
     form => {
         from_uid           => 3,
         subject_message_id => 0,
@@ -119,7 +120,7 @@ $t1->post_ok(
 my $s_m_id = 0;
 for my $id (1, 3, 5) {
     $t1->post_ok(
-        '/вест',
+        $vest_base_url,
         form => {
             from_uid => 3,
             to_uid   => 4,
@@ -131,8 +132,8 @@ for my $id (1, 3, 5) {
         }
       )->status_is('201', 'ok 201 - Created')->header_like(Location => qr/\/id\/\d+/)
       ->content_is('');
-    ($s_m_id) = $t1->tx->res->headers->header('Location') =~ qr/\/id\/(\d+)/
-      unless $s_m_id;
+    my $location = $t1->tx->res->headers->header('Location');
+    ($s_m_id) = $location =~ qr/\/id\/(\d+)/ unless $s_m_id;
 
 =pod
 {   route  => '/вест/:id',
@@ -142,7 +143,8 @@ for my $id (1, 3, 5) {
 },
 =cut
 
-    $t2->get_ok("/вест/$id.json")->status_is('200', 'Status is 200')
+    $t2->get_ok("$vest_base_url/$id.json")
+      ->status_is('200', "$vest_base_url/$id.json" . ' Status is 200')
       ->json_is('/data/message', "Здравей, Приятел! $id", "ok created $id");
     my $next = $id + 1;
 
@@ -150,7 +152,7 @@ for my $id (1, 3, 5) {
 
     #reply from a friend
     $t2->post_ok(
-        '/вест',
+        $vest_base_url,
         form => {
             from_uid           => 4,
             to_uid             => 3,
@@ -174,7 +176,7 @@ for my $id (1, 3, 5) {
 =cut
 
 $t1->put_ok(
-    '/вест/5',
+    "$vest_base_url/5",
     form => {
         to_uid             => 4,
         from_uid           => 3,
@@ -184,7 +186,7 @@ $t1->put_ok(
     }
 )->status_is('204', 'Status is 204')->content_is('', 'ok updated id 5');
 
-$t1->get_ok('/вест/5.json')->status_is('200', 'Status is 200')
+$t1->get_ok("$vest_base_url/5.json")->status_is('200', 'Status is 200')
   ->json_is('/data/message',  "Let's speak some English.", 'ok message 5 is updated')
   ->json_is('/data/to_uid',   4,                           'ok message 5 to_uid is unchanged')
   ->json_is('/data/from_uid', 3,                           'ok message 5 from_uid is unchanged')
@@ -202,7 +204,7 @@ $t1->get_ok('/вест/5.json')->status_is('200', 'Status is 200')
 #},
 #=cut
 
-$t1->delete_ok('/вест/1')->status_is('200', 'Status is 200')
+$t1->delete_ok("$vest_base_url/1")->status_is('200', 'Status is 200')
   ->content_is('not implemented...', 'ok not implemented...yet');
 ok($dbh->do('DROP TABLE IF EXISTS vest'), "Table vest was dropped.");
 
@@ -280,26 +282,26 @@ my $time = time;
 Ado::Model::Vest->create(%$_, tstamp => $time) for (@talk_x, @talk_y, @talk_z);
 
 # Listing talks of the current user - usually in the left sidebar
-$t1->get_ok('/вест/talks.json')->status_is('200', 'Status is 200')
+$t1->get_ok("$vest_base_url/talks.json")->status_is('200', 'Status is 200')
   ->content_type_is('application/json')->json_has('/data')
   ->json_is('/data/2/id' => 1, 'my first talk')->json_is('/data/1/id' => 5, 'my second talk')
   ->json_is('/data/0/id' => 26, 'my third talk');
-$t2->get_ok('/вест/talks.json')->json_is('/data/0/id' => 1, 'my first talk')
+$t2->get_ok("$vest_base_url/talks.json")->json_is('/data/0/id' => 1, 'my first talk')
   ->json_is('/data/1/id' => undef, 'no second talk')
   ->json_is('/data/2/id' => undef, 'no third talk');
 
 # Listing messages from a talk for the current user
-$t1->get_ok('/вест/messages/1.json')->status_is('200', 'Status is 200')
+$t1->get_ok("$vest_base_url/messages/1.json")->status_is('200', 'Status is 200')
   ->content_type_is('application/json')->json_has('/data')
   ->json_is('/links/1'        => undef,              '/links/1 is not present')
-  ->json_is('/data/0/id'      => 4,                  '/data is sorted properly')
-  ->json_is('/data/3/id'      => 1,                  '/data is sorted properly')
-  ->json_is('/data/3/subject' => 'разговор', '/data/0/subject is ok');
-$t1->get_ok('/вест/messages/5.json?limit=10')->json_is(
+  ->json_is('/data/0/id'      => 1,                  '/data is sorted properly')
+  ->json_is('/data/3/id'      => 4,                  '/data is sorted properly')
+  ->json_is('/data/0/subject' => 'разговор', '/data/0/subject is ok');
+$t1->get_ok("$vest_base_url/messages/5.json?limit=10")->json_is(
     '/links/1' =>
-      {"rel" => "next", "href" => "/%D0%B2%D0%B5%D1%81%D1%82/messages/5.json?limit=10&offset=10"},
+      {"rel" => "next", "href" => "$vest_base_url/messages/5.json?limit=10&offset=10"},
     '/links/1 is present'
-)->json_is('/data/0/id' => 25, '/data is sorted properly');
+)->json_is('/data/9/id' => 14, '/data is sorted properly');
 
 #Make some more talks for UI tests
 note('Creating more messages in many talks. This may take a while...');
