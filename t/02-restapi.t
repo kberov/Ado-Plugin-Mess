@@ -217,8 +217,6 @@ my @message = qw(
   този свят и които при все че не са живели дълго време защото никому не се
   дарява дълъг живот за дълго време оставиха писания за тия неща. Сами от себе
   си да се научим не можем защото кратки са дните на нашия живот на земята.
-  Затова с четене на старите летописи и с чуждото умение трябва да попълним
-  недостатъчността на нашите години за обогатяване на разума.
 );
 
 # Setup: Add some talks and messages in them.
@@ -298,32 +296,39 @@ $t1->get_ok("$vest_base_url/messages/1.json")->status_is('200', 'Status is 200')
   ->json_is('/data/3/id'      => 4,                  '/data is sorted properly')
   ->json_is('/data/0/subject' => 'разговор', '/data/0/subject is ok');
 $t1->get_ok("$vest_base_url/messages/5.json?limit=10")->json_is(
-    '/links/1' =>
-      {"rel" => "next", "href" => "$vest_base_url/messages/5.json?limit=10&offset=10"},
+    '/links/1' => {
+        "rel"  => "next",
+        "href" => "$vest_base_url/messages/5.json?limit=10&offset=21"
+    },
     '/links/1 is present'
-)->json_is('/data/9/id' => 14, '/data is sorted properly');
+)->json_is('/data/9/id' => 25, '/data is sorted properly');
 
 #Make some more talks for UI tests
 note('Creating more messages in many talks. This may take a while...');
 
-for my $talk (4 .. 25) {
-    my $to_uid      = 4;#Test 2
-    my $from_uid    = 3;#Test 1
-    my @from_to     = ($from_uid, $to_uid);
-    my $time        = time;
+for my $talk (14 .. 25) {
+    my $to_uid   = 4;                      #Test 2
+    my $from_uid = 3;                      #Test 1
+    my @from_to  = ($from_uid, $to_uid);
+    my $time     = time;
     my $subject     = "Разговор " . ucfirst(join(' ', shuffle(@message[0 .. 6])) . '.');
     my $lastmessage = 2;
-    for my $message_id (1 .. ($talk > 24 ? $lastmessage**3 : $lastmessage)) {
+    for my $message_id (1 .. ($talk >= 24 ? $lastmessage * 15 : $lastmessage)) {
+        my $from_uid = $from_to[int(rand(@from_to))];
         Ado::Model::Vest->create(
-            from_uid           => $from_to[($talk + $message_id) % 2],
-            to_uid             => $from_to[int(rand(@from_to))],
+            from_uid           => $from_uid,
+            to_uid             => $from_uid == $from_to[0] ? $from_to[1] : $from_to[0],
             subject            => $subject,
             subject_message_id => 0,
             message => ucfirst(join(' ', shuffle(@message[0 .. int(rand(@message))])) . '.'),
             tstamp  => $time
         );
     }
+    $t1->get_ok("$vest_base_url/talks.json")->json_has('/data/0/id');
 }
+
+#HTML UI
+$t1->get_ok("$vest_base_url")->element_exists('main.ui.container', 'main.ui.container');
 
 done_testing();
 
