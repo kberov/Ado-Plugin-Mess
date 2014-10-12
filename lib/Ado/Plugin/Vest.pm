@@ -7,6 +7,9 @@ our $VERSION = '0.02';
 
 sub register {
     my ($self, $app, $conf) = shift->initialise(@_);
+
+    #make plugin configuration available for later in the app
+    $app->config(__PACKAGE__, $conf);
     $app->defaults('vest_base_url' => $$conf{vest_base_url});
     $self->_create_table($app, $conf);
     return $self;
