@@ -74,11 +74,14 @@ sub create {
     return $self;
 }
 
+# All messages from a talk
 sub _MESSAGES_SQL {
     return state $MESSAGES_SQL = __PACKAGE__->SQL('SELECT') . <<"SQL";
-      WHERE subject_message_id = ? 
+
+      -- include the first message too
+      WHERE (subject_message_id = ? OR id = ?)
         AND (
-            to_guid IN(SELECT group_id FROM user_group WHERE user_id=?)
+            to_guid IN(SELECT group_id FROM user_group WHERE user_id=?)    
             OR(to_uid =?) OR(from_uid =?)
         )
 SQL
@@ -120,26 +123,32 @@ sub _map_hashes {
 
 # Selects messages from a talk within a given range by talk id.
 sub by_subject_message_id {
-    my ($class, $user, $subject_message_id, $limit, $offset) = @_;
+    my ($class, $user, $s_m_id, $limit, $offset) = @_;
     my $uid = $user->id;
     state $SQL = <<"SQL";
-    ${\ _MESSAGES_SQL }
-    UNION
-    ${\ __PACKAGE__->SQL('SELECT') }
-    WHERE id = ?  ORDER BY id ASC
-    ${\ __PACKAGE__->SQL_LIMIT('?','?') }
+    SELECT * FROM (${\ _MESSAGES_SQL } ${\ __PACKAGE__->SQL_LIMIT('?','?') })
+    ORDER BY id ASC 
 SQL
     my $hashes =
-      $class->dbix->query($SQL, $subject_message_id, $uid, $uid, $uid, $subject_message_id,
+      $class->dbix->query($SQL, $s_m_id, $s_m_id, $uid, $uid, $uid,
         $limit, $offset)->hashes;
     return _map_hashes($hashes);
+}
+
+# Counts messages in a talk for a user by given subject_message_id
+sub count_messages {
+    my ($class, $user, $subject_message_id) = @_;
+    my $uid = $user->id;
+    state $count_SQL = 'SELECT count(id) AS count FROM (' . _MESSAGES_SQL . ') AS messages';
+    return $class->dbix->query($count_SQL, $subject_message_id, $subject_message_id, $uid, $uid,
+        $uid)->hash->{count};
 }
 
 sub talks {
     my ($class, $user, $limit, $offset) = @_;
     my $uid = $user->id;
     state $SQL = _MESSAGES_SQL . ' ORDER BY id DESC ' . $class->SQL_LIMIT('?', '?');
-    my $hashes = $class->dbix->query($SQL, 0, $uid, $uid, $uid, $limit, $offset)->hashes;
+    my $hashes = $class->dbix->query($SQL, 0, 0, $uid, $uid, $uid, $limit, $offset)->hashes;
     return _map_hashes($hashes);
 }
 
@@ -191,6 +200,13 @@ Each column from table C<vest> has an accessor in this class.
 
 L<Ado::Model::Vest> inherits all methods from L<Ado::Model> 
 and implements the following new ones.
+
+=head2 count_messages
+
+Counts messages in a talk for a user by given subject_message_id
+Returns an integer.
+
+my $count = Ado::Model::Vest->count_messages($user, $s_m_id);
 
 =head2 by_subject_message_id
 
