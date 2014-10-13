@@ -40,6 +40,6 @@ CREATE TABLE IF NOT EXISTS vest (
   -- Was this message seen by the "to_uid" user?
   seen INT(1) DEFAULT 0
 );
-CREATE INDEX IF NOT EXISTS vest_subject ON vest(subject);
+CREATE INDEX IF NOT EXISTS vest_subject ON vest(subject) WHERE subject !='';
 CREATE INDEX IF NOT EXISTS vest_subject_message_id ON vest(subject_message_id);
 
