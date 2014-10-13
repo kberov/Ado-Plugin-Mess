@@ -310,21 +310,32 @@ for my $talk (14 .. 25) {
     my $to_uid   = 4;                      #Test 2
     my $from_uid = 3;                      #Test 1
     my @from_to  = ($from_uid, $to_uid);
-    my $time     = time;
     my $subject     = "Разговор " . ucfirst(join(' ', shuffle(@message[0 .. 6])) . '.');
     my $lastmessage = 2;
     for my $message_id (1 .. ($talk >= 24 ? $lastmessage * 15 : $lastmessage)) {
+        my $time     = time;
         my $from_uid = $from_to[int(rand(@from_to))];
+        my $message  = ucfirst(join(' ', shuffle(@message[0 .. int(rand(@message))])) . '.');
         Ado::Model::Vest->create(
-            from_uid           => $from_uid,
-            to_uid             => $from_uid == $from_to[0] ? $from_to[1] : $from_to[0],
+            from_uid => $from_uid,
+            to_uid   => $from_uid == $from_to[0] ? $from_to[1] : $from_to[0],
+
+            # Using the feature of create method to attach messages with
+            # the same subject to the same parent/topic.
             subject            => $subject,
-            subject_message_id => 0,
-            message => ucfirst(join(' ', shuffle(@message[0 .. int(rand(@message))])) . '.'),
-            tstamp  => $time
+            subject_message_id => 0,                                        #required,defined
+            message            => $message_id == 1 ? $subject : $message,
+            tstamp             => $time
         );
     }
-    $t1->get_ok("$vest_base_url/talks.json")->json_has('/data/0/id');
+
+    #LIFO
+    $t1->get_ok($vest_base_url)
+      ->text_like('#talks li:first-child a' => qr/$subject/, 'last talk subject on top')
+      ->element_exists('nav#vestbar')->element_exists('div.ui.dropdown.item')
+      ->element_exists('template#message_template')
+      ->element_exists("form#message_form[action\$=\"$vest_base_url\"]")
+      ->element_exists('h5#talk_topic');
 }
 
 #HTML UI
