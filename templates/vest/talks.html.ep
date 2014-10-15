@@ -17,116 +17,92 @@
 % # at the bottom of the sidebar
 </aside>
 %= javascript begin
-  var post_message_url = '<%= url_for $vest_base_url %>';
-  'use strict';
-  jQuery(function($){
-    //Initialize the left sidebar
-    $('#talks').sidebar();
-    $('#talks_button').click(function (){
-      $('#talks').sidebar('toggle');
-    });
-    // Fill in #messages with the last talk and
-    // bind onclick to filling in messages in the #messages
-    $('#talks ul li a').click(list_messages);
-    // List messages from the last talk.
-    $('#talks ul li a:first').click();
-    // to send or not to send the message?
-    $('#message_form').submit(validate_message);
+// Functionality related to talks
+"use strict";
 
-  });// jQuery(function($)...
-  // Lists messages from a talk
-  function list_messages(e){
-      //console.log(e.target);
-      var a = e.target;
-      // close the sidebar
-      $('#talks').sidebar('hide');
+jQuery(function($){
+  //Initialize the left sidebar
+  $('#talks').sidebar();
+  $('#talks_button').click(function (){
+    $('#talks').sidebar('toggle');
+  });
+  // Fill in #messages with the last talk and
+  // bind onclick to filling in messages in the #messages
+  $('#talks ul li a').click(list_messages);
+  // List messages from the last talk.
+  $('#talks ul li a:first').click();
+});// end jQuery(function($)
+// Lists messages from a talk
+function list_messages(e){
+    //console.log(e.target);
+    var a = e.target;
+    // close the sidebar
+    $('#talks').sidebar('hide');
 
-      // get the messages
-      $.get(a.href, list_messages_from_json);
-      return false;
-  }
-
-  // Fills in mesages list box from received json
-  function list_messages_from_json(json_messages){
-    var messages = $('#messages .ui.list');
-    messages.html('');
-
-    //console.log(json_messages);
-    var prev_msg = {};
-    $(json_messages.data).each(function(i,msg){
-
-        // This is the message defining the topic (the parent message).
-        if(msg.subject_message_id == 0) {
-          set_talk_form(msg); // Set the topic
-          //append the first message if there is no offset
-          if(json_messages.links[0].href.match("offset=[1-9]")) return;
-        }
-
-        // fill in template and display the message
-        var template = $($('#message_template').html());//copy
-        template.attr('id','msg'+msg.id);
-        //just to debug order by
-        template.attr('title','msg'+msg.id);
-
-        var date = new Date(msg.tstamp);
-        template.find('.date').html(date.toTimeString());
-        template.find('.message').html(msg.message);
-        if(prev_msg.from_uid == msg.from_uid){
-          template.find('.from_uid_name').html('...');
-        }
-        else{
-          template.find('.from_uid_name').html(msg.from_uid_name + ':');
-        }
-        prev_msg = msg;
-        /* template.find('.ui.avatar.image')
-          .attr('src',
-            'https://secure.gravatar.com/avatar/'
-            + msg.from_uid_gravatar
-            +'?s=40&amp;d=identicon'
-          ); */
-        template.appendTo(messages);
-      });
-    // Scroll down to the last message
-    messages.parent().scrollTop(messages.height());
-  }// end function list_talk_messages_from_json
-
-  // Sets the current talk title and hidden fields in the message form
-  function set_talk_form(msg) {
-    if(msg.subject_message_id!=0){
-        alert('subject_message_id!=0')
-        return false;
-    }
-    $('#talk_topic').html(msg.message.substring(0,30)+'...');
-    $('#talk_topic').attr('title',msg.message);
-    var fields = ['to_guid','subject','subject_message_id','message_assets'];
-    $.each(fields, function(i,k) { $('#message_form [name="'+k+'"]').val(msg[k]);});
-    var uid = $('#message_form [name="from_uid"]').val();
-    $('#message_form [name="to_uid"]').val(
-      // to_uid points to the other participant in the talk
-      uid == msg.to_uid ? msg.from_uid : msg.to_uid);
-    
-
-  }// end function set_talk(msg)
-
-  function validate_message(e){
-    var form = e.target;
-    message_field = $('.field', form);
-    //console.log(this)
-    message_field.removeClass('error')
-    if(form.message.value=='') {
-      message_field.addClass('error')
-      return false;
-    }
-    $.post(post_message_url, $('#message_form').serialize(), function(data){
-        console.log(data);
-        console.log($.param($('#message_form').serializeArray()));
-        $('#message_form [name="sent"]').val(1);
-        $('#message_form [name="message"]').val('');
-      }).fail(function(data) {
-        alert( "error" );
-        message_field.addClass('error');
-        console.log(data);
-      });
+    // get the messages
+    $.get(a.href, list_messages_from_json);
     return false;
+}
+
+// Fills in mesages list box from received json
+function list_messages_from_json(json_messages){
+  var messages = $('#messages .ui.list');
+  messages.html('');
+
+  //console.log(json_messages);
+  var prev_msg = {};
+  $(json_messages.data).each(function(i,msg){
+
+      // This is the message defining the topic (the parent message).
+      if(msg.subject_message_id == 0) {
+        set_talk_form(msg); // Set the topic
+        //append the first message if there is no offset
+        if(json_messages.links[0].href.match("offset=[1-9]")) return;
+      }
+
+      // fill in template and display the message
+      var template = $($('#message_template').html());//copy
+      template.attr('id','msg'+msg.id);
+      //just to debug order by
+      template.attr('title','msg'+msg.id);
+
+      var date = new Date(msg.tstamp);
+      template.find('.date').html(date.toTimeString());
+      template.find('.message').html(msg.message);
+      if(prev_msg.from_uid == msg.from_uid){
+        template.find('.from_uid_name').html('...');
+      }
+      else{
+        template.find('.from_uid_name').html(msg.from_uid_name + ':');
+      }
+      prev_msg = msg;
+      /* template.find('.ui.avatar.image')
+        .attr('src',
+          'https://secure.gravatar.com/avatar/'
+          + msg.from_uid_gravatar
+          +'?s=40&amp;d=identicon'
+        ); */
+      template.appendTo(messages);
+    });
+  // Scroll down to the last message
+  messages.parent().scrollTop(messages.height());
+}// end function list_talk_messages_from_json
+
+// Sets the current talk title and hidden fields in the message form
+function set_talk_form(msg) {
+  if(msg.subject_message_id!=0){
+      alert('subject_message_id!=0')
+      return false;
   }
+  $('#talk_topic').html(msg.message.substring(0,30)+'...');
+  $('#talk_topic').attr('title',msg.message);
+  var fields = ['to_guid', 'message_assets'];
+  $.each(fields, function(i,k) { $('#message_form [name="'+k+'"]').val(msg[k]);});
+  var uid = $('#message_form [name="from_uid"]').val();
+  $('#message_form [name="to_uid"]').val(
+    // to_uid points to the other participant in the talk
+    uid == msg.to_uid ? msg.from_uid : msg.to_uid);
+  $('#message_form [name="subject_message_id"]').val(msg.id);
+}// end function set_talk(msg)
+
 %= end
