@@ -59,6 +59,10 @@ function validate_and_send_message(e) {
     // Prepare the sent message to be appended to the list of messages.
     $('#message_form [name="sent"]').val(1);
     $('#message_form [name="message"]').val('');
+    // fill in template and display the message
+    alert()
+    //Start polling for new messages from the buddy
+
   }).fail(function(data) {
     //TODO: replace the alert with a beautiful SemanticUI popup or box
     alert("error:" + data.responseText);
