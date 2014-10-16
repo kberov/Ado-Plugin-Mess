@@ -19,7 +19,8 @@
 %= javascript begin
 // Functionality related to talks
 "use strict";
-
+// global object used to store various data
+var VestTalk = {};
 jQuery(function($){
   //Initialize the left sidebar
   $('#talks').sidebar();
@@ -48,7 +49,9 @@ function list_messages(e){
 function list_messages_from_json(json_messages){
   var messages = $('#messages .ui.list');
   messages.html('');
-
+  //Save it for later use by validate_and_send_message
+  VestTalk.json_messages = json_messages;
+  //
   //console.log(json_messages);
   var prev_msg = {};
   $(json_messages.data).each(function(i,msg){
@@ -61,32 +64,44 @@ function list_messages_from_json(json_messages){
       }
 
       // fill in template and display the message
-      var template = $($('#message_template').html());//copy
-      template.attr('id','msg'+msg.id);
-      //just to debug order by
-      template.attr('title','msg'+msg.id);
-
-      var date = new Date(msg.tstamp);
-      template.find('.date').html(date.toTimeString());
-      template.find('.message').html(msg.message);
-      if(prev_msg.from_uid == msg.from_uid){
-        template.find('.from_uid_name').html('...');
-      }
-      else{
-        template.find('.from_uid_name').html(msg.from_uid_name + ':');
-      }
+      fill_in_message_template(msg, prev_msg).appendTo(messages);
       prev_msg = msg;
-      /* template.find('.ui.avatar.image')
-        .attr('src',
-          'https://secure.gravatar.com/avatar/'
-          + msg.from_uid_gravatar
-          +'?s=40&amp;d=identicon'
-        ); */
-      template.appendTo(messages);
+
     });
   // Scroll down to the last message
   messages.parent().scrollTop(messages.height());
 }// end function list_talk_messages_from_json
+
+/**
+ * Prepares the HTML for the message and returns it.
+ * @param masg {Object} The object containig the message
+ * @param prev_msg {Obbject} The previous message in the talk.
+ * @return {jQuery} The prepared DOM, ready to be appended
+ */
+function fill_in_message_template(msg, prev_msg) {
+  // fill in template and display the message
+  var template = $($('#message_template').html());//copy
+  template.attr('id','msg'+msg.id);
+  //just to debug order by
+  template.attr('title','msg'+msg.id);
+
+  var date = new Date(msg.tstamp);
+  template.find('.date').html(date.toTimeString());
+  template.find('.message').html(msg.message);
+  if(prev_msg.from_uid == msg.from_uid){
+    template.find('.from_uid_name').html('...');
+  }
+  else{
+    template.find('.from_uid_name').html(msg.from_uid_name + ':');
+  }
+  /* template.find('.ui.avatar.image')
+    .attr('src',
+      'https://secure.gravatar.com/avatar/'
+      + msg.from_uid_gravatar
+      +'?s=40&amp;d=identicon'
+    ); */
+  return template;
+}// end function fill_in_message_template(msg){
 
 // Sets the current talk title and hidden fields in the message form
 function set_talk_form(msg) {
@@ -96,7 +111,7 @@ function set_talk_form(msg) {
   }
   $('#talk_topic').html(msg.message.substring(0,30)+'...');
   $('#talk_topic').attr('title',msg.message);
-  var fields = ['to_guid', 'message_assets'];
+  var fields = ['to_guid', 'subject', 'message_assets'];
   $.each(fields, function(i,k) { $('#message_form [name="'+k+'"]').val(msg[k]);});
   var uid = $('#message_form [name="from_uid"]').val();
   $('#message_form [name="to_uid"]').val(
