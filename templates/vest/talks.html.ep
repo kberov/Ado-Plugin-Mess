@@ -29,19 +29,20 @@ jQuery(function($) {
   });
   // Fill in #messages with the last talk and
   // bind onclick to filling in messages in the #messages
-  $('#talks ul li a').click(list_messages);
+  $('#talks ul li a').click(get_messages);
   // List messages from the last talk.
   $('#talks ul li a:first').click();
+  $(window).blur(stop_polling);
+  $(window).focus(start_polling);
 }); // end jQuery(function($)
-// Lists messages from a talk
-function list_messages(e) {
-  //console.log(e.target);
-  var a = e.target;
+// Gets last 20 messages from a talk
+function get_messages(e) {
+  var link = e.target;
   // close the sidebar
   $('#talks').sidebar('hide');
 
   // get the messages
-  $.get(a.href, list_messages_from_json);
+  $.get(link.href, list_messages_from_json);
   return false;
 }
 
@@ -60,7 +61,8 @@ function list_messages_from_json(json_messages) {
       if (msg.subject_message_id == 0) {
         set_talk_form(msg); // Set the topic
         //append the first message if there is no offset
-        if (json_messages.links[0].href.match("offset=[1-9]")) return;
+        if (json_messages.links[0].href.match("offset=[1-9]"))
+          return;
       }
 
       // fill in template and display the message
@@ -71,6 +73,22 @@ function list_messages_from_json(json_messages) {
     // Scroll down to the last message
     messages.parent().scrollTop(messages.height());
   } // end function list_talk_messages_from_json
+
+function stop_polling() {
+  // Stop polling for new messages from previous talk.
+  if (window.new_messages_interval_id) {
+    window.clearInterval(window.new_messages_interval_id);
+  }
+}
+
+function start_polling() {
+    stop_polling();
+    //Start polling for new messages from the buddy
+    window.new_messages_interval_id =
+      window.setInterval(function() {
+        get_new_messages($('#message_form').get(0))
+      }, 5000);
+  }
 
 /**
  * Prepares the HTML for the message and returns it.
@@ -85,20 +103,17 @@ function fill_in_message_template(msg, prev_msg) {
     //just to debug order by
     template.attr('title', 'msg' + msg.id);
 
-    var date = new Date(msg.tstamp);
-    template.find('.date').html(date.toTimeString());
+    var date =
+      typeof(msg.tstamp) === 'object' ?
+        msg.tstamp : 
+          new Date(parseInt(msg.tstamp + '000')); //milliseconds
+    template.find('.date').html(date.toLocaleString());
     template.find('.message').html(msg.message);
     if (prev_msg.from_uid == msg.from_uid) {
       template.find('.from_uid_name').html('...');
     } else {
       template.find('.from_uid_name').html(msg.from_uid_name + ':');
     }
-    /* template.find('.ui.avatar.image')
-    .attr('src',
-      'https://secure.gravatar.com/avatar/'
-      + msg.from_uid_gravatar
-      +'?s=40&amp;d=identicon'
-    ); */
     return template;
   } // end function fill_in_message_template(msg){
 
@@ -120,4 +135,4 @@ function set_talk_form(msg) {
       uid == msg.to_uid ? msg.from_uid : msg.to_uid);
     $('#message_form [name="subject_message_id"]').val(msg.id);
   } // end function set_talk(msg)
-%= end
+  %= end
