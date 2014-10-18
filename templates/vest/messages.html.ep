@@ -75,7 +75,7 @@ function validate_and_send_message(e) {
  */
 function post_message_success(data) {
     // Prepare the sent message to be appended to the list of messages.
-    var form = document.getElementById('message_form');
+    var form = $('#message_form').get(0);
     var msg = {
       from_uid_name: '<%= $user->name %>',
       tstamp: new Date(),
@@ -103,7 +103,7 @@ function post_message_success(data) {
  */
 function get_new_messages(form) {
   var url = form.action + '/messages/' + form.subject_message_id.value +
-    '?limit=5';
+    '.json?limit=5';
   $.get(url, append_messages_from_json, 'json');
 }
 
@@ -114,7 +114,7 @@ function get_new_messages(form) {
  */
 function append_messages_from_json(new_json_messages) {
   //remove the local message
-  document.getElementById('msg0').remove();
+  $('#msg0').remove();
   var js_messages = new_json_messages.data;
   var messages = $('#messages .ui.list');
   for (var i in js_messages) {
