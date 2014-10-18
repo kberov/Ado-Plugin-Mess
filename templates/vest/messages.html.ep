@@ -19,7 +19,7 @@
   <input type="hidden" name="sent" value="0" />
   <div class="field">
     <label>Message</label>
-    <textarea name="message"></textarea>
+    <textarea name="message" autofocus="autofocus"></textarea>
     <button type="submit" class="ui button"><i class="send icon"></i>Submit</buton>
   </div>
 </form><!-- form class="ui form segment" -->
@@ -38,6 +38,7 @@ jQuery(function($) {
   // to send or not to send the message?
   $('#message_form').submit(validate_and_send_message);
 }); // end jQuery(function($)
+
 /**
  * Validates the message form and sends the message.
  * @param {Event} e  Event passed by the binding
@@ -46,7 +47,7 @@ jQuery(function($) {
 function validate_and_send_message(e) {
     var form = e.target;
     var message_field = $('.field', form);
-    //console.log(this)
+
     message_field.removeClass('error')
     if (form.message.value == '') {
       message_field.addClass('error');
@@ -74,7 +75,7 @@ function validate_and_send_message(e) {
  */
 function post_message_success(data) {
     // Prepare the sent message to be appended to the list of messages.
-    var form = $('#message_form').get(0);
+    var form = document.getElementById('message_form');
     var msg = {
       from_uid_name: '<%= $user->name %>',
       tstamp: new Date(),
@@ -90,8 +91,9 @@ function post_message_success(data) {
     fill_in_message_template(msg, prev_msg).appendTo(messages);
     // Scroll down to the last message
     messages.parent().scrollTop(messages.height());
-    //clean the textarea
-    $('#message_form [name="message"]').val('');
+    //clean the textarea and focus it.
+    form['message'].value='';
+    form['message'].focus();
   } // end function post_message_success(data)
 
 /**
@@ -112,7 +114,7 @@ function get_new_messages(form) {
  */
 function append_messages_from_json(new_json_messages) {
   //remove the local message
-  $('#msg0').remove();
+  document.getElementById('msg0').remove();
   var js_messages = new_json_messages.data;
   var messages = $('#messages .ui.list');
   for (var i in js_messages) {
