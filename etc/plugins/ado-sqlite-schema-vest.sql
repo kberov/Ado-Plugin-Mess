@@ -12,11 +12,11 @@ CREATE TABLE IF NOT EXISTS vest (
   -- A user id from which the message is sent. 
   from_uid INT(11) REFERENCES users(id) NOT NULL,
   -- A user id to which the message is sent. 
-  -- Can be zero '0' in case the message is sent to the whole group.
+  -- Can be zero (0) in case the message is sent to the whole group.
   -- This way we can have group talks.
   to_uid INT(11) REFERENCES users(id) DEFAULT 0,
   -- A group id to which the message is sent.
-  -- Can be zero '0'. In this case the message is private to the user specified
+  -- Can be zero (0). In this case the message is private to the user specified
   -- by to_uid. In case both to_uid and to_guid are zero, the sender 
   -- is talking to him self - Taking Notes.
   to_guid INT(11) REFERENCES groups(id) DEFAULT 0,

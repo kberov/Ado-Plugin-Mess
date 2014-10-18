@@ -13,7 +13,7 @@ sub PRIMARY_KEY { return 'id' }
 my $COLUMNS = [
     'id',      'from_uid',           'to_uid', 'to_guid',
     'subject', 'subject_message_id', 'tstamp', 'message',
-    'message_assets'
+    'message_assets', 'seen'
 ];
 
 sub COLUMNS { return $COLUMNS }
@@ -171,27 +171,62 @@ Ado::Model::Vest - A class for TABLE vest in schema main
 
 =head1 DESCRIPTION
 
+This class provides methods for manipulating messages and talks.
+It uses the table C<vest> as storage.
+A message is a record in table C<vest>.
+A talk consists of a set of messages, having the same value in column
+L</subject_message_id> and one record which column L</id> has the same value.
+In other words, the record which L</id> value is referenced by other records in
+L</subject_message_id>, is the parent record, that defines a talk.
+This is the first message in a talk.  
+
 =head1 COLUMNS
 
 Each column from table C<vest> has an accessor in this class.
 
 =head2 id
 
+The primary key for the message.
+
 =head2 from_uid
+
+Id of the user who sends the message. References C<users(id)>.
 
 =head2 to_uid
 
+Id of the user to whom the message is sent. References C<users(id)>.
+Can be zero (0) in case the message is sent to the whole group.
+This way we can have group talks. In case both to_uid and to_guid are zero,
+the sender is talking to him self - Taking Notes. See l</to_guid>.
+
 =head2 to_guid
+
+Id of the group to which the message is sent. References C<groups(id)>.
 
 =head2 subject
 
+Subject (topic) of the talk. Only the first message in a talk has a subject.
+Every next message has C<subject=''>.
+
 =head2 subject_message_id
+
+Id of the first message in a talk. The first message in a talk has
+C<subject_message_id=0>. Eevery next message has C<subject_message_id> equal
+to the C<id> of the first message. There can be many conversations in a
+group or between two users.
 
 =head2 tstamp
 
+Last modification time. All dates are stored as seconds since the epoch(1970). 
+In Perl we use a Time::Piece object to format this value as we wish..
+
 =head2 message
 
+The message it self.
+
 =head2 message_assets
+
+File-paths (relative to C<app-E<gt>home>) of Files attached to this message - TODO.
 
 =head1 METHODS
 

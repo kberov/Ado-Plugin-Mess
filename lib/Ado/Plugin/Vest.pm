@@ -46,26 +46,23 @@ Ado::Plugin::Vest - Messaging services for an Ado system!
 
 =head1 DESCRIPTION
 
-L<Ado::Plugin::Vest> implements a (not too) naive messaging application.
+L<Ado::Plugin::Vest> implements a (not too) naive messaging service.
 It can be used as a chat between two users or as commenting widget under some article.
-Other uses are also possible. Just create your client (HTML5 or desktop) application and start making Ajax 
-or Websocket (TODO) requests.
+Other uses are also possible. Just create your client (HTML5 or desktop) application and start use Ajax or Websocket (TODO) requests.
 
+Currently a HTTP based chat application is being implemented as a proof of concept.
 
 =head1 SYNOPSIS
 
-  # To enable this plugin after installation add it to etc/ado.conf 
+  # 1. To enable this plugin after installation, add it to etc/ado.conf 
   #"plugins" section *after* DSC plugin.
   plugins => [
-    {name => 'charset', config => {charset => 'UTF-8'}},
-    {   name   => 'DSC',
-        config => {#...
-        },
-    },
     #...
-    {name => 'vest', config => {...}},
+    'vest',
     #...
  ],
+ # 2. Restart Ado
+ # 3. Login and go to http://yourdomain/vest
 
 =head1 ATTRIBUTES
 
@@ -78,16 +75,14 @@ Ado::Plugin::Vest implements the following methods.
 =head2 register
 
 Loads routes described in C<etc/plugins/vest.conf>.
-
-
-=head1 SPONSORS
-
-The original author
+Makes the plugin configuration available at
+C<$app-E<gt>config('Ado::Plugin::Vest')>.
+Creates the table C<vest> if it does not exist yet.
 
 =head1 SEE ALSO
 
-L<Ado::Control::Ado::Default>,
-L<Ado::Control>, L<Mojolicious::Controller>,
+L<Ado::Control::Vest>, L<Ado::Control>, L<Mojolicious::Controller>,
+L<Ado::Model::Vest>, L<Ado::Model>,
 L<Mojolicious::Guides::Growing/Model_View_Controller>,
 L<Mojolicious::Guides::Growing/Controller_class>
 

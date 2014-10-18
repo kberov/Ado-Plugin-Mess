@@ -1,8 +1,12 @@
 NAME
-    Ado::Plugin::Vest - Vestaging services for an Ado system!
+    Ado::Plugin::Vest - Messaging services for an Ado system!
 
 DESCRIPTION
-    TODO
+    Ado::Plugin::Vest implements a (not too) naive messaging application. It
+    can be used as a chat between two users or as commenting widget under
+    some article. Other uses are also possible. Just create your client
+    (HTML5 or desktop) application and start making Ajax or Websocket (TODO)
+    requests.
 
 SYNOPSIS
       # To enable this plugin after installation add it to etc/ado.conf 
@@ -39,7 +43,7 @@ AUTHOR
     Красимир Беров (Krasimir Berov)
 
 COPYRIGHT AND LICENSE
-    Copyright 2013 Красимир Беров (Krasimir Berov).
+    Copyright 2014 Красимир Беров (Krasimir Berov).
 
     This program is free software, you can redistribute it and/or modify it
     under the terms of the GNU Lesser General Public License v3 (LGPL-3.0).
