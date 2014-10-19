@@ -26,7 +26,7 @@ my $CHECKS = {
     'tstamp'  => {
         'required' => 1,
         'defined'  => 1,
-        'allow'    => qr/(?^x:^-?\d{1,}$)/
+        'allow'    => qr/(?^x:^-?\d{1,11}$)/
     },
     'subject' => {
         'defined' => 1,
@@ -59,9 +59,9 @@ sub create {
 
     #guess the talk by subject or subject_message_id
     state $sth =
-      $dbh->prepare_cached("SELECT id FROM vest WHERE (subject=? OR id=?) AND subject != '' ");
+      $dbh->prepare_cached("SELECT id FROM vest WHERE (id=? OR subject=?)");
     my $started_talk =
-      $dbh->selectrow_hashref($sth, {}, $self->subject, $self->subject_message_id);
+      $dbh->selectrow_hashref($sth, {}, $self->subject_message_id, $self->subject);
 
     if ($started_talk && $started_talk->{id}) {    #existing talk
         $self->subject_message_id($started_talk->{id});
@@ -165,9 +165,22 @@ __PACKAGE__->QUOTE_IDENTIFIERS(0);
 
 =head1 NAME
 
-Ado::Model::Vest - A class for TABLE vest in schema main
+Ado::Model::Vest - A class for TABLE vest
 
 =head1 SYNOPSIS
+
+    #select messages from a talk
+    my $messages =
+      Ado::Model::Vest->by_subject_message_id(
+        $user, $s_m_id, $limit, $offset)
+    #list them
+    foreach(@$messages){
+    ..
+    }
+    # create a new message
+    Ado::Model::Vest->create(%params, tstamp => time);
+
+Look at L<Ado::Control::Vest> for a wealth of usage examples.
 
 =head1 DESCRIPTION
 
@@ -186,26 +199,33 @@ Each column from table C<vest> has an accessor in this class.
 
 =head2 id
 
-The primary key for the message.
+The primary key for the message. C<INTEGER PRIMARY KEY AUTOINCREMENT>.
 
 =head2 from_uid
 
-Id of the user who sends the message. References C<users(id)>.
+Id of the user who sends the message. C<INT(11) REFERENCES users(id) NOT NULL>.
 
 =head2 to_uid
 
-Id of the user to whom the message is sent. References C<users(id)>.
+Id of the user to whom the message is sent. C<INT(11) REFERENCES users(id) DEFAULT 0>.
 Can be zero (0) in case the message is sent to the whole group.
-This way we can have group talks. In case both to_uid and to_guid are zero,
-the sender is talking to him self - Taking Notes. See l</to_guid>.
+This way we can have group talks. 
+
+In case both to_uid and to_guid values are zero,
+the sender is talking to him self - Taking Notes. See L</to_guid>.
 
 =head2 to_guid
 
-Id of the group to which the message is sent. References C<groups(id)>.
+Id of the group to which the message is sent. 
+C<INT(11) REFERENCES groups(id) DEFAULT 0>.
+In case the value is zero (0) the message is private. If it has C<to_uid!=0>,
+the message can be seen by the user referenced by  C<to_uid>, otherwise only 
+the user referenced by C<from_uid> can see the message. 
 
 =head2 subject
 
-Subject (topic) of the talk. Only the first message in a talk has a subject.
+Subject (topic) of the talk. C<VARCHAR(255) DEFAULT ''>. 
+Only the first message in a talk has a subject.
 Every next message has C<subject=''>.
 
 =head2 subject_message_id
@@ -218,24 +238,43 @@ group or between two users.
 =head2 tstamp
 
 Last modification time. All dates are stored as seconds since the epoch(1970). 
-In Perl we use a Time::Piece object to format this value as we wish..
+In Perl we use a Time::Piece object to format this value as we wish.
 
 =head2 message
 
-The message it self.
+The message it self. C<TEXT>.
 
 =head2 message_assets
 
-File-paths (relative to C<app-E<gt>home>) of Files attached to this message - TODO.
+File-paths (relative to C<$app-E<gt>home>) of Files attached to this message - TODO.
+
+=head2 permissions 
+
+Can be used in case the message is published as status update and it should be
+readable only by certain users.
+C<VARCHAR(10) NOT NULL DEFAULT '-rw-r-----'>.
+
+=head2 seen
+
+Incremented by 1 by the client chat application when the message is displayed
+on the screen of the user referred by C<to_uid> or by some member of
+the group referred by C<to_guid>. C<INTEGER DEFAULT 0>. TODO.
+
 
 =head1 METHODS
 
-=head2 create
+L<Ado::Model::Vest> inherits all methods from L<Ado::Model> and implements
+the following new ones.
 
-=head1 METHODS
+=head2 by_subject_message_id
 
-L<Ado::Model::Vest> inherits all methods from L<Ado::Model> 
-and implements the following new ones.
+Selects messages from a talk within a given range, ordered by talk id descending
+and returns an ARRAY reference of HASHES.
+Only messages that are viewable by the current user are selected
+
+    my $messages = Ado::Model::Vest->by_subject_message_id(
+        $c->user, $subject_message_id, $limit, $offset
+    );
 
 =head2 count_messages
 
@@ -244,20 +283,19 @@ Returns an integer.
 
 my $count = Ado::Model::Vest->count_messages($user, $s_m_id);
 
-=head2 by_subject_message_id
+=head2 create
 
-Selects messages from a talk within a given range, ordered by talk id descending
-and returns an ARRAYref of HASHES.
-Only messages that are viewable by the current user are selected
-
-    my $messages = Ado::Model::Vest->by_subject_message_id(
-        $c->user, $subject_message_id, $limit, $offset
-    );
+Creates a new message. Performs a check If there is a talk with C<id> equal to
+the  C<subject_message_id> of the message or if the subject of the message is
+equal to a talk subject. Depending on the results either creates a new talk or
+a new message within a talk. In case the message is part of an existing talk the
+C<subject> is set to '';
+Returns C<$self>.
 
 =head2 talks
 
-Selects records which contain talk subjects(topics) from all messages 
-within a given range, ordered by talk id descending
+Selects records which contain talk subjects(topics) (C<subject!=''>)
+from all messages within a given range, ordered by talk id descending
 and returns an ARRAYref of HASHES.
 Only messages that are viewable by the current user are selected.
 
@@ -265,7 +303,8 @@ Only messages that are viewable by the current user are selected.
 
 =head1 GENERATOR
 
-L<DBIx::Simple::Class::Schema>
+This class was initially generated using L<DBIx::Simple::Class::Schema> and later
+edited and enriched by the author.
 
 =head1 SEE ALSO
 

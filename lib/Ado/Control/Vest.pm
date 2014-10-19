@@ -134,7 +134,7 @@ sub add {
     ) if $result->{errors};
 
     my $message =
-      eval { Ado::Model::Vest->create(%{$result->{output}}, tstamp => gmtime->epoch) };
+      eval { Ado::Model::Vest->create(%{$result->{output}}, tstamp => time) };
     if ($message) {
 
         # May be?
@@ -266,10 +266,13 @@ Ado messaging system.
 =head1 ATTRIBUTES
 
 L<Ado::Control::Vest> inherits all the attributes from 
-<Ado::Control> and defines the following ones.
+L<Ado::Control>.
 
 =head1 METHODS/ACTIONS
-                     
+
+L<Ado::Control::Vest> inherits all methods from L<Ado::Control> and implements
+the following new ones.
+   
 =head2 list
 
 Displays the messages this system has.
