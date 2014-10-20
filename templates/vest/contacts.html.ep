@@ -1,15 +1,20 @@
-<!-- talks.html.ep -->
+<!-- contacts.html.ep 
+TODO: COntacts implementation.
+Every user will have a group named $username_contacts.
+This sidebar will list the members of this group.
+By adding some user to his contacts the user will actually 
+add users to this group.
+-->
 
 <aside id="contacts" class="ui right floating styled sidebar">
-  <p>Ivan Petrov</p>
-  <p>Петър Иванов</p>
-  <p>Ivan Petrov</p>
-  <p>Петър Иванов</p>
-  <p>Ivan Petrov</p>
-  <p>Петър Иванов</p>
+  <ul>
+    <li>Петко Вътов</li>
+    <li>Петър Иванов</li>
+    <li>Ivan Petrov</li>
+  </ul>
 </aside>
 %= javascript begin
-  //Initialize the left sidebar
+  //Initialize the right sidebar
   $('#contacts').sidebar();
   $('#contacts_button').on('click',function (){
     $('#contacts').sidebar('toggle');
