@@ -1,6 +1,6 @@
 Revision history for Ado-Plugin-Vest
 
-0.03 2014-10-18
+0.03 2014-10-21
     - A working draft. Two users can chat.
     - Added lots of tests for REST API.
     - Improved create method in Ado::Model::Vest.

@@ -11,8 +11,7 @@ my $TABLE_NAME = 'vest';
 sub TABLE       { return $TABLE_NAME }
 sub PRIMARY_KEY { return 'id' }
 my $COLUMNS = [
-    'id',      'from_uid',           'to_uid', 'to_guid',
-    'subject', 'subject_message_id', 'tstamp', 'message',
+    'id', 'from_uid', 'to_uid', 'to_guid', 'subject', 'subject_message_id', 'tstamp', 'message',
     'message_assets', 'seen'
 ];
 
@@ -58,10 +57,9 @@ sub create {
     state $dbh = $self->dbh;
 
     #guess the talk by subject or subject_message_id
-    state $sth =
-      $dbh->prepare_cached("SELECT id FROM vest WHERE (id=? OR subject=?)");
+    state $sth = $dbh->prepare_cached("SELECT id FROM vest WHERE (id=? OR subject=?)");
     my $started_talk =
-      $dbh->selectrow_hashref($sth, {}, $self->subject_message_id, $self->subject);
+      $dbh->selectrow_hashref($sth, {}, $self->subject_message_id, $self->subject || '-');
 
     if ($started_talk && $started_talk->{id}) {    #existing talk
         $self->subject_message_id($started_talk->{id});

@@ -48,13 +48,15 @@ Ado::Plugin::Vest - Messaging services for an Ado system!
 
 L<Ado::Plugin::Vest> implements a (not too) naive messaging service.
 It can be used as a chat between two users or as commenting widget under some article.
-Other uses are also possible. Just create your client (HTML5 or desktop) application and start use Ajax or Websocket (TODO) requests.
-
+Other uses are also possible. Just create your client (HTML5 or desktop) application and start making Ajax (or Websocket - TODO) requests.
 Currently a HTTP based chat application is being implemented as a proof of concept.
+
+B<Note> that this distribution is fairly experimental and the author 
+gladly accepts proposals enlightenment and inspiration.
 
 =head1 SYNOPSIS
 
-  # 1. To enable this plugin after installation, add it to etc/ado.conf 
+  # 1. To enable this plugin after installation, add it to etc/ado.conf
   #"plugins" section *after* DSC plugin.
   plugins => [
     #...
@@ -78,6 +80,7 @@ Loads routes described in C<etc/plugins/vest.conf>.
 Makes the plugin configuration available at
 C<$app-E<gt>config('Ado::Plugin::Vest')>.
 Creates the table C<vest> if it does not exist yet.
+Returns C<$self>.
 
 =head1 SEE ALSO
 

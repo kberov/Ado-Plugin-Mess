@@ -335,8 +335,7 @@ for my $talk (14 .. 25) {
       ->element_exists('nav#vestbar')->element_exists('div.ui.dropdown.item')
       ->element_exists('template#message_template')
       ->element_exists("form#message_form[action\$=\"$vest_base_url\"]")
-      ->element_exists('h5#talk_topic')
-      ->element_exists('div#messages div.ui.list');
+      ->element_exists('h5#talk_topic')->element_exists('div#messages div.ui.list');
 }
 
 #HTML UI

@@ -38,6 +38,8 @@ sub list {
 #Lists last 20 messages from a talk of the current user (by subject_message_id)
 sub list_messages {
     my ($c) = @_;
+    $c->require_formats('json') || return;
+
     my $s_m_id = $c->stash('id');
     $s_m_id || return $c->render(
         status => 400,
@@ -76,6 +78,8 @@ sub list_messages {
 
 sub list_talks {
     my ($c) = @_;
+    $c->require_formats('json') || return;
+
     my $args = Params::Check::check(
         $list_args_checks,
         {   limit  => $c->req->param('limit')  || 20,
@@ -120,7 +124,7 @@ my $add_input_validation_template = {
 };
 
 #Adds a new message. Status 201 on success, 400 on validate,5xx on faill
-sub add {
+sub create {
     my $c      = shift;
     my $result = $c->validate_input($add_input_validation_template);
 
@@ -170,7 +174,9 @@ sub add {
 
 
 sub show {
-    my ($c)  = @_;
+    my ($c) = @_;
+    $c->require_formats('json') || return;
+
     my $id   = $c->stash('id');
     my $data = Ado::Model::Vest->find($id)->data;
 
@@ -250,29 +256,37 @@ Ado::Control::Vest - The controller to manage messages.
 =head1 SYNOPSIS
 
   #in your browser go to
-  http://your-host/вест/list
+  http://your-host/vest/list
   #or
-  http://your-host/вест
+  http://your-host/vest
   #and
-  http://your-host/вест/edit/$id
+  http://your-host/vest/edit/$id
   #and
-  http://your-host/вест/add
+  http://your-host/vest/add
 
 =head1 DESCRIPTION
 
-Ado::Control::Vest is the controller class for the end-users' 
+Ado::Control::Vest is the controller class for the end-users'
 Ado messaging system.
 
 =head1 ATTRIBUTES
 
-L<Ado::Control::Vest> inherits all the attributes from 
-L<Ado::Control>.
+L<Ado::Control::Vest> inherits all the attributes from L<Ado::Control>.
 
-=head1 METHODS/ACTIONS
+=head1 METHODS
 
 L<Ado::Control::Vest> inherits all methods from L<Ado::Control> and implements
-the following new ones.
-   
+the following new ones. These methods are mapped to actions.
+See C<etc/plugins/vest.conf>.
+
+=head2 create
+
+Creates a new message.
+Renders no content with status 201 and a C<Location> header 
+pointing to the new resource so the user agent can fetch it eventually.
+See L<http://www.w3.org/Protocols/rfc2616/rfc2616-sec10.html#sec10.2.2>
+and L<Ado::Model::Vest/create>.
+
 =head2 list
 
 Displays the messages this system has.
@@ -284,17 +298,12 @@ pointing to the proper URI.
 See L<http://www.w3.org/Protocols/rfc2616/rfc2616-sec10.html#sec10.4.16> and
 L<http://www.w3.org/Protocols/rfc2616/rfc2616-sec14.html#sec14.14>.
 
-=head2 add
-
-Adds a message to the table vest. 
-Renders no content with status 201 and a C<Location> header 
-pointing to the new resource so the user agent can fetch it eventually.
-See http://www.w3.org/Protocols/rfc2616/rfc2616-sec10.html#sec10.2.2
-
 =head2 list_messages
 
 Lists messages from a talk. Renders JSON.
+Accepts parameters C<limit> (20 by default) and C<offset> (0). 
 If offset is not passed, lists last (19+first message) messages.
+THe first item in the list is the talk topic.
 
 
 =head2 screen
@@ -303,7 +312,8 @@ The default view when /вест is accessed. Renders C<templates/vest/screen.htm
 
 =head2 list_talks
 
-Renders JSON containing the talks for a user.
+Renders JSON containing the last talksfor a user.
+Accepts parameters C<limit> (20 by default) and C<offset> (0). 
 
 =head2 show
 
@@ -323,6 +333,7 @@ The original author
 
 =head1 SEE ALSO
 
+L<Ado::Plugin::Vest>,
 L<Ado::Control::Ado::Default>,
 L<Ado::Control>, L<Mojolicious::Controller>,
 L<Mojolicious::Guides::Growing/Model_View_Controller>,
