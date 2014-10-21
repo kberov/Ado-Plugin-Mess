@@ -9,7 +9,6 @@ my $dbh = $app->dbix->dbh;
 #The table vest should be created by now.
 is($dbh->table_info(undef, undef, 'vest', "'TABLE'")->fetchall_arrayref({})->[0]{TABLE_NAME},
     'vest', 'Table "vest" was created.');
-ok($dbh->do('DROP TABLE IF EXISTS vest'), "Table vest was dropped.");
 
 done_testing();
 

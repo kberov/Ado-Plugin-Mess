@@ -3,7 +3,7 @@ use Mojo::Base qw(Ado::Plugin);
 use Mojo::Util qw(decamelize slurp);
 File::Spec::Functions->import(qw(catfile));
 
-our $VERSION = '0.03';
+our $VERSION = '0.04';
 
 sub register {
     my ($self, $app, $conf) = shift->initialise(@_);

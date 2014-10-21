@@ -10,9 +10,9 @@ my $builder = Ado::BuildPlugin->new(
     create_readme      => 1,
     dist_author        => q{Красимир Беров <berov@cpan.org>},
     release_status     => 'unstable',
-    configure_requires => {'Ado' => '0.67',},
-    build_requires     => {'Test::More' => '0',},
-    requires           => {
+    configure_requires => {'Module::Build' => '0.42', 'Ado' => '0.67'},
+    build_requires => {'Test::More' => '0',},
+    requires       => {
         'Ado'                             => '0.67',
         'Mojolicious'                     => '0',
         'Mojolicious::Plugin::DSC'        => '0',

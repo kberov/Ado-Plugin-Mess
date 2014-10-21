@@ -5,7 +5,7 @@ use Test::Mojo;
 use Mojo::Util;
 use List::Util qw(shuffle);
 
-sleep 2;#wait for others
+
 my $OE  = $^O =~ /win/i ? 'cp866' : 'utf8';
 my $t1  = Test::Mojo->new('Ado');
 my $app = $t1->app;

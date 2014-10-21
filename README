@@ -2,25 +2,26 @@ NAME
     Ado::Plugin::Vest - Messaging services for an Ado system!
 
 DESCRIPTION
-    Ado::Plugin::Vest implements a (not too) naive messaging application. It
-    can be used as a chat between two users or as commenting widget under
-    some article. Other uses are also possible. Just create your client
-    (HTML5 or desktop) application and start making Ajax or Websocket (TODO)
-    requests.
+    Ado::Plugin::Vest implements a (not too) naive messaging service. It can
+    be used as a chat between two users or as commenting widget under some
+    article. Other uses are also possible. Just create your client (HTML5 or
+    desktop) application and start making Ajax (or Websocket - TODO)
+    requests. Currently a HTTP based chat application is being implemented
+    as a proof of concept.
+
+    Note that this distribution is fairly experimental and the author gladly
+    accepts proposals enlightenment and inspiration.
 
 SYNOPSIS
-      # To enable this plugin after installation add it to etc/ado.conf 
+      # 1. To enable this plugin after installation, add it to etc/ado.conf
       #"plugins" section *after* DSC plugin.
       plugins => [
-        {name => 'charset', config => {charset => 'UTF-8'}},
-        {   name   => 'DSC',
-            config => {#...
-            },
-        },
         #...
-        {name => 'vest', config => {...}},
+        'vest',
         #...
      ],
+     # 2. Restart Ado
+     # 3. Login and go to http://yourdomain/vest
 
 ATTRIBUTES
     Ado::Plugin::Vest inherits all atributes from Ado::Plugin.
@@ -29,15 +30,15 @@ METHODS
     Ado::Plugin::Vest implements the following methods.
 
   register
-    Loads routes described in "etc/plugins/vest.conf".
-
-SPONSORS
-    The original author
+    Loads routes described in "etc/plugins/vest.conf". Makes the plugin
+    configuration available at "$app->config('Ado::Plugin::Vest')". Creates
+    the table "vest" if it does not exist yet. Returns $self.
 
 SEE ALSO
-    Ado::Control::Ado::Default, Ado::Control, Mojolicious::Controller,
-    "Model_View_Controller" in Mojolicious::Guides::Growing,
-    "Controller_class" in Mojolicious::Guides::Growing
+    Ado::Control::Vest, Ado::Control, Mojolicious::Controller,
+    Ado::Model::Vest, Ado::Model, "Model_View_Controller" in
+    Mojolicious::Guides::Growing, "Controller_class" in
+    Mojolicious::Guides::Growing
 
 AUTHOR
     Красимир Беров (Krasimir Berov)
