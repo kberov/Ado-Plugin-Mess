@@ -8,14 +8,27 @@
 
 /**
   To use any of the applications or widgets that come with this plugin,
-  an Ado user needs to be in the group 'vest'. Being in that group a user can
-  search for other users, belonging to the same group and add them to his
-  own contacts.
-  Each user will have his own group vest_contacts_$username and his contacts
-  will be members of that group.
+  an Ado user needs to be in the group 'vest'. This is checked in each route of this plugin and is implemented as an 'over' condition. Being in that group a user can
+  search for other users, belonging to the same group and add them to his own contacts.
+  
   A user can be added to the group 'vest' on the command line or programatically
   using the Ado command adduser.
   See http://localhost::3000/perldoc/Ado/Command/adduser
 */
-INSERT INTO groups (name,description,created_by,changed_by,disabled)
-VALUES ('vest','Group for all users that use the Ado::Plugin::Vest services',1,1,0);
+
+INSERT OR IGNORE INTO groups (name,description,created_by,changed_by,disabled)
+VALUES ('vest','Users in this group can use the Ado::Plugin::Vest services',1,1,0);
+
+ -- add test1 and test2 to this group
+INSERT OR IGNORE INTO user_group (user_id, group_id) 
+  SELECT u.id, g.id FROM users u, groups g 
+    WHERE u.login_name='test1' AND g.name='vest';
+
+INSERT OR IGNORE INTO user_group (user_id, group_id) 
+  SELECT u.id, g.id FROM users u, groups g 
+    WHERE u.login_name='test2' AND g.name='vest';
+
+/**
+  To have a list of contacts a user needs a group named vest_contacts_$username. 
+  To add a new contacts to his group of contacts a user needs to add users to vest_contacts_$username.
+*/

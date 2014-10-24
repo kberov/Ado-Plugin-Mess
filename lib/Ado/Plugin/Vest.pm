@@ -12,28 +12,50 @@ sub register {
     $app->config(__PACKAGE__, $conf);
     $app->defaults('vest_base_url' => $$conf{vest_base_url});
     $self->_create_table($app, $conf);
+    $self->_add_data($app, $conf);
+
+    # Add conditions
+    $app->routes->add_condition(vest_user => \&vest_user);
+
     return $self;
+}
+
+sub _add_data {
+    my ($self, $app, $conf) = @_;
+    warn 'in _add_data:' . $conf->{vest_data_sql_file};
+    return unless $conf->{vest_data_sql_file};
+
+    return $self->_do_sql_file($app->dbix->dbh, $conf->{vest_data_sql_file});
 }
 
 sub _create_table {
     my ($self, $app, $conf) = @_;
     return unless $conf->{vest_schema_sql_file};
-    my $dbix = $app->dbix;
+    my $dbh = $app->dbix->dbh;
     my $table =
-      $dbix->dbh->table_info(undef, undef, 'vest', "'TABLE'")->fetchall_arrayref({});
+      $dbh->table_info(undef, undef, 'vest', "'TABLE'")->fetchall_arrayref({});
     return if @$table;
+    return $self->_do_sql_file($dbh, $conf->{vest_schema_sql_file});
+}
 
-    #Always execute this file because we may have table changes
-    my $sql_file = catfile($self->config_dir, $conf->{vest_schema_sql_file});
-    my $SQL = slurp($sql_file);
+sub _do_sql_file {
+    warn 'in _do_sql_file';
+    my ($self, $dbh, $sql_file) = @_;
+    my $SQL = slurp(catfile($self->config_dir, $sql_file));
 
     #Remove multiline comments
     $SQL =~ s|/\*.+\*/||gsmx;
     for my $statement (split /;/, $SQL) {
-        $dbix->dbh->do($statement) if $statement =~ /\S+/;
+        $dbh->do($statement) if $statement =~ /\S+/;
     }
     return;
 }
+
+sub vest_user {
+
+    return 1;
+}
+
 1;
 
 =pod
