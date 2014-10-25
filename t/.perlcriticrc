@@ -16,7 +16,7 @@ top       = 50
 #Perl::Critic::Policy::Subroutines::RequireArgUnpacking - Always unpack @_ first.
 [Subroutines::RequireArgUnpacking]
 short_subroutine_statements = 5
-allow_delegation_to = get_obj_args get_args
+allow_delegation_to = get_obj_args get_args _get_obj_args initialise
 
 
 [TestingAndDebugging::RequireUseStrict]
@@ -46,7 +46,8 @@ lib_sections    = NAME | SYNOPSIS | METHODS | ATTRIBUTES | CONFIG | BUGS AND LIM
 script_sections = NAME | USAGE | OPTIONS | AUTHOR
 
 [Variables::ProhibitPackageVars]
-add_packages = Carp
+add_packages = Carp Email::Address Ado::I18n
+
 [CodeLayout::ProhibitHardTabs]
 
 #Shorten allowed lenght of regexp for more readability.
