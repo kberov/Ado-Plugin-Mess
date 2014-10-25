@@ -22,7 +22,6 @@ sub register {
 
 sub _add_data {
     my ($self, $app, $conf) = @_;
-    warn 'in _add_data:' . $conf->{vest_data_sql_file};
     return unless $conf->{vest_data_sql_file};
 
     return $self->_do_sql_file($app->dbix->dbh, $conf->{vest_data_sql_file});
@@ -39,21 +38,41 @@ sub _create_table {
 }
 
 sub _do_sql_file {
-    warn 'in _do_sql_file';
     my ($self, $dbh, $sql_file) = @_;
+    $self->app->log->debug('_do_sql_file:' . $sql_file)
+      if $Ado::Control::DEV_MODE;
+
     my $SQL = slurp(catfile($self->config_dir, $sql_file));
 
-    #Remove multiline comments
-    $SQL =~ s|/\*.+\*/||gsmx;
-    for my $statement (split /;/, $SQL) {
-        $dbh->do($statement) if $statement =~ /\S+/;
-    }
+    #Remove multi-line comments
+    $SQL =~ s|/\*+.+?\*/\s+?||gsmx;
+    $self->app->log->debug('$SQL:' . $SQL)
+      if $Ado::Control::DEV_MODE;
+    local $dbh->{RaiseError} ||= 1;
+    my $statement = '';
+    eval {
+        $dbh->begin_work;
+        for my $st (split /;/smx, $SQL) {
+            $statement = $st;
+
+            #$self->app->log->debug('$statement:'.$statement);
+            $dbh->do($st) if $st =~ /\S+/smx;
+        }
+        $dbh->commit;
+    } || do {
+        $dbh->rollback;
+        my $e = "\nError in statement:$statement\n$@";
+        $self->app->log->error($e);
+        Carp::croak($e);
+    };
     return;
 }
 
 sub vest_user {
-
-    return 1;
+    my ($route, $c, $captures, $params) = @_;
+    #$c->debug($c->dumper($captures, $params));
+    return 1 if $c->user->ingroup($params->{group});
+    return 0;
 }
 
 1;
@@ -91,6 +110,16 @@ gladly accepts proposals enlightenment and inspiration.
 =head1 ATTRIBUTES
 
 Ado::Plugin::Vest inherits all atributes from L<Ado::Plugin>.
+
+=head1 CONDITIONS
+
+L<Ado::Plugin::Vest> provides the following conditions to be used by routes.
+To find more about conditions read L<Mojolicious::Guides::Routing/Conditions>.
+
+=head2 vest_user
+
+Checks if a user is member of the group C<vest> and returns true or false.
+All C</vest*> routes pass L<over|Mojolicious::Routes::Route/over> this condition.
 
 =head1 METHODS
 
