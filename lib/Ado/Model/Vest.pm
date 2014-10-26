@@ -55,11 +55,11 @@ sub create {
     my ($self, @args) = @_;
     $self = $self->new(@args);
     state $dbh = $self->dbh;
-
+    my $subject = $self->subject;
     #guess the talk by subject or subject_message_id
     state $sth = $dbh->prepare_cached("SELECT id FROM vest WHERE (id=? OR subject=?)");
     my $started_talk =
-      $dbh->selectrow_hashref($sth, {}, $self->subject_message_id, $self->subject || '-');
+      $dbh->selectrow_hashref($sth, {}, $self->subject_message_id, $subject || '-');
 
     if ($started_talk && $started_talk->{id}) {    #existing talk
         $self->subject_message_id($started_talk->{id});
@@ -67,6 +67,8 @@ sub create {
     }
     else {
         $self->subject_message_id(0);              # new talk
+        $self->subject(substr($self->message, 0, 30))
+            unless $subject;
     }
     $self->insert();
     return $self;
@@ -124,7 +126,7 @@ sub by_subject_message_id {
     my ($class, $user, $s_m_id, $limit, $offset) = @_;
     my $uid = $user->id;
     state $SQL = <<"SQL";
-    SELECT * FROM (${\ _MESSAGES_SQL } ${\ __PACKAGE__->SQL_LIMIT('?','?') })
+    SELECT * FROM (${\ _MESSAGES_SQL } ${\ $class->SQL_LIMIT('?','?') })
     ORDER BY id ASC 
 SQL
 

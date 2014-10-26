@@ -127,7 +127,6 @@ my $add_input_validation_template = {
 sub create {
     my $c      = shift;
     my $result = $c->validate_input($add_input_validation_template);
-
     #$c->debug('$add_input_validation_template:' . $c->dumper($add_input_validation_template));
     #$c->debug('$result:' . $c->dumper($result));
 

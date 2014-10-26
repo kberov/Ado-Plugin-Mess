@@ -14,9 +14,6 @@ sub register {
     $self->_create_table($app, $conf);
     $self->_add_data($app, $conf);
 
-    # Add conditions
-    $app->routes->add_condition(vest_user => \&vest_user);
-
     return $self;
 }
 
@@ -68,13 +65,6 @@ sub _do_sql_file {
     return;
 }
 
-sub vest_user {
-    my ($route, $c, $captures, $params) = @_;
-    #$c->debug($c->dumper($captures, $params));
-    return 1 if $c->user->ingroup($params->{group});
-    return 0;
-}
-
 1;
 
 =pod
@@ -110,16 +100,6 @@ gladly accepts proposals enlightenment and inspiration.
 =head1 ATTRIBUTES
 
 Ado::Plugin::Vest inherits all atributes from L<Ado::Plugin>.
-
-=head1 CONDITIONS
-
-L<Ado::Plugin::Vest> provides the following conditions to be used by routes.
-To find more about conditions read L<Mojolicious::Guides::Routing/Conditions>.
-
-=head2 vest_user
-
-Checks if a user is member of the group C<vest> and returns true or false.
-All C</vest*> routes pass L<over|Mojolicious::Routes::Route/over> this condition.
 
 =head1 METHODS
 

@@ -54,6 +54,10 @@ function validate_and_send_message(e) {
       $(form.message).attr('placeholder', 'PLease write your message!');
       return false;
     }
+    //create a new talk from message if needed
+    if(form.subject.value == ''){
+      form.subject.value = form.message.value;
+    }
     // See http://api.jquery.com/jQuery.post/
     $.post(
       form.action,

@@ -1,23 +1,46 @@
 <!-- contacts.html.ep 
-TODO: COntacts implementation.
-Every user will have a group named $username_contacts.
+TODO: Contacts implementation.
+For every user there must be a group named vest_contacts_$login_name
+where $login_name is the user's username "users.login_name".
 This sidebar will list the members of this group.
-By adding some user to his contacts the user will actually 
-add users to this group.
+By adding some user to this group it is added to the user's contact
+referred by $login_name.
 -->
+% my @users = Ado::Model::Users->by_group_name('vest_contacts_for_'.$user->login_name);
 
 <aside id="contacts" class="ui right floating styled sidebar">
-  <ul>
-    <li>Петко Вътов</li>
-    <li>Петър Иванов</li>
-    <li>Ivan Petrov</li>
+  <ul class="ui selection list">
+    % for my $u (@users){ my $d = $u->data;
+    <li class="item" id="u<%= $d->{id} %>" 
+    data-id="<%= $d->{id} %>" data-first_name="<%= $d->{first_name} %>"
+    data-last_name="<%= $d->{last_name} %>"><%= $u->name %></li>
+    % }
   </ul>
 </aside>
 %= javascript begin
+"use strict";
+jQuery(function($) {
   //Initialize the right sidebar
   $('#contacts').sidebar();
-  $('#contacts_button').on('click',function (){
+  $('#contacts_button').click(function (){
     $('#contacts').sidebar('toggle');
   });
+  $('#contacts .list .item').click(new_talk);
+}); // end jQuery(function($)
 
+/**
+ * Starts a new talk with a contact.
+ * @return false
+ */
+function new_talk() {
+  $('#messages .ui.list p').remove();
+  set_talk_form({
+    id: 0,// this will be the value of subject_message_id in the form
+    subject_message_id: 0,
+    to_uid: $(this).data('id'),
+    to_guid: 0
+  });
+  $('#contacts').sidebar('toggle');
+  return false;
+}
 %= end

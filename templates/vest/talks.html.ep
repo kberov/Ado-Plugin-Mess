@@ -92,7 +92,7 @@ function start_polling() {
 
 /**
  * Prepares the HTML for the message and returns it.
- * @param masg {Object} The object containig the message
+ * @param msg {Object} The object containig the message
  * @param prev_msg {Obbject} The previous message in the talk.
  * @return {jQuery} The prepared DOM, ready to be appended
  */
@@ -123,7 +123,9 @@ function set_talk_form(msg) {
       alert('subject_message_id!=0')
       return false;
     }
-    $('#talk_topic').html(msg.message.substring(0, 30) + '...');
+    console.log(msg);
+    $('#talk_topic').html(
+      (msg.subject ? msg.subject : msg.message.substring(0, 30) + '...' ));
     $('#talk_topic').attr('title', msg.message);
     var fields = ['to_guid', 'subject', 'message_assets'];
     $.each(fields, function(i, k) {
