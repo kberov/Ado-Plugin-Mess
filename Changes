@@ -1,7 +1,7 @@
 Revision history for Ado-Plugin-Vest
 
 0.05 2014-10-25
-    Added condition 'vest_user'.
+    Using condition 'ingroup' for all routes under '/vest'.
     Added group 'vest'. Members of this group can go to /vest*.
 
 0.04 2014-10-21
