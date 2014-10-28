@@ -1,5 +1,9 @@
 Revision history for Ado-Plugin-Vest
 
+0.06 2014-10-28
+    - Added links to the source code repository.
+    - Fix: Focus on message field after starting a new talk.
+
 0.05 2014-10-28
     - Moved all Model usage from vest/screen.html.ep to Ado::Control::Vest/screen
       to allow for content negotiation. "json" and "html" formats are equally usable.

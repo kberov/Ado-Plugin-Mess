@@ -17,6 +17,16 @@ my $builder = Ado::BuildPlugin->new(
         'Mojolicious::Plugin::DSC'        => '0',
         'Mojolicious::Plugin::SemanticUI' => '0'
     },
+    recursive_test_files => 1,
+    meta_merge           => {
+        resources => {
+            repository => "https://github.com/kberov/Ado-Plugin-Vest",
+            bugtracker => "https://github.com/kberov/Ado-Plugin-Vest/issues",
+        },
+        keywords => [qw/Ado Mojolicious realtime web ERP REST CMS Messaging enterprise/],
+        no_index => {namespace => ['Ado::Model'],}
+    },
+
     add_to_cleanup => ['Ado-Plugin-Vest-*', '*.bak'],
 );
 
