@@ -1,6 +1,9 @@
 Revision history for Ado-Plugin-Vest
 
 0.05 2014-10-28
+    - Removed release_status => 'unstable' for more visibility and
+      because the plugin is actually usable as an Ado application.
+      It is still unstable and buggy by it self.
     - Upgraded to Ado 0.70.
     - Using condition 'ingroup' for all routes under '/vest'.
     - Added group 'vest'. Members of this group can go to /vest*.
