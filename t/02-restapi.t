@@ -55,14 +55,15 @@ subtest 't2_login' => sub {
     $t2->post_ok('/login' => {} => form => $form_hash)->status_is(302);
 };
 
+
 #reload
 #{route => '/$vest_base_url', via => ['GET'],  to => 'vest#list',}
 #no format
+
+=pod
 $t1->get_ok("$vest_base_url/list")->status_is('415', '415 - Unsupported Media Type ')
   ->content_type_is('text/html;charset=UTF-8')->header_like('Content-Location' => qr|\.json$|x)
   ->content_like(qr|\.json</a>\!|x);
-
-#=pod
 
 #with format
 $t1->get_ok("$vest_base_url/list.json")->status_is('200', 'Status is 200')
@@ -71,7 +72,7 @@ $t1->get_ok("$vest_base_url/list.json")->status_is('200', 'Status is 200')
   ->json_like('/links/0/href' => qr'\.json\?limit=20\&offset=0')
   ->json_is('/links/1' => undef, '/links/1 is not present')
   ->json_is('/data'    => [],    '/data is empty');
-
+=cut
 
 #Play with several messages.
 #{route => '/вест', via => ['POST'], to => 'vest#add',},
@@ -117,6 +118,7 @@ $t1->post_ok(
     }
   )->status_is('400', 'Status is 400')->json_is('/message/to_uid/0/', 'like')
   ->content_like(qr/"message"\:\{"to_uid"\:\["like"/x, 'erros ok: to_uid is not alike ');
+
 my $s_m_id = 0;
 for my $id (1, 3, 5) {
     $t1->post_ok(
@@ -148,7 +150,6 @@ for my $id (1, 3, 5) {
       ->json_is('/data/message', "Здравей, Приятел! $id", "ok created $id");
     my $next = $id + 1;
 
-#=pod
 
     #reply from a friend
     $t2->post_ok(
@@ -163,9 +164,7 @@ for my $id (1, 3, 5) {
       )->status_is('201', 'ok 201 - Created')->header_like(Location => qr"/id/$next")
       ->content_is('');
 
-#=cut
-
-}    # end for my $id
+}    #end for my $id (1, 3, 5)
 
 =pod
 {   route  => '/вест/:id',
@@ -193,8 +192,6 @@ $t1->get_ok("$vest_base_url/5.json")->status_is('200', 'Status is 200')
   ->json_is(    #becuse it belongs to a talk with id 1
     '/data/subject', '', 'ok message 5 subject is empty'
   )->json_is('/data/subject_message_id', 1, 'ok message 5 subject_message_id is unchanged');
-
-#=cut
 
 #=pod
 #{   route  => '/вест/:id',
@@ -295,6 +292,7 @@ $t1->get_ok("$vest_base_url/messages/1.json")->status_is('200', 'Status is 200')
   ->json_is('/data/0/id'      => 1,                  '/data is sorted properly')
   ->json_is('/data/3/id'      => 4,                  '/data is sorted properly')
   ->json_is('/data/0/subject' => 'разговор', '/data/0/subject is ok');
+
 $t1->get_ok("$vest_base_url/messages/5.json?limit=10")->json_is(
     '/links/1' => {
         "rel"  => "next",
@@ -336,7 +334,10 @@ for my $talk (14 .. 25) {
       ->element_exists('template#message_template')
       ->element_exists("form#message_form[action\$=\"$vest_base_url\"]")
       ->element_exists('h5#talk_topic')->element_exists('div#messages div.ui.list');
+    $t1->get_ok("$vest_base_url.json")->content_type_is('application/json')->json_has('/user/id')
+      ->json_has('/routes/0/params')->json_has('/talks/0/to_guid')->json_has('/contacts/0/id');
 }
+
 
 #HTML UI
 $t1->get_ok("$vest_base_url")->element_exists('main.ui.container', 'main.ui.container');
