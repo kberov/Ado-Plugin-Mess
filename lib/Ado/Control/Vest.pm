@@ -11,7 +11,7 @@ my $list_args_checks = {
     },
 };
 
-#available messages on this system
+#available messages on this system - disabled
 sub list {
     my $c = shift;
     $c->require_formats('json') || return;
@@ -127,6 +127,7 @@ my $add_input_validation_template = {
 sub create {
     my $c      = shift;
     my $result = $c->validate_input($add_input_validation_template);
+
     #$c->debug('$add_input_validation_template:' . $c->dumper($add_input_validation_template));
     #$c->debug('$result:' . $c->dumper($result));
 
@@ -230,7 +231,7 @@ sub update {
     ) if $result->{errors};
 
 
-    $vest->save(%{$result->{output}}, tstamp => gmtime->epoch);
+    $vest->save(%{$result->{output}}, tstamp => time);
     return shift->render(status => 204, text => '');
 }
 
@@ -239,7 +240,32 @@ sub disable {
 }
 
 sub screen {
+    my ($c) = @_;
+    $c->require_formats('html', 'json') || return;
+    my $user   = $c->user;
+    my $routes = [
+        map {
+            +{  authz       => $_->{over},
+                description => $_->{description},
+                methods     => $_->{via},
+                params      => $_->{params},
+                url         => $_->{route},
+              }
+        } @{$c->app->config('Ado::Plugin::Vest')->{routes}}
+    ];
 
+    my $to_json = {
+        user => {%{$user->data}, name => $user->name},
+        talks => Ado::Model::Vest->talks($user, int($c->param('limit') || 20), 0),
+        contacts => [Ado::Model::Users->by_group_name('vest_contacts_for_' . $user->login_name)],
+        routes   => $routes,
+    };
+
+    $c->respond_to(
+        json => {json => $to_json},
+        html => $to_json,
+    );
+    return;
 }
 
 1;
@@ -307,11 +333,15 @@ THe first item in the list is the talk topic.
 
 =head2 screen
 
-The default view when /вест is accessed. Renders C<templates/vest/screen.html.ep>
+This is the default action, which is executed when
+C<$c-E<gt>app-E<gt>config('Ado::Plugin::Vest')-E<gt>{vest_base_url}> is accessed. 
+Supported formats are "json" and "html".
+One should all the information to create the GUI for a fully functional client application
+by only requesting C<http://example.com/vest.json>.
 
 =head2 list_talks
 
-Renders JSON containing the last talksfor a user.
+Renders JSON containing the last talks for a user.
 Accepts parameters C<limit> (20 by default) and C<offset> (0). 
 
 =head2 show
