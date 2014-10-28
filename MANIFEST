@@ -3,7 +3,6 @@ Build.PL
 Changes
 etc/plugins/ado-sqlite-data-vest.sql
 etc/plugins/ado-sqlite-schema-vest.sql
-etc/plugins/routes.conf
 etc/plugins/vest.conf
 lib/Ado/Control/Vest.pm
 lib/Ado/Model/Vest.pm
