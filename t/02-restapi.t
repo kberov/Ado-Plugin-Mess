@@ -334,8 +334,10 @@ for my $talk (14 .. 25) {
       ->element_exists('template#message_template')
       ->element_exists("form#message_form[action\$=\"$vest_base_url\"]")
       ->element_exists('h5#talk_topic')->element_exists('div#messages div.ui.list');
-    $t1->get_ok("$vest_base_url.json")->content_type_is('application/json')->json_has('/user/id')
-      ->json_has('/routes/0/params')->json_has('/talks/0/to_guid')->json_has('/contacts/0/id');
+    $t2->get_ok("$vest_base_url.json")->content_type_is('application/json')
+      ->json_is('/user/id' => $to_uid)->json_is('/routes/0/params' => undef)
+      ->json_is('/talks/0/to_guid' => 0)->json_is('/contacts/0/id' => $from_uid)
+      ->json_is('/talks/0/subject' => $subject);
 }
 
 
