@@ -41,6 +41,7 @@ function new_talk() {
     to_guid: 0
   });
   $('#contacts').sidebar('toggle');
+  $('#message_form [name="message"]').focus();
   return false;
 }
 %= end
