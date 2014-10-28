@@ -56,6 +56,7 @@ sub create {
     $self = $self->new(@args);
     state $dbh = $self->dbh;
     my $subject = $self->subject;
+
     #guess the talk by subject or subject_message_id
     state $sth = $dbh->prepare_cached("SELECT id FROM vest WHERE (id=? OR subject=?)");
     my $started_talk =
@@ -68,7 +69,7 @@ sub create {
     else {
         $self->subject_message_id(0);              # new talk
         $self->subject(substr($self->message, 0, 30))
-            unless $subject;
+          unless $subject;
     }
     $self->insert();
     return $self;
