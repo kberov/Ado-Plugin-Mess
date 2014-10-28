@@ -13,7 +13,7 @@ my $builder = Ado::BuildPlugin->new(
     configure_requires => {'Module::Build' => '0.42'},
     build_requires => {'Test::More' => '0',},
     requires       => {
-        'Ado'                             => '0.69',
+        'Ado'                             => '0.70',
         'Mojolicious'                     => '0',
         'Mojolicious::Plugin::DSC'        => '0',
         'Mojolicious::Plugin::SemanticUI' => '0'
