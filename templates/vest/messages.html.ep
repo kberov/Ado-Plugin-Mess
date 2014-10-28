@@ -10,7 +10,7 @@
   <!-- form for sending a message to the other person in the talk -->
 <form id="message_form" name="message_form"
   class="ui form segment" action="<%= url_for($vest_base_url) %>" method="POST">
-  <input type="hidden" name="from_uid" value="<%= $user->id %>" />
+  <input type="hidden" name="from_uid" value="<%= $user->{id} %>" />
   <input type="hidden" name="to_uid" value="" />
   <input type="hidden" name="to_guid" value="" />
   <input type="hidden" name="subject" value="" />
@@ -81,7 +81,7 @@ function post_message_success(data) {
     // Prepare the sent message to be appended to the list of messages.
     var form = $('#message_form').get(0);
     var msg = {
-      from_uid_name: '<%= $user->name %>',
+      from_uid_name: '<%= $user->{name} %>',
       tstamp: new Date(),
       id: '0'
     };
@@ -89,7 +89,7 @@ function post_message_success(data) {
       msg[form[i].name] = form[i].value;
     });
     var last_i = VestTalk.json_messages.data.length - 1;
-    var prev_msg = VestTalk.json_messages.data[last_i];
+    var prev_msg = VestTalk.json_messages.data[last_i]||{};
     var messages = $('#messages .ui.list');
     // fill in template and display the message
     fill_in_message_template(msg, prev_msg).appendTo(messages);

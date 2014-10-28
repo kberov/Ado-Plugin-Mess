@@ -1,10 +1,8 @@
 <!-- the whole application screen.html.ep -->
-% my $user = user;
 % layout 'vest';
-%= include 'vest/menu', user => $user
+%= include 'vest/menu'
 <main class="ui container">
-%= include 'vest/talks', user => $user
-%= include 'vest/contacts', user => $user
-
-%= include 'vest/messages', user => $user
+%= include 'vest/talks'
+%= include 'vest/contacts'
+%= include 'vest/messages'
 </main>

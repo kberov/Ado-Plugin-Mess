@@ -8,7 +8,7 @@
   <!-- user menu -->
   <div class="ui dropdown item">
   <i class="user icon"></i>
-    %= $user->name
+    %= $user->{name}
     <i class="dropdown icon"></i>
     <div class="menu">
       <a class="item"><i class="home icon"></i>Home</a>

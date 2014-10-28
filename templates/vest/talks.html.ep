@@ -1,14 +1,15 @@
 <!-- talks.html.ep -->
 <aside id="talks" class="ui floating styled sidebar">
-% my $talks = Ado::Model::Vest->talks($user, int(param('limit')||20), 0);
   <ul>
 % foreach my $talk (@$talks) {
 % # TODO: add group talks in case to_guid !=0
     <li>
-      <%= link_to $vest_base_url.'/messages/'.$talk->{id}.'.json'
-        => (id=>'talk'.$talk->{id}) =>begin %>
-      <%= $talk->{from_uid} eq $user->id?$talk->{to_uid_name}:$talk->{from_uid_name} %>
-            (<%= $talk->{subject} %>)
+      <%= link_to 
+      $vest_base_url.'/messages/'.$talk->{id}.'.json', (id=>'talk'.$talk->{id}), 
+      begin %>
+      %# show the name of the other partisipant in the talk
+      <%= $talk->{from_uid} eq $user->{id} ? $talk->{to_uid_name} : $talk->{from_uid_name} %>
+      (<%= $talk->{subject} %>)
       %= end
     </li>
 %}
@@ -20,7 +21,7 @@
 // Functionality related to talks
 "use strict";
 // global object used to store various data
-var VestTalk = {};
+var VestTalk = {json_messages:{data:[]}};
 jQuery(function($) {
   //Initialize the left sidebar
   $('#talks').sidebar();
@@ -123,7 +124,7 @@ function set_talk_form(msg) {
       alert('subject_message_id!=0')
       return false;
     }
-    console.log(msg);
+
     $('#talk_topic').html(
       (msg.subject ? msg.subject : msg.message.substring(0, 30) + '...' ));
     $('#talk_topic').attr('title', msg.message);

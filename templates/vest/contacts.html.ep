@@ -6,14 +6,12 @@ This sidebar will list the members of this group.
 By adding some user to this group it is added to the user's contact
 referred by $login_name.
 -->
-% my @users = Ado::Model::Users->by_group_name('vest_contacts_for_'.$user->login_name);
 
 <aside id="contacts" class="ui right floating styled sidebar">
   <ul class="ui selection list">
-    % for my $u (@users){ my $d = $u->data;
-    <li class="item" id="u<%= $d->{id} %>" 
-    data-id="<%= $d->{id} %>" data-first_name="<%= $d->{first_name} %>"
-    data-last_name="<%= $d->{last_name} %>"><%= $u->name %></li>
+    % for my $u (@$contacts){
+    <li class="item" id="u<%= $u->{id} %>"
+    data-id="<%= $u->{id} %>" data-name="<%= $u->{name} %>"><%= $u->{name} %></li>
     % }
   </ul>
 </aside>
@@ -36,6 +34,8 @@ function new_talk() {
   $('#messages .ui.list p').remove();
   set_talk_form({
     id: 0,// this will be the value of subject_message_id in the form
+    subject: '',
+    message:'',
     subject_message_id: 0,
     to_uid: $(this).data('id'),
     to_guid: 0
