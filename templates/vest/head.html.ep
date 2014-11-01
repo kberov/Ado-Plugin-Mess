@@ -20,4 +20,8 @@
         rel="stylesheet" type="text/css" />
     %= javascript "/mojo/jquery/jquery.js?v=$mv"
     %= javascript "/vendor/SemanticUI/definitions/javascript/semantic.min.js?v=$suiv"
+%= javascript begin
+'use strict';
+var user = <%== Mojo::JSON::to_json($user) %>;
+%= end
     %= javascript "/plugins/vest/vest.js?v=$av"

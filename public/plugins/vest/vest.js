@@ -9,28 +9,36 @@
       data: []
     }
   };
-  $(function() {
+  $(document).ready(function($) {
     //Initialize the left sidebar
     $('#talks').sidebar();
     $('#talks_button').click(function() {
       $('#talks').sidebar('toggle');
     });
+    //Initializing the right sidebar is done in contacts.html.ep untill 
+    //I realize why it is not working from here.
+
     // Fill in #messages with the last talk and
-    // bind onclick to filling in messages in the #messages
+    // bind onclick to filling-in messages in the #messages
     $('#talks ul li a').click(get_messages);
     // List messages from the last talk.
     $('#talks ul li a:first').click();
     $(window).blur(stop_polling);
     $(window).focus(start_polling);
 
-    //Initialize the right sidebar
-    $('#contacts').sidebar();
-    $('#contacts_button').click(function() {
-      $('#contacts').sidebar('toggle');
-    });
     $('#contacts .list .item').click(new_talk);
+        // to send or not to send the message?
+    $('#message_form').submit(validate_and_send_message);
+
   }); // end jQuery(function($)
-  // Gets last 20 messages from a talk
+
+  /** 
+   * Gets last 20 messages from a talk.
+   * Performs a GET request to the url found in the 'href' attribute
+   * of a talk item and invokes list_messages_from_json() to populate the
+   * #messages box.
+   * @return bool false - to prevent the default behaviour of the 'a' tag.
+   */
   function get_messages(e) {
     var link = e.target;
     // close the sidebar
@@ -41,7 +49,10 @@
     return false;
   }
 
-  // Fills in mesages list box from received json
+  /**
+   * Populates in #mesages list box with the messages found in
+   * the received json.
+   */
   function list_messages_from_json(json_messages) {
     var messages = $('#messages .ui.list');
     messages.html('');
@@ -69,16 +80,20 @@
     messages.parent().scrollTop(messages.height());
   } // end function list_talk_messages_from_json
 
+  /**
+   * Stop polling for new messages from previous talk.
+   */
   function stop_polling() {
-    // Stop polling for new messages from previous talk.
     if (window.new_messages_interval_id) {
       window.clearInterval(window.new_messages_interval_id);
     }
   }
 
+  /**
+   * Start polling for new messages from the buddy
+   */
   function start_polling() {
     stop_polling();
-    //Start polling for new messages from the buddy
     window.new_messages_interval_id =
       window.setInterval(function() {
         get_new_messages($('#message_form').get(0));
@@ -112,7 +127,11 @@
     return template;
   } // end function fill_in_message_template(msg){
 
-  // Sets the current talk title and hidden fields in the message form
+  /**
+   * Sets the current talk title and hidden fields in the message form
+   * @param {Object} - The message (stub) used to populate the form
+   * @return void
+   */
   function set_talk_form(msg) {
     if (msg.subject_message_id !== 0) {
       //alert('subject_message_id!=0');
@@ -132,6 +151,7 @@
       uid == msg.to_uid ? msg.from_uid : msg.to_uid);
     $('#message_form [name="subject_message_id"]').val(msg.id);
   } // end function set_talk(msg)
+
   /**
    * Starts a new talk with a contact.
    * @return false
@@ -152,11 +172,6 @@
   } //end function new_talk()
 
   // Functionality related to messages
-  $(function() {
-    // to send or not to send the message?
-    $('#message_form').submit(validate_and_send_message);
-  }); // end jQuery(function($)
-
   /**
    * Validates the message form and sends the message.
    * @param {Event} e  Event passed by the binding
@@ -199,7 +214,7 @@
     // Prepare the sent message to be appended to the list of messages.
     var form = $('#message_form').get(0);
     var msg = {
-      from_uid_name: '<%= $user->{name} %>',
+      from_uid_name: window.user.name,//from screen action
       tstamp: new Date(),
       id: '0'
     };

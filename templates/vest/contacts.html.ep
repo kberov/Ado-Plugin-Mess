@@ -15,3 +15,13 @@ referred by $login_name.
     % }
   </ul>
 </aside>
+<script>//<![CDATA[
+//Initializing the right sidebar is done here until
+//I realize why it is not working from vest.js.
+  $('#contacts').sidebar();
+    $('#contacts_button').click(function() {
+      $('#contacts').sidebar('toggle');
+    });
+//]]></script>
+
+

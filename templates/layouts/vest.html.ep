@@ -6,8 +6,9 @@
   version="XHTML+RDFa 1.1"
   lang="<%= $language %>">
   <head><%= include 'vest/head'; %></head>
-  
-  <body class="vest"><%= content %></body>
+  <body class="vest">
+  <%= content %>
+  </body>
   <!-- Produced by
 % if(stash->{controller}){
 %=  'Controller: ' .stash->{controller}.'; Action: '.stash->{action};
