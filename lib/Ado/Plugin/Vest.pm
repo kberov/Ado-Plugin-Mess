@@ -87,15 +87,53 @@ gladly accepts proposals enlightenment and inspiration.
 
 =head1 SYNOPSIS
 
-  # 1. To enable this plugin after installation, add it to etc/ado.conf
+=over
+
+=item 1. To enable this plugin after installation, add it to etc/ado.conf
+
   #"plugins" section *after* DSC plugin.
   plugins => [
     #...
     'vest',
     #...
  ],
- # 2. Restart Ado
- # 3. Login and go to http://yourdomain/vest
+
+=item 2. Restart Ado
+
+=item 3. Add users to the group 'vest' so they can use the application.
+See examples below. See also L<Ado::Command::adduser>.
+
+    # Add to group 'vest':
+    berov@u165:~/opt/public_dev/Ado$ bin/ado adduser -u berov -g vest
+
+    #Create a user and add it to group 'vest'
+    berov@u165:~/opt/public_dev/Ado$ bin/ado adduser -u berov \
+      -g vest -f Krasimir -l Berov -e berov@cpan.org -d 0 -p pa55w0r4
+    User 'berov' was created with primary group 'berov'.
+    User 'berov' was added to group 'vest'.
+
+=item 4. Search for other users and add them as contacts.
+User interface is not yet implemented. You can add contacts for a user using
+the comandline:
+
+    #add berov to test1's contacts
+    berov@u165:~/opt/public_dev/Ado$ bin/ado adduser -u berov \
+      -g vest_contacts_for_test1
+    'berov' is already taken!
+    User 'berov' was added to group 'vest_contacts_for_test1'.
+
+    #add test1 to berov's contacts
+    berov@u165:~/opt/public_dev/Ado$ bin/ado adduser -u test1 -g vest_contacts_for_berov
+    'test1' is already taken!
+    User 'test1' was added to group 'vest_contacts_for_berov'.
+
+=item 5. Login as one of the added users: http://yourdomain/login
+
+=item 6. Go to http://yourdomain/vest
+
+=item  7. Have some chat...
+
+=back
 
 =head1 ATTRIBUTES
 

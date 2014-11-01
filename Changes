@@ -1,8 +1,9 @@
 Revision history for Ado-Plugin-Vest
-0.07 2014-11.01
+0.07 2014-11.02
     - Refactoring. Moved JavaScript code to vest.js and made it private.
     - Using version strings for referred JS and CSS files that correspond to
         the modules which provide them.
+    - Improved SYNOPSIS.
 
 0.06 2014-10-28
     - Added links to the source code repository.
