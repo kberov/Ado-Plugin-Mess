@@ -16,3 +16,4 @@
     <link href="/plugins/vest/vest.css" rel="stylesheet" type="text/css" />
     %= javascript "/mojo/jquery/jquery.js"
     %= javascript "/vendor/SemanticUI/definitions/javascript/semantic.min.js"
+    %= javascript "/plugins/vest/vest.js"

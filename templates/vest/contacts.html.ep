@@ -15,33 +15,3 @@ referred by $login_name.
     % }
   </ul>
 </aside>
-%= javascript begin
-"use strict";
-jQuery(function($) {
-  //Initialize the right sidebar
-  $('#contacts').sidebar();
-  $('#contacts_button').click(function (){
-    $('#contacts').sidebar('toggle');
-  });
-  $('#contacts .list .item').click(new_talk);
-}); // end jQuery(function($)
-
-/**
- * Starts a new talk with a contact.
- * @return false
- */
-function new_talk() {
-  $('#messages .ui.list p').remove();
-  set_talk_form({
-    id: 0,// this will be the value of subject_message_id in the form
-    subject: '',
-    message:'',
-    subject_message_id: 0,
-    to_uid: $(this).data('id'),
-    to_guid: 0
-  });
-  $('#contacts').sidebar('toggle');
-  $('#message_form [name="message"]').focus();
-  return false;
-}
-%= end
