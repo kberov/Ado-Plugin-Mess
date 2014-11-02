@@ -15,8 +15,8 @@
     $('#talks_button').click(function() {
       $('#talks').sidebar('toggle');
     });
-    //Initializing the right sidebar is done in contacts.html.ep untill 
-    //I realize why it is not working from here.
+    //Initializing the right sidebar is done in contacts.html.ep until
+    //I realize why it is not working if code is here.
 
     // Fill in #messages with the last talk and
     // bind onclick to filling-in messages in the #messages
