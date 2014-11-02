@@ -9,10 +9,10 @@ my $builder = Ado::BuildPlugin->new(
     dist_version_from  => 'lib/Ado/Plugin/Vest.pm',
     create_readme      => 1,
     dist_author        => q{Красимир Беров <berov@cpan.org>},
-    configure_requires => {'Module::Build' => '0.42'},
+    configure_requires => {'Module::Build' => '0.42', 'Ado' => '0.71'},
     build_requires => {'Test::More' => '0',},
     requires       => {
-        'Ado'                             => '0.70',
+        'Ado'                             => '0.71',
         'Mojolicious'                     => '0',
         'Mojolicious::Plugin::DSC'        => '0',
         'Mojolicious::Plugin::SemanticUI' => '0'
