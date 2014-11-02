@@ -257,7 +257,7 @@
     for (var i in js_messages) {
       var msg = js_messages[i];
       //skip the parent message
-      if (msg.subject_message_id == 0) {
+      if (msg.subject_message_id === 0) {
         continue;
       }
       //append the new message
