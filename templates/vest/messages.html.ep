@@ -16,7 +16,7 @@
   <input type="hidden" name="subject" value="" />
   <input type="hidden" name="subject_message_id" value="" />
   <input type="hidden" name="message_assets" value="" /><!-- TODO -->
-  <input type="hidden" name="sent" value="0" />
+  <input type="hidden" name="sent" value="0" /><!-- TODO -->
   <div class="field">
     <label>Message</label>
     <textarea name="message" autofocus="autofocus"></textarea>
