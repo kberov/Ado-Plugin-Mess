@@ -12,6 +12,7 @@ MANIFEST			This list of files
 META.json
 META.yml
 public/plugins/vest/vest.css
+public/plugins/vest/vest.js
 README
 t/.perlcriticrc
 t/.perltidyrc
