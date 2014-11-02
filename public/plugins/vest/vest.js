@@ -27,12 +27,17 @@
     $(window).focus(start_polling);
 
     $('#contacts .list .item').click(new_talk);
-        // to send or not to send the message?
+    // To send or not to send the message?
     $('#message_form').submit(validate_and_send_message);
+    // Send message by pressing Enter.
+    $('#message_form [name="message"]').keydown(function(e){
+      if ( (!e.ctrlKey && !e.shiftKey ) && e.which == 13 ){
+        $('#message_form').submit();
+      }
+    });
+  }); // end $(document).ready(function($)
 
-  }); // end jQuery(function($)
-
-  /** 
+  /**
    * Gets last 20 messages from a talk.
    * Performs a GET request to the url found in the 'href' attribute
    * of a talk item and invokes list_messages_from_json() to populate the

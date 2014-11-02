@@ -1,9 +1,14 @@
 Revision history for Ado-Plugin-Vest
 0.07 2014-11.02
     - Refactoring. Moved JavaScript code to vest.js and made it private.
+        Improved JavaScript code quality.
     - Using version strings for referred JS and CSS files that correspond to
         the modules which provide them.
     - Improved SYNOPSIS.
+    - Improved message validation.
+    - Added keydown event handler to send message by pressing Enter in textarea.
+      This is expected behavior in chat software.
+    - Upgraded to Ado 0.71
 
 0.06 2014-10-28
     - Added links to the source code repository.
