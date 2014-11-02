@@ -33,8 +33,10 @@ my $CHECKS = {
         'default' => ''
     },
     'message_assets' => {'allow' => qr/(?^x:^.{1,}$)/},
-    'message'        => {'allow' => qr/(?^x:^.{1,}$)/},
-    'from_uid'       => {
+    'message'        => {
+        'allow' => sub { length($_[0]) < 5120 }
+    },
+    'from_uid' => {
         'required' => 1,
         'defined'  => 1,
         'allow'    => qr/(?^x:^-?\d{1,11}$)/

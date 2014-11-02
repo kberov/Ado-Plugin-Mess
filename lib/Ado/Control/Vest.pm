@@ -107,7 +107,7 @@ my $add_input_validation_template = {
     },
     subject => {
         'required' => 1,
-        like       => qr/^.{1,255}$/
+        size       => [1, 255]    #up to 255 characters in subject
     },
     subject_message_id => {
         'required' => 1,
@@ -115,11 +115,11 @@ my $add_input_validation_template = {
     },
     message => {
         'required' => 1,
-        like       => qr/^.{1,12345}$/
+        size       => [1, 5120]    #up to 5KB messages
     },
     message_assets => {
         'required' => 0,
-        like       => qr/^.{1,12345}$/
+        size       => [5, 3000]
     },
 };
 
