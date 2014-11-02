@@ -22,7 +22,7 @@ my $vest_base_url = $app->config('Ado::Plugin::Vest')->{vest_base_url};
 
 #$t1 login first
 subtest 't1_login' => sub {
-    $t1->get_ok('/login/ado');
+    $t1->get_ok('/login/ado')->status_is(200)->content_like(qr/id="login_form"/);
 
 #get the csrf fields
     my $form       = $t1->tx->res->dom->at('#login_form');
@@ -40,7 +40,7 @@ subtest 't1_login' => sub {
 # $t2 login - use the same running app instance
 my $t2 = Test::Mojo->new($app);
 subtest 't2_login' => sub {
-    $t2->get_ok('/login/ado');
+    $t2->get_ok('/login/ado')->status_is(200)->content_like(qr/id="login_form"/);
 
     #get the csrf fields
     my $form       = $t2->tx->res->dom->at('#login_form');
