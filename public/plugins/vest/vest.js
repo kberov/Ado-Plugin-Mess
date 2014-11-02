@@ -198,7 +198,7 @@
       post_message_success
     ).fail(function(data) {
       //TODO: replace the alert with a beautiful SemanticUI popup or box
-      alert("error:" + data.responseText);
+      alert('error:' + data.responseText);
       message_field.addClass('error');
       //console.log(data);
     });
