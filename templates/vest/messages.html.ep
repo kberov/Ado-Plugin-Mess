@@ -1,33 +1,36 @@
 <!-- Messages in the current talk: messages.html.ep -->
-<h5 id="talk_topic" class="ui header">
-  Talk:Here is the topik of the talk
-</h5>
-<div id="messages" class="ui segment">
-  <div class="ui list">
-  </div> <!-- end div class="ui list" -->
+<main class="ui container pusher">
+  <h5 id="talk_topic" class="ui header">
+    Talk:Here is the topik of the talk
+  </h5>
+  <div id="messages" class="ui segment">
+    <div class="ui list">
+    </div> <!-- end div class="ui list" -->
 
-</div><!-- div class="ui segment" -->
-  <!-- form for sending a message to the other person in the talk -->
-<form id="message_form" name="message_form"
-  class="ui form segment" action="<%= url_for($vest_base_url) %>" method="POST">
-  <input type="hidden" name="from_uid" value="<%= $user->{id} %>" />
-  <input type="hidden" name="to_uid" value="" />
-  <input type="hidden" name="to_guid" value="" />
-  <input type="hidden" name="subject" value="" />
-  <input type="hidden" name="subject_message_id" value="" />
-  <input type="hidden" name="message_assets" value="" /><!-- TODO -->
-  <input type="hidden" name="sent" value="0" /><!-- TODO -->
-  <div class="field">
-    <label>Message</label>
-    <textarea name="message" autofocus="autofocus"></textarea>
-    <button type="submit" class="ui button"><i class="send icon"></i>Submit</button>
-  </div>
-</form><!-- form class="ui form segment" -->
-<template id="message_template"
-  ><p class="item" id="12345" title="">
-      %# <!-- TODO: implement gravatars later <img class="ui avatar image" src=""> -->
-  [<i class="date"></i>]
-  <b class="from_uid_name">Бай Ганьо</b>
-  <span class="message">Каза нещо</span>
-</p>
-</template>
+  </div><!-- div class="ui segment" -->
+    <!-- form for sending a message to the other person in the talk -->
+  <form id="message_form" name="message_form"
+    class="ui form segment" action="<%= url_for($vest_base_url) %>" method="POST">
+    <input type="hidden" name="from_uid" value="<%= $user->{id} %>" />
+    <input type="hidden" name="to_uid" value="" />
+    <input type="hidden" name="to_guid" value="" />
+    <input type="hidden" name="subject" value="" />
+    <input type="hidden" name="subject_message_id" value="" />
+    <input type="hidden" name="message_assets" value="" /><!-- TODO -->
+    <input type="hidden" name="sent" value="0" /><!-- TODO -->
+    <div class="field">
+      <label>Message</label>
+      <textarea name="message" autofocus="autofocus"></textarea>
+      <button type="submit" class="ui button"><i class="send icon"></i>Submit</button>
+    </div>
+  </form><!-- form class="ui form segment" -->
+  <template id="message_template"
+    ><p class="item" id="12345" title="">
+        %# <!-- TODO: implement gravatars later <img class="ui avatar image" src=""> -->
+    [<i class="date"></i>]
+    <b class="from_uid_name">Бай Ганьо</b>
+    <span class="message">Каза нещо</span>
+  </p>
+  </template>
+</main>
+

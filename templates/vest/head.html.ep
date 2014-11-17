@@ -12,14 +12,14 @@
     <meta name="description" content="<%= $description %>" />
     <title><%= title %></title>
     <link rel="icon" href="<%=$base_url%>/favicon.png" type="image/png" />
-    <link href="/vendor/SemanticUI/definitions/globals/reset.min.css?v=<%=$suiv%>"
+    <link href="/vendor/SemanticUI/components/reset.min.css?v=<%=$suiv%>"
         rel="stylesheet" type="text/css" />
-    <link href="/vendor/SemanticUI/definitions/css/semantic.min.css?v=<%=$suiv%>"
+    <link href="/vendor/SemanticUI/semantic.min.css?v=<%=$suiv%>"
         rel="stylesheet" type="text/css" />
     <link href="/plugins/vest/vest.css?v=<%=$av%>"
         rel="stylesheet" type="text/css" />
     %= javascript "/mojo/jquery/jquery.js?v=$mv"
-    %= javascript "/vendor/SemanticUI/definitions/javascript/semantic.min.js?v=$suiv"
+    %= javascript "/vendor/SemanticUI/semantic.min.js?v=$suiv"
 %= javascript begin
 'use strict';
 var user = <%== Mojo::JSON::to_json($user) %>;

@@ -1,5 +1,11 @@
 Revision history for Ado-Plugin-Vest
-0.07 2014-11.02
+0.08 2014-11-17
+    - Upgraded to Ado 0.73
+    - Upgraded to Mojolicious::Plugin::SemanticUI 0.08.
+    - Restructured the HTML layout. Cleaned HTML.
+    - Do not wait when screen receives focus to poll new messages.
+
+0.07 2014-11-02
     - Refactoring. Moved JavaScript code to vest.js and made it private.
         Improved JavaScript code quality.
     - Using version strings for referred JS and CSS files that correspond to

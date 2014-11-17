@@ -9,14 +9,9 @@
       data: []
     }
   };
-  $(document).ready(function($) {
-    //Initialize the left sidebar
-    $('#talks').sidebar();
-    $('#talks_button').click(function() {
-      $('#talks').sidebar('toggle');
-    });
-    //Initializing the right sidebar is done in contacts.html.ep until
-    //I realize why it is not working if code is here.
+  $(function($) {
+      $('#contacts').sidebar('attach events', '#contacts_button');
+      $('#talks').sidebar('attach events', '#talks_button');
 
     // Fill in #messages with the last talk and
     // bind onclick to filling-in messages in the #messages
@@ -99,6 +94,7 @@
    */
   function start_polling() {
     stop_polling();
+    get_new_messages($('#message_form').get(0),10);
     window.new_messages_interval_id =
       window.setInterval(function() {
         get_new_messages($('#message_form').get(0));
@@ -243,9 +239,10 @@
    * Similar to get_messages but only gets last 5 messages.
    * @param {obj} form The form object from which we will get everything we need.
    */
-  function get_new_messages(form) {
+  function get_new_messages(form, limit) {
+    limit = limit ? limit : 5;
     var url = form.action + '/messages/' + form.subject_message_id.value +
-      '.json?limit=5';
+      '.json?limit=' + limit;
     $.get(url, append_messages_from_json, 'json');
   }
 

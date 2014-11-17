@@ -6,7 +6,6 @@ This sidebar will list the members of this group.
 By adding some user to this group it is added to the user's contact
 referred by $login_name.
 -->
-
 <aside id="contacts" class="ui right floating styled sidebar">
   <ul class="ui selection list">
     % for my $u (@$contacts){
@@ -15,13 +14,3 @@ referred by $login_name.
     % }
   </ul>
 </aside>
-<script>//<![CDATA[
-//Initializing the right sidebar is done here until
-//I realize why it is not working from vest.js.
-  $('#contacts').sidebar();
-    $('#contacts_button').click(function() {
-      $('#contacts').sidebar('toggle');
-    });
-//]]></script>
-
-

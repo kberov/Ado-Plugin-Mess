@@ -1,6 +1,6 @@
 <!-- the top menu with buttons menu.html.ep -->
-<nav id="vestbar" class="ui blue inverted fixed small menu">
-  <a class="item"><i class="circular vede icon"></i></a>
+<nav id="vestbar" class="ui inverted fixed small menu">
+  <a class="item" href="<%= current_route %>"><i class="circular vede icon"></i></a>
   <div id="talks_button" class="item ui labeled icon button">
     <i class="comments icon"></i>  Talks
   </div>

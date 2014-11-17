@@ -12,10 +12,10 @@ my $builder = Ado::BuildPlugin->new(
     configure_requires => {'Module::Build' => '0.42', 'Ado' => '0.71'},
     build_requires => {'Test::More' => '0',},
     requires       => {
-        'Ado'                             => '0.71',
+        'Ado'                             => '0.73',
         'Mojolicious'                     => '0',
         'Mojolicious::Plugin::DSC'        => '0',
-        'Mojolicious::Plugin::SemanticUI' => '0'
+        'Mojolicious::Plugin::SemanticUI' => '0.08'
     },
     recursive_test_files => 1,
     meta_merge           => {
