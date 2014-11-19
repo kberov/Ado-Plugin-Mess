@@ -3,7 +3,7 @@ use Mojo::Base qw(Ado::Plugin);
 use Mojo::Util qw(decamelize slurp);
 File::Spec::Functions->import(qw(catfile));
 
-our $VERSION = '0.08';
+our $VERSION = '0.09';
 
 sub register {
     my ($self, $app, $conf) = shift->initialise(@_);
@@ -77,10 +77,16 @@ Ado::Plugin::Vest - Messaging services for an Ado system!
 
 =head1 DESCRIPTION
 
-L<Ado::Plugin::Vest> implements a (not too) naive messaging service.
-It can be used as a chat between two users or as commenting widget under some article.
-Other uses are also possible. Just create your client (HTML5 or desktop) application and start making Ajax (or Websocket - TODO) requests.
+L<Ado::Plugin::Vest> implements a (not too) naive messaging service
+for any web-application based on L<Ado>. It can be used as a chat between
+two users or as commenting widget under articles.
+Other uses are also possible. You can create your client (HTML5 or desktop)
+application and start making Ajax (or Websocket - TODO) requests.
 Currently a HTTP based chat application is being implemented as a proof of concept.
+
+Combined with the OAuth2 authentication support in Ado this can be a good
+foundation for a community or intranet site. Any Google+ user can authenticate
+and use it for instant messages.
 
 B<Note> that this distribution is fairly experimental and the author 
 gladly accepts proposals enlightenment and inspiration.
@@ -101,7 +107,7 @@ gladly accepts proposals enlightenment and inspiration.
 =item 2. Restart Ado
 
 =item 3. Add users to the group 'vest' so they can use the application.
-See examples below. See also L<Ado::Command::adduser>.
+See examples below. See also L<Ado::Command::adduser>. 
 
     # Add to group 'vest':
     berov@u165:~/opt/public_dev/Ado$ bin/ado adduser -u berov -g vest

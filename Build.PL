@@ -12,6 +12,7 @@ my $builder = Ado::BuildPlugin->new(
     configure_requires => {'Module::Build' => '0.42', 'Ado' => '0.71'},
     build_requires => {'Test::More' => '0',},
     requires       => {
+        'perl'                            => '5.14.0',
         'Ado'                             => '0.73',
         'Mojolicious'                     => '0',
         'Mojolicious::Plugin::DSC'        => '0',
@@ -23,7 +24,7 @@ my $builder = Ado::BuildPlugin->new(
             repository => "https://github.com/kberov/Ado-Plugin-Vest",
             bugtracker => "https://github.com/kberov/Ado-Plugin-Vest/issues",
         },
-        keywords => [qw/Ado Mojolicious realtime web ERP REST CMS Messaging enterprise/],
+        keywords => [qw/Ado Mojolicious web ERP REST Messaging chat enterprise/],
         no_index => {namespace => ['Ado::Model'],}
     },
 

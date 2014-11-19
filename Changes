@@ -1,4 +1,8 @@
 Revision history for Ado-Plugin-Vest
+0.09 2014-11-19
+    - Improved distribution Kwalitee by adding Perl 5.14 as prerequisite.
+    - Mention Ado explicitly and link to it in the documentation.
+
 0.08 2014-11-17
     - Upgraded to Ado 0.73
     - Upgraded to Mojolicious::Plugin::SemanticUI 0.08.
