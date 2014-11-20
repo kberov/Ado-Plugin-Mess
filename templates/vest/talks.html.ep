@@ -1,5 +1,5 @@
 <!-- talks.html.ep -->
-<aside id="talks" class="ui floating styled sidebar">
+<aside id="talks" class="ui left push sidebar">
   <ul>
 % foreach my $talk (@$talks) {
 % # TODO: add group talks in case to_guid !=0

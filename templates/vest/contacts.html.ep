@@ -6,7 +6,7 @@ This sidebar will list the members of this group.
 By adding some user to this group it is added to the user's contact
 referred by $login_name.
 -->
-<aside id="contacts" class="ui right floating styled sidebar">
+<aside id="contacts" class="ui right menu push sidebar">
   <ul class="ui selection list">
     % for my $u (@$contacts){
     <li class="item" id="u<%= $u->{id} %>"
