@@ -7,12 +7,14 @@ our $VERSION = '0.09';
 
 sub register {
     my ($self, $app, $conf) = shift->initialise(@_);
+    $conf->{add_users_to_vest} //= 1;
 
     #make plugin configuration available for later in the app
     $app->config(__PACKAGE__, $conf);
-    $app->defaults('vest_base_url' => $$conf{vest_base_url});
+    $app->defaults('vest_base_url' => $conf->{vest_base_url});
     $self->_create_table($app, $conf);
     $self->_add_data($app, $conf);
+    $app->hook(after_user_add => \&_add_user_to_vest);
 
     return $self;
 }
@@ -22,6 +24,16 @@ sub _add_data {
     return unless $conf->{vest_data_sql_file};
 
     return $self->_do_sql_file($app->dbix->dbh, $conf->{vest_data_sql_file});
+}
+
+sub _add_user_to_vest {
+    my ($c, $user, $raw_data) = @_;
+    unless ($user->ingroup('vest')) {
+        my $group = $user->add_to_group(ingroup => 'vest');
+        $c->app->log->info("\$user->id ${\ $user->id } added to group '${\ $group->name }'.");
+        return 1;
+    }
+    return;
 }
 
 sub _create_table {
