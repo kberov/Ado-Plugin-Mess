@@ -1,6 +1,7 @@
 package Ado::Control::Vest;
 use Mojo::Base 'Ado::Control';
 use Time::Piece;
+use Ado::Model::Users;
 
 my $list_args_checks = {
     limit => {
@@ -141,16 +142,7 @@ sub create {
       eval { Ado::Model::Vest->create(%{$result->{output}}, tstamp => time) };
     if ($message) {
 
-        # May be?
-        # $c->render(
-        #     status => 200,
-        #     json   => {
-        #         code   => 200,
-        #         status => 'success',
-        #         data   => $message->data
-        #     }
-        # );
-        # Or just 201 Created?
+        #201 Created
         $c->res->headers->location(
             $c->url_for('/' . $c->current_route . '/id/' . $message->id => format => 'json'));
         return $c->render(status => 201, text => '');
@@ -267,6 +259,52 @@ sub screen {
     );
     return;
 }
+my $users_validation_template = {
+    name => {
+        'required' => 1,
+        size       => [1, 255]
+    },
+};
+my $U = 'Ado::Model::Users';
+$U->SQL('find_users_by_name' => <<"SQL");
+    SELECT u.id, u.first_name, u.last_name FROM users u
+    LEFT JOIN user_group ug 
+        ON(u.id = ug.user_id 
+            AND ug.group_id=(SELECT g.id FROM groups g WHERE name='vest')) 
+       WHERE
+       (disabled=0 AND (stop_date>? OR stop_date=0) AND start_date<?) AND
+      (upper(first_name) LIKE upper(?) AND upper(last_name) LIKE upper(?)) OR
+       (upper(last_name) LIKE upper(?) AND upper(first_name) LIKE upper(?))
+       ${\ $U->SQL_LIMIT('?', '?')}
+SQL
+
+#Searches and lists users belonging to the group vest by first and last name.
+sub users {
+    my ($c) = @_;
+    $c->require_formats('json') || return;
+    $c->req->param(name => $c->stash('name') // '') if !$c->req->param('name');
+    my $result = $c->validate_input($users_validation_template);
+
+    #400 Bad Request
+    return $c->render(
+        status => $result->{json}{code},
+        json   => $result->{json}
+    ) if $result->{errors};
+
+    #Search by name
+    my $name = Mojo::Util::trim($result->{output}{name});
+    my ($first_name, $last_name) = map { uc($_) } split /\s+/, $name;
+    $last_name //= '';
+
+    my $limit  = 50;
+    my $offset = 0;
+    my $time   = time;
+    my @a      = $U->query($U->SQL('find_users_by_name'),
+        $time, $time, "\%$first_name\%", "\%$last_name\%", "\%$first_name\%", "\%$last_name\%",
+        $limit, $offset);
+    my @data = map { +{%{$_->data}, name => $_->name} } @a;
+    return $c->respond_to(json => $c->list_for_json([$limit, $offset], \@data));
+}
 
 1;
 
@@ -312,6 +350,12 @@ pointing to the new resource so the user agent can fetch it eventually.
 See L<http://www.w3.org/Protocols/rfc2616/rfc2616-sec10.html#sec10.2.2>
 and L<Ado::Model::Vest/create>.
 
+
+=head2 disable
+
+Disables a message . Not implemented yet
+
+
 =head2 list
 
 Displays the messages this system has.
@@ -352,9 +396,21 @@ Displays a message. Not implemented yet
 
 Updates a message. Not implemented yet
 
-=head2 disable
+=head2 users
 
-Disables a message . Not implemented yet
+Performs case insensitive search by first and last name and lists users
+belonging to the group vest. Renders the first 50 results in JSON format.
+
+    #Request
+    http://localhost:3000/vest/users?name=кРа%20бер&format=json
+    http://localhost:3000/vest/users/кРа%20бер.json
+    #Response
+    {
+    "links":[
+        {"rel":"self","href":"\/vest\/users\/%D0%BA%D0%A0%D0%B0%20%D0%B1%D0%B5%D1%80.json?limit=50&offset=0"}],
+        "data":[
+            {"name":"Красимир Беров","last_name":"Беров","first_name":"Красимир","id":7}]
+    }
 
 =head1 SPONSORS
 

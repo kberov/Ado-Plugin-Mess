@@ -56,11 +56,11 @@ sub CHECKS { return $CHECKS }
 sub create {
     my ($self, @args) = @_;
     $self = $self->new(@args);
-    state $dbh = $self->dbh;
+    my $dbh     = $self->dbh;
     my $subject = $self->subject;
 
     #guess the talk by subject or subject_message_id
-    state $sth = $dbh->prepare_cached("SELECT id FROM vest WHERE (id=? OR subject=?)");
+    my $sth = $dbh->prepare_cached("SELECT id FROM vest WHERE (id=? OR subject=?)");
     my $started_talk =
       $dbh->selectrow_hashref($sth, {}, $self->subject_message_id, $subject || '-');
 

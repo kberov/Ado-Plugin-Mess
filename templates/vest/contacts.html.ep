@@ -7,6 +7,13 @@ By adding some user to this group it is added to the user's contact
 referred by $login_name.
 -->
 <aside id="contacts" class="ui right menu push sidebar">
+<form class="ui form">
+  <div class="ui fluid icon input">
+  <input placeholder="Search:  Иван Петров" type="text">
+  <i class="search icon"></i>
+</div>
+</form>
+
   <ul class="ui selection list">
     % for my $u (@$contacts){
     <li class="item" id="u<%= $u->{id} %>"

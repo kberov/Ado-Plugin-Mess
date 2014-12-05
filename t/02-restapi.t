@@ -53,6 +53,12 @@ subtest 't2_login' => sub {
         digest         => Mojo::Util::sha1_hex($csrf_token . Mojo::Util::sha1_hex('test2test2')),
     };
     $t2->post_ok('/login' => {} => form => $form_hash)->status_is(302);
+
+# find a user
+    $t2->get_ok("$vest_base_url/users.json?name=est 1")->status_is(200)
+      ->json_is('/data/0/name' => 'Test 1')
+      ->json_like('/links/0/href' => qr/users.json\?limit=50&offset=0/);
+
 };
 
 
@@ -203,7 +209,7 @@ $t1->get_ok("$vest_base_url/5.json")->status_is('200', 'Status is 200')
 
 $t1->delete_ok("$vest_base_url/1")->status_is('200', 'Status is 200')
   ->content_is('not implemented...', 'ok not implemented...yet');
-ok($dbh->do('DROP TABLE IF EXISTS vest'), "Table vest was dropped.");
+ok($app->dbix->dbh->do('DROP TABLE IF EXISTS vest'), "Table vest was dropped.");
 
 # Reload plugin to recreate the table
 $app->plugin('vest');
@@ -339,7 +345,6 @@ for my $talk (14 .. 25) {
       ->json_is('/talks/0/to_guid' => 0)->json_is('/contacts/0/id' => $from_uid)
       ->json_is('/talks/0/subject' => $subject);
 }
-
 
 #HTML UI
 $t1->get_ok("$vest_base_url")->element_exists('main.ui.container', 'main.ui.container');
