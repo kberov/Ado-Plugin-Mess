@@ -1,9 +1,10 @@
 package Ado::Plugin::Vest;
 use Mojo::Base qw(Ado::Plugin);
-use Mojo::Util qw(decamelize slurp);
+use Mojo::Util qw(decamelize slurp decode);
 File::Spec::Functions->import(qw(catfile));
 
 our $VERSION = '0.09';
+my $VEST = 'vest';
 
 sub register {
     my ($self, $app, $conf) = shift->initialise(@_);
@@ -26,11 +27,26 @@ sub _add_data {
     return $self->_do_sql_file($app->dbix->dbh, $conf->{vest_data_sql_file});
 }
 
+#hook after_user_add
 sub _add_user_to_vest {
     my ($c, $user, $raw_data) = @_;
-    unless ($user->ingroup('vest')) {
-        my $group = $user->add_to_group(ingroup => 'vest');
+    unless ($user->ingroup($VEST)) {
+        my $group = $user->add_to_group(ingroup => $VEST);
         $c->app->log->info("\$user->id ${\ $user->id } added to group '${\ $group->name }'.");
+        state $vest_id = Ado::Model::Users->by_login_name($VEST)->id;
+
+        #Add wellcome message
+        Ado::Model::Vest->create(
+            from_uid           => $vest_id,
+            to_uid             => $user->id,
+            subject            => $c->l('Wellcome [_1]!', $user->login_name),
+            subject_message_id => 0,
+            message            => $c->l(
+                'Wellcome [_1]! Use the Contacts sidebar to find users by name and have a chat.',
+                $user->name
+            ),
+            tstamp => time
+        );
         return 1;
     }
     return;
@@ -41,7 +57,7 @@ sub _create_table {
     return unless $conf->{vest_schema_sql_file};
     my $dbh = $app->dbix->dbh;
     my $table =
-      $dbh->table_info(undef, undef, 'vest', "'TABLE'")->fetchall_arrayref({});
+      $dbh->table_info(undef, undef, $VEST, "'TABLE'")->fetchall_arrayref({});
     return if @$table;
     return $self->_do_sql_file($dbh, $conf->{vest_schema_sql_file});
 }
@@ -51,7 +67,7 @@ sub _do_sql_file {
     $self->app->log->debug('_do_sql_file:' . $sql_file)
       if $Ado::Control::DEV_MODE;
 
-    my $SQL = slurp(catfile($self->config_dir, $sql_file));
+    my $SQL = decode('UTF-8', slurp(catfile($self->config_dir, $sql_file)));
 
     #Remove multi-line comments
     $SQL =~ s|/\*+.+?\*/\s+?||gsmx;
@@ -74,7 +90,7 @@ sub _do_sql_file {
         $self->app->log->error($e);
         Carp::croak($e);
     };
-    return;
+    return 1;
 }
 
 1;
@@ -91,14 +107,14 @@ Ado::Plugin::Vest - Messaging services for an Ado system!
 
 L<Ado::Plugin::Vest> implements a (not too) naive messaging service
 for any web-application based on L<Ado>. It can be used as a chat between
-two users or as commenting widget under articles.
+two users, as commenting widget under articles, for showing system messages etc.
 Other uses are also possible. You can create your client (HTML5 or desktop)
 application and start making Ajax (or Websocket - TODO) requests.
 Currently a HTTP based chat application is being implemented as a proof of concept.
 
 Combined with the OAuth2 authentication support in Ado this can be a good
-foundation for a community or intranet site. Any Google+ user can authenticate
-and use it for instant messages.
+foundation for a community or intranet site. Any Google+ or Facebook
+user can authenticate and use it for instant messages.
 
 B<Note> that this distribution is fairly experimental and the author 
 gladly accepts proposals enlightenment and inspiration.

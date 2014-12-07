@@ -29,8 +29,8 @@ CREATE TABLE IF NOT EXISTS vest (
   subject_message_id INT(12) NOT NULL DEFAULT 0,
   -- Last modification time.
   -- All dates are stored as seconds since the epoch(1970). 
-  -- In Perl we use a Time::Piece object.
-  tstamp INTEGER NOT NULL DEFAULT 0,
+  -- We use a Time::Piece object for formatting and simply time() for insert.
+  tstamp INTEGER DEFAULT 0,
   -- The message it self.
   message TEXT,
   -- File-paths (relative to app->home) of Files attached to this message - TODO

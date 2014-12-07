@@ -22,11 +22,7 @@ sub ALIASES { return $ALIASES }
 my $CHECKS = {
     'to_uid'  => {default => 0, 'allow' => qr/(?^x:^-?\d{1,11}$)/},
     'to_guid' => {default => 0, 'allow' => qr/(?^x:^-?\d{1,11}$)/},
-    'tstamp'  => {
-        'required' => 1,
-        'defined'  => 1,
-        'allow'    => qr/(?^x:^-?\d{1,11}$)/
-    },
+    'tstamp'  => {'allow' => qr/(?^x:^-?\d{1,11}$)/},
     'subject' => {
         'defined' => 1,
         'allow'   => qr/(?^x:^.{0,255}$)/,
@@ -42,9 +38,8 @@ my $CHECKS = {
         'allow'    => qr/(?^x:^-?\d{1,11}$)/
     },
     'subject_message_id' => {
-        'required' => 1,
-        'defined'  => 1,
-        'allow'    => qr/(?^x:^-?\d{1,12}$)/
+        'defined' => 1,
+        'allow'   => qr/(?^x:^-?\d{1,12}$)/
     },
     'id'   => {'allow' => qr/(?^x:^-?\d{1,}$)/},
     'seen' => {'allow' => qr/^\d$/}
@@ -60,9 +55,8 @@ sub create {
     my $subject = $self->subject;
 
     #guess the talk by subject or subject_message_id
-    my $sth = $dbh->prepare_cached("SELECT id FROM vest WHERE (id=? OR subject=?)");
-    my $started_talk =
-      $dbh->selectrow_hashref($sth, {}, $self->subject_message_id, $subject || '-');
+    my $started_talk = $dbh->selectrow_hashref('SELECT id FROM vest WHERE (id=? OR subject=?)',
+        {}, $self->subject_message_id, $subject || '-');
 
     if ($started_talk && $started_talk->{id}) {    #existing talk
         $self->subject_message_id($started_talk->{id});
