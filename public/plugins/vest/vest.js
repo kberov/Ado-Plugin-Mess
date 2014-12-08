@@ -26,8 +26,17 @@
     $('#message_form').submit(validate_and_send_message);
     // Send message by pressing Enter.
     $('#message_form [name="message"]').keydown(function(e){
-      if ( (!e.ctrlKey && !e.shiftKey ) && e.which == 13 ){
+      console.log(e.key)
+      if ( (!e.ctrlKey && !e.shiftKey ) && (e.key =='Enter'|| e.which == 13) ){
         $('#message_form').submit();
+      }
+    });
+    //behavior for contact form
+    $('#contacts form').submit(function(){return false});
+    $('#contacts form .prompt').keydown(function(e){
+      if ( e.altKey ){return false}
+      if ( this.value.length > 3 ){
+        find_contacts(e)
       }
     });
   }); // end $(document).ready(function($)
@@ -274,5 +283,32 @@
       }
     } // end for( var i in...
   } //end function append_messages_from_json(new_json_messages)
-
+  /**
+   * Finds new contacts for a user and displays them in div.results.
+   * TODO: Replace this with Semantic UI Search module when docs are ready.
+   */
+  function find_contacts(e) {
+    var name = $(e.target);
+    var form = name.parent().parent();
+    console.log(form.attr('action'),form.serialize());
+    $.get(
+      form.attr('action'),
+      form.serialize(),
+      function(results) {
+        $('#contacts .results li').remove();
+        for (var i = results.data.length - 1; i >= 0; i--) {
+          var template = $($('#search_template').html()); //copy
+          template.attr('id', 'r' + results.data[i].id);
+          template.attr('data-id',results.data[i].id);
+          template.attr('data-name',results.data[i].name);
+          template.text(results.data[i].name);
+          template.click(add_contact);
+          $('#contacts .results').append(template);
+        };
+    });
+  }//end function find_contacts(e)
+  function add_contact (e) {
+    console.log(e);
+    return false
+  }
 })(jQuery); //execute

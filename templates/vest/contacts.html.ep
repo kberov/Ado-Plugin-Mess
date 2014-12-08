@@ -7,12 +7,29 @@ By adding some user to this group it is added to the user's contact
 referred by $login_name.
 -->
 <aside id="contacts" class="ui right menu push sidebar">
-<form class="ui form">
-  <div class="ui fluid icon input">
-  <input placeholder="Search:  Иван Петров" type="text">
-  <i class="search icon"></i>
-</div>
-</form>
+  <form class="ui search" action="<%= $vest_base_url .'/users.json' %>">
+    <div class="ui fluid icon input">
+      <input class="prompt" placeholder="Search:  Иван Петров"
+        name="name" type="text" autocomplete="off" />
+      <i class="search icon" ></i>
+    </div>
+  </form>
+  <ul class="ui results selection list"></ul>
+  <!--
+  <form class="ui remote search" action="<%= $vest_base_url .'/users.json' %>">
+    <div class="ui fluid icon input">
+      <input class="prompt" placeholder="Search:  Иван Петров"
+        name="name" type="text" autocomplete="off" />
+      <i class="search icon" ></i>
+    </div>
+    <div class="results"></div>
+  </form>
+  -->
+%=javascript begin
+// TODO: Wait for proper documentation and rewrite using th Semantic API
+//$('#contacts .search .prompt').api({url: $('#contacts .search').attr('action') +'?name={value}'});
+%=end
+
 
   <ul class="ui selection list">
     % for my $u (@$contacts){
@@ -20,4 +37,8 @@ referred by $login_name.
     data-id="<%= $u->{id} %>" data-name="<%= $u->{name} %>"><%= $u->{name} %></li>
     % }
   </ul>
+    <template id="search_template"
+    ><li class="item" id="r12345" title="Add" data-id="" data-name="">
+      Jon Smith</li>
+  </template>
 </aside>
