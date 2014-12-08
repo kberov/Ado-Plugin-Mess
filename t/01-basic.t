@@ -40,7 +40,7 @@ SELECT subject FROM vest WHERE to_uid=?
 SQL
 
 my $wellcome_msg = $app->dbix->query($wellcomeSQL, $guest->id)->hash->{subject};
-is($wellcome_msg, 'Wellcome guest!', 'wellcome message');
+is($wellcome_msg, 'Wellcome Guest!', 'wellcome message');
 
 done_testing();
 
