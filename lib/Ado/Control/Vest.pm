@@ -96,8 +96,8 @@ sub list_talks {
     return $c->respond_to(json => $c->list_for_json([$$args{limit}, $$args{offset}], $talks));
 }
 
-#validation template for action add.
-my $add_input_validation_template = {
+#validation template for action create.
+my $create_validation_template = {
     from_uid => {
         'required' => 1,
         like       => qr/^\d{1,11}$/
@@ -127,9 +127,9 @@ my $add_input_validation_template = {
 #Adds a new message. Status 201 on success, 400 on validate,5xx on faill
 sub create {
     my $c      = shift;
-    my $result = $c->validate_input($add_input_validation_template);
+    my $result = $c->validate_input($create_validation_template);
 
-    #$c->debug('$add_input_validation_template:' . $c->dumper($add_input_validation_template));
+    #$c->debug('$create_validation_template:' . $c->dumper($create_validation_template));
     #$c->debug('$result:' . $c->dumper($result));
 
     #400 Bad Request
@@ -212,7 +212,7 @@ sub update {
     $c->debug('$data:', $c->dumper($data));
 
     #Only the message can be updated. This logic belongs to the model maybe?!?
-    my $update_template = {message => $$add_input_validation_template{message},};
+    my $update_template = {message => $$create_validation_template{message},};
 
     my $result = $c->validate_input($update_template);
 
