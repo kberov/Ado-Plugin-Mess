@@ -3,6 +3,44 @@ use Mojo::Base 'Ado::Control';
 use Time::Piece;
 use Ado::Model::Users;
 
+#validation template for action add.
+my $add_contact_validation_template = {
+    id => {
+        'required' => 1,
+        like       => qr/^\d{1,11}$/
+    },
+};
+
+sub add_contact {
+    my $c = shift;
+    $c->require_formats('json') || return;
+    my $vresult = $c->validate_input($add_contact_validation_template);
+
+    #400 Bad Request
+    return $c->render(
+        status => $vresult->{json}{code},
+        json   => $vresult->{json}
+    ) if $vresult->{errors};
+    state $GR ='Ado::Model::Groups';
+    state $UG = 'Ado::Model::UserGroup';
+    state $SQL = $UG->SQL('SELECT'). ' WHERE user_id=? AND group_id=?';
+    my $contact_id = $vresult->{output}->{id};
+    my $user= $c->user;
+    my $group = $GR->by_name('vest_contacts_'.$user->id);
+    my $ug = $UG->query($SQL,$contact_id,$group->id);
+    #already a contact
+    return $c->render(text => '', status => 302)
+        if $ug->user_id;
+    
+    $ug = $UG->create(
+        user_id  => $contact_id,
+        group_id => $group->id
+    );
+
+    $c->render(text => '', status => 204);
+    return;
+}
+
 my $list_args_checks = {
     limit => {
         allow => sub { $_[0] =~ /^\d+$/ ? 1 : ($_[0] = 20); }
@@ -249,7 +287,7 @@ sub screen {
     my $to_json = {
         user => {%{$user->data}, name => $user->name},
         talks => Ado::Model::Vest->talks($user, int($c->param('limit') || 20), 0),
-        contacts => [Ado::Model::Users->by_group_name('vest_contacts_for_' . $user->login_name)],
+        contacts => [Ado::Model::Users->by_group_name('vest_contacts_' . $user->id)],
         routes   => $routes,
     };
 

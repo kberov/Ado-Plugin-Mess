@@ -47,6 +47,8 @@ sub _add_user_to_vest {
             ),
             tstamp => time
         );
+        # create group for user contacts
+        
         return 1;
     }
     return;
@@ -123,7 +125,8 @@ gladly accepts proposals enlightenment and inspiration.
 
 =over
 
-=item 1. To enable this plugin after installation, add it to etc/ado.conf
+=item 1. To enable this plugin after installation, add it to
+C<etc/ado.$mode.conf>.
 
   #"plugins" section *after* DSC plugin.
   plugins => [
@@ -134,38 +137,12 @@ gladly accepts proposals enlightenment and inspiration.
 
 =item 2. Restart Ado
 
-=item 3. Add users to the group 'vest' so they can use the application.
-See examples below. See also L<Ado::Command::adduser>. 
+=item 3. Login via Google+ or Facebook : http://yourdomain/authorise/$provider
 
-    # Add to group 'vest':
-    berov@u165:~/opt/public_dev/Ado$ bin/ado adduser -u berov -g vest
+=item 4. Go to http://yourdomain/vest and search for contacts by name.
+They should have been signed up already like you.
 
-    #Create a user and add it to group 'vest'
-    berov@u165:~/opt/public_dev/Ado$ bin/ado adduser -u berov \
-      -g vest -f Krasimir -l Berov -e berov@cpan.org -d 0 -p pa55w0r4
-    User 'berov' was created with primary group 'berov'.
-    User 'berov' was added to group 'vest'.
-
-=item 4. Search for other users and add them as contacts.
-User interface is not yet implemented. You can add contacts for a user using
-the comandline:
-
-    #add berov to test1's contacts
-    berov@u165:~/opt/public_dev/Ado$ bin/ado adduser -u berov \
-      -g vest_contacts_for_test1
-    'berov' is already taken!
-    User 'berov' was added to group 'vest_contacts_for_test1'.
-
-    #add test1 to berov's contacts
-    berov@u165:~/opt/public_dev/Ado$ bin/ado adduser -u test1 -g vest_contacts_for_berov
-    'test1' is already taken!
-    User 'test1' was added to group 'vest_contacts_for_berov'.
-
-=item 5. Login as one of the added users: http://yourdomain/login
-
-=item 6. Go to http://yourdomain/vest
-
-=item  7. Have some chat...
+=item  5. Have some chat...
 
 =back
 
@@ -184,6 +161,18 @@ Makes the plugin configuration available at
 C<$app-E<gt>config('Ado::Plugin::Vest')>.
 Creates the table C<vest> if it does not exist yet.
 Returns C<$self>.
+
+=head1 HOOKS
+
+L<Ado::Plugin::Vest> registers to only one hook.
+
+=head2 after_user_add
+
+L<Ado::Plugin::Vest> registers to the hook L<Ado::Plugin::Auth/after_user_add>.
+It adds the newly registered user to the group 'vest', sends him a wellcome
+message and creates a group for user's contacts named
+C<vest_contacts_$user-E<gt>id>.
+When the user adds someone as a contact he/she is added to this group.
 
 =head1 SEE ALSO
 

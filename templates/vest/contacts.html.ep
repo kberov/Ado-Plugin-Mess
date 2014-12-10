@@ -1,7 +1,7 @@
 <!-- contacts.html.ep 
 TODO: Contacts implementation.
-For every user there must be a group named vest_contacts_$login_name
-where $login_name is the user's username "users.login_name".
+For every user there must be a group named vest_contacts_$id
+where $id is the user's id "users.id".
 This sidebar will list the members of this group.
 By adding some user to this group it is added to the user's contact
 referred by $login_name.
@@ -30,6 +30,9 @@ referred by $login_name.
 //$('#contacts .search .prompt').api({url: $('#contacts .search').attr('action') +'?name={value}'});
 %=end
 
+  <div class="ui horizontal section divider" style="margin-top:2em">
+    <i class="circular vede icon"></i>
+  </div>
 
   <ul class="ui selection list">
     % for my $u (@$contacts){
@@ -38,7 +41,8 @@ referred by $login_name.
     % }
   </ul>
     <template id="search_template"
-    ><li class="item" id="r12345" title="Add" data-id="" data-name="">
+    ><li class="item" id="r12345" title="Add" data-id="" data-name=""
+    data-href="<%= url_for("$vest_base_url/add_contact") %>">
       Jon Smith</li>
   </template>
 </aside>

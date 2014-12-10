@@ -2,18 +2,24 @@ NAME
     Ado::Plugin::Vest - Messaging services for an Ado system!
 
 DESCRIPTION
-    Ado::Plugin::Vest implements a (not too) naive messaging service. It can
-    be used as a chat between two users or as commenting widget under some
-    article. Other uses are also possible. Just create your client (HTML5 or
+    Ado::Plugin::Vest implements a (not too) naive messaging service for any
+    web-application based on Ado. It can be used as a chat between two
+    users, as commenting widget under articles, for showing system messages
+    etc. Other uses are also possible. You can create your client (HTML5 or
     desktop) application and start making Ajax (or Websocket - TODO)
     requests. Currently a HTTP based chat application is being implemented
     as a proof of concept.
+
+    Combined with the OAuth2 authentication support in Ado this can be a
+    good foundation for a community or intranet site. Any Google+ or
+    Facebook user can authenticate and use it for instant messages.
 
     Note that this distribution is fairly experimental and the author gladly
     accepts proposals enlightenment and inspiration.
 
 SYNOPSIS
-    1. To enable this plugin after installation, add it to etc/ado.conf
+    1. To enable this plugin after installation, add it to
+    "etc/ado.$mode.conf".
           #"plugins" section *after* DSC plugin.
           plugins => [
             #...
@@ -22,34 +28,10 @@ SYNOPSIS
          ],
 
     2. Restart Ado
-    3. Add users to the group 'vest' so they can use the application. See
-    examples below. See also Ado::Command::adduser.
-            # Add to group 'vest':
-            berov@u165:~/opt/public_dev/Ado$ bin/ado adduser -u berov -g vest
-
-            #Create a user and add it to group 'vest'
-            berov@u165:~/opt/public_dev/Ado$ bin/ado adduser -u berov \
-              -g vest -f Krasimir -l Berov -e berov@cpan.org -d 0 -p pa55w0r4
-            User 'berov' was created with primary group 'berov'.
-            User 'berov' was added to group 'vest'.
-
-    4. Search for other users and add them as contacts. User interface is
-    not yet implemented. You can add contacts for a user using the
-    comandline:
-            #add berov to test1's contacts
-            berov@u165:~/opt/public_dev/Ado$ bin/ado adduser -u berov \
-              -g vest_contacts_for_test1
-            'berov' is already taken!
-            User 'berov' was added to group 'vest_contacts_for_test1'.
-
-            #add test1 to berov's contacts
-            berov@u165:~/opt/public_dev/Ado$ bin/ado adduser -u test1 -g vest_contacts_for_berov
-            'test1' is already taken!
-            User 'test1' was added to group 'vest_contacts_for_berov'.
-
-    5. Login as one of the added users: http://yourdomain/login
-    6. Go to http://yourdomain/vest
-    7. Have some chat...
+    3. Login via Google+ or Facebook : http://yourdomain/authorise/$provider
+    4. Go to http://yourdomain/vest and search for contacts by name. They
+    should have been signed up already like you.
+    5. Have some chat...
 
 ATTRIBUTES
     Ado::Plugin::Vest inherits all atributes from Ado::Plugin.
@@ -61,6 +43,16 @@ METHODS
     Loads routes described in "etc/plugins/vest.conf". Makes the plugin
     configuration available at "$app->config('Ado::Plugin::Vest')". Creates
     the table "vest" if it does not exist yet. Returns $self.
+
+HOOKS
+    Ado::Plugin::Vest registers to only one hook.
+
+  after_user_add
+    Ado::Plugin::Vest registers to the hook "after_user_add" in
+    Ado::Plugin::Auth. It adds the newly registered user to the group
+    'vest', sends him a wellcome message and creates a group for user's
+    contacts named "vest_contacts_$user->id". When the user adds someone as
+    a contact he/she is added to this group.
 
 SEE ALSO
     Ado::Control::Vest, Ado::Control, Mojolicious::Controller,

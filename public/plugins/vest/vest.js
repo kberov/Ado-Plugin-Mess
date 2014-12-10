@@ -308,6 +308,17 @@
     });
   }//end function find_contacts(e)
   function add_contact (e) {
+    //add to vest_contacts_$user->id
+    var user = $(e.target);
+    console.log(user);
+    $.post(
+      user.data.href,
+      $({id: user.data.id}).serialize(),
+      // success
+      function add_contact_success (data) {
+        console.log('ok',data);
+      }
+    );
     console.log(e);
     return false
   }

@@ -40,21 +40,24 @@ INSERT OR IGNORE INTO user_group (user_id, group_id)
     WHERE u.login_name='test2' AND g.name='vest';
 
 /**
-  To have a list of contacts a user needs a group named vest_contacts_$username. 
-  To add a new contacts to his group of contacts a user needs to add users to vest_contacts_for_$username.
+  To have a list of contacts a user needs a group named vest_contacts_$id
+  where $id == $user->id. 
+  To add a new contacts to his group of contacts a user needs to add users to vest_contacts_$id.
 */
 INSERT OR IGNORE INTO groups (name,description,created_by,changed_by,disabled)
-  SELECT 'vest_contacts_for_test1', 'Contacts of user test1', id, id,0 
+  SELECT 'vest_contacts_'||id, 'Contacts of user test1', id, id,0 
     FROM users WHERE login_name='test1';
--- add test2 to vest_contacts_for_test1
+-- add test2 to vest_contacts_3
 INSERT OR IGNORE INTO user_group (user_id, group_id) 
   SELECT u.id, g.id FROM users u, groups g 
-    WHERE u.login_name='test2' AND g.name='vest_contacts_for_test1';
+    WHERE u.login_name='test2' AND g.name='vest_contacts_'
+    ||(SELECT id FROM users WHERE u.login_name='test1');
 
 INSERT OR IGNORE INTO groups (name,description,created_by,changed_by,disabled)
-  SELECT 'vest_contacts_for_test2', 'Contacts of user test2', id, id,0 
-    FROM users WHERE login_name='test1';
--- add test1 to vest_contacts_for_test2
+  SELECT 'vest_contacts_'||id, 'Contacts of user test2', id, id,0 
+    FROM users WHERE login_name='test2';
+-- add test1 to vest_contacts_4
 INSERT OR IGNORE INTO user_group (user_id, group_id) 
   SELECT u.id, g.id FROM users u, groups g 
-    WHERE u.login_name='test1' AND g.name='vest_contacts_for_test2';
+    WHERE u.login_name='test1' AND g.name='vest_contacts_'
+    ||(SELECT id FROM users WHERE u.login_name='test2');
