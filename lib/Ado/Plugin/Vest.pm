@@ -31,13 +31,23 @@ sub _add_data {
 sub _add_user_to_vest {
     my ($c, $user, $raw_data) = @_;
     unless ($user->ingroup($VEST)) {
+        my $uid = $user->id;
         my $group = $user->add_to_group(ingroup => $VEST);
-        $c->app->log->info("\$user->id ${\ $user->id } added to group '${\ $group->name }'.");
-        state $vest_id = Ado::Model::Users->by_login_name($VEST)->id;
+        state $vest = Ado::Model::Users->by_login_name($VEST);
+
+        #Create group for contacts
+        Ado::Model::Groups->create(
+            name        => "vest_contacts_$uid",
+            description => "Contacts of user $uid",
+            disabled    => 0
+        );
+
+        #Add $vest to contacts
+        $vest->add_to_group(ingroup => "vest_contacts_$uid");
 
         #Add wellcome message
         Ado::Model::Vest->create(
-            from_uid           => $vest_id,
+            from_uid           => $vest->id,
             to_uid             => $user->id,
             subject            => $c->l('Wellcome [_1]!', $user->name),
             subject_message_id => 0,
@@ -47,8 +57,10 @@ sub _add_user_to_vest {
             ),
             tstamp => time
         );
-        # create group for user contacts
-        
+        $c->app->log->info("\$user->id $uid added to group '${\ $group->name }'.$/"
+              . "Created group vest_contacts_$uid and added $VEST to it.$/"
+              . 'Sent wellcome message.');
+
         return 1;
     }
     return;

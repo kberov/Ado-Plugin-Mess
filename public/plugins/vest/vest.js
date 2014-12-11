@@ -312,8 +312,8 @@
     var user = $(e.target);
     console.log(user);
     $.post(
-      user.data.href,
-      $({id: user.data.id}).serialize(),
+      user.data('href'),
+      $({id: user.data('id')}).serialize(),
       // success
       function add_contact_success (data) {
         console.log('ok',data);

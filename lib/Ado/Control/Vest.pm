@@ -21,17 +21,18 @@ sub add_contact {
         status => $vresult->{json}{code},
         json   => $vresult->{json}
     ) if $vresult->{errors};
-    state $GR ='Ado::Model::Groups';
-    state $UG = 'Ado::Model::UserGroup';
-    state $SQL = $UG->SQL('SELECT'). ' WHERE user_id=? AND group_id=?';
+    state $GR  = 'Ado::Model::Groups';
+    state $UG  = 'Ado::Model::UserGroup';
+    state $SQL = $UG->SQL('SELECT') . ' WHERE user_id=? AND group_id=?';
     my $contact_id = $vresult->{output}->{id};
-    my $user= $c->user;
-    my $group = $GR->by_name('vest_contacts_'.$user->id);
-    my $ug = $UG->query($SQL,$contact_id,$group->id);
+    my $user       = $c->user;
+    my $group      = $GR->by_name('vest_contacts_' . $user->id);
+    my $ug         = $UG->query($SQL, $contact_id, $group->id);
+
     #already a contact
     return $c->render(text => '', status => 302)
-        if $ug->user_id;
-    
+      if $ug->user_id;
+
     $ug = $UG->create(
         user_id  => $contact_id,
         group_id => $group->id
@@ -305,11 +306,18 @@ my $users_validation_template = {
 };
 my $U = 'Ado::Model::Users';
 $U->SQL('find_users_by_name' => <<"SQL");
-    SELECT u.id, u.first_name, u.last_name FROM users u
-    LEFT JOIN user_group ug 
-        ON(u.id = ug.user_id 
-            AND ug.group_id=(SELECT g.id FROM groups g WHERE name='vest')) 
-       WHERE
+    SELECT u.id, u.first_name, u.last_name FROM users u, user_group ug
+    WHERE (u.id = ug.user_id
+            AND ug.group_id=(SELECT g.id FROM groups g WHERE name='vest')
+        ) AND
+       -- Exclude existing contacts - members of vest_contacts_\$current_user->id
+       NOT EXISTS(
+            SELECT user_id from user_group WHERE user_id = u.id AND
+            group_id=(SELECT id FROM groups WHERE name=?)) AND
+       --exclude the current user
+       u.id != ? AND
+       -- from group vest
+    
        (disabled=0 AND (stop_date>? OR stop_date=0) AND start_date<?) AND
       (upper(first_name) LIKE upper(?) AND upper(last_name) LIKE upper(?)) OR
        (upper(last_name) LIKE upper(?) AND upper(first_name) LIKE upper(?))
@@ -330,16 +338,19 @@ sub users {
     ) if $result->{errors};
 
     #Search by name
-    my $name = Mojo::Util::trim($result->{output}{name});
+    my $c_uid = $c->user->id;
+    my $name  = Mojo::Util::trim($result->{output}{name});
     my ($first_name, $last_name) = map { uc($_) } split /\s+/, $name;
     $last_name //= '';
 
     my $limit  = 50;
     my $offset = 0;
     my $time   = time;
-    my @a      = $U->query($U->SQL('find_users_by_name'),
-        $time, $time, "\%$first_name\%", "\%$last_name\%", "\%$first_name\%", "\%$last_name\%",
-        $limit, $offset);
+    DBIx::Simple::Class->DEBUG(1);
+    my @a = $U->query($U->SQL('find_users_by_name'),
+        "vest_contacts_$c_uid", $c_uid, $time, $time, "\%$first_name\%", "\%$last_name\%",
+        "\%$first_name\%", "\%$last_name\%", $limit, $offset);
+    DBIx::Simple::Class->DEBUG(0);
     my @data = map { +{%{$_->data}, name => $_->name} } @a;
     return $c->respond_to(json => $c->list_for_json([$limit, $offset], \@data));
 }
