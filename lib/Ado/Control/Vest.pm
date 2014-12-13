@@ -35,7 +35,7 @@ sub add_contact {
 
     $ug = $UG->create(
         user_id  => $contact_id,
-        group_id => $group->id
+        group_id => $group->id,
     );
 
     $c->render(text => '', status => 204);
@@ -348,11 +348,9 @@ sub users {
     my $limit  = 50;
     my $offset = 0;
     my $time   = time;
-    DBIx::Simple::Class->DEBUG(1);
-    my @a = $U->query($U->SQL('find_users_by_name'),
+    my @a      = $U->query($U->SQL('find_users_by_name'),
         "vest_contacts_$c_uid", $c_uid, $time, $time, "\%$first_name\%", "\%$last_name\%",
         "\%$first_name\%", "\%$last_name\%", $limit, $offset);
-    DBIx::Simple::Class->DEBUG(0);
     my @data = map { +{%{$_->data}, name => $_->name} } @a;
     return $c->respond_to(json => $c->list_for_json([$limit, $offset], \@data));
 }

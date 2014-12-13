@@ -39,6 +39,8 @@ sub _add_user_to_vest {
         Ado::Model::Groups->create(
             name        => "vest_contacts_$uid",
             description => "Contacts of user $uid",
+            created_by  => $uid,
+            changed_by  => $uid,
             disabled    => 0
         );
 
