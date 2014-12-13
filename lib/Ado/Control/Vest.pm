@@ -311,7 +311,7 @@ $U->SQL('find_users_by_name' => <<"SQL");
             AND ug.group_id=(SELECT g.id FROM groups g WHERE name='vest')
         ) AND
        -- Exclude existing contacts - members of vest_contacts_\$current_user->id
-       NOT EXISTS(
+       u.id NOT IN(
             SELECT user_id from user_group WHERE user_id = u.id AND
             group_id=(SELECT id FROM groups WHERE name=?)) AND
        --exclude the current user
@@ -319,8 +319,10 @@ $U->SQL('find_users_by_name' => <<"SQL");
        -- from group vest
     
        (disabled=0 AND (stop_date>? OR stop_date=0) AND start_date<?) AND
-      (upper(first_name) LIKE upper(?) AND upper(last_name) LIKE upper(?)) OR
-       (upper(last_name) LIKE upper(?) AND upper(first_name) LIKE upper(?))
+      (
+        (upper(first_name) LIKE upper(?) AND upper(last_name) LIKE upper(?)) OR
+        (upper(last_name) LIKE upper(?) AND upper(first_name) LIKE upper(?))
+      )
        ${\ $U->SQL_LIMIT('?', '?')}
 SQL
 
