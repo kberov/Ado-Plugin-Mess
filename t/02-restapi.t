@@ -56,10 +56,10 @@ subtest 't2_login' => sub {
 
 # find a user
     $t2->get_ok("$vest_base_url/users.json?name=est 1")->status_is(200)
-      ->json_is('/data/0/name' => 'Test 1')
+      ->json_is('/data/0/name' => undef)    #'Test1 is already in contacts'
       ->json_like('/links/0/href' => qr/users.json\?limit=50&offset=0/);
 
-    #warn $app->dumper($t2->tx->res->body);
+    #warn $app->dumper($t2->tx->res->json);
 };
 
 #reload
@@ -344,6 +344,7 @@ for my $talk (14 .. 25) {
       ->json_is('/user/id' => $to_uid)->json_is('/routes/0/params' => undef)
       ->json_is('/talks/0/to_guid' => 0)->json_is('/contacts/0/id' => $from_uid)
       ->json_is('/talks/0/subject' => $subject);
+
 }
 
 #HTML UI
