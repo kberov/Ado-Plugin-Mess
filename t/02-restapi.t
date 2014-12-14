@@ -59,8 +59,8 @@ subtest 't2_login' => sub {
       ->json_is('/data/0/name' => 'Test 1')
       ->json_like('/links/0/href' => qr/users.json\?limit=50&offset=0/);
 
+    #warn $app->dumper($t2->tx->res->body);
 };
-
 
 #reload
 #{route => '/$vest_base_url', via => ['GET'],  to => 'vest#list',}

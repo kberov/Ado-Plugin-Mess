@@ -285,7 +285,7 @@
   } //end function append_messages_from_json(new_json_messages)
   /**
    * Finds new contacts for a user and displays them in div.results.
-   * TODO: Replace this with Semantic UI Search module when docs are ready.
+   * TODO: Replace this with Semantic UI Search module when API docs are ready.
    */
   function find_contacts(e) {
     var name = $(e.target);

@@ -334,10 +334,13 @@ sub users {
     my $result = $c->validate_input($users_validation_template);
 
     #400 Bad Request
-    return $c->render(
-        status => $result->{json}{code},
-        json   => $result->{json}
-    ) if $result->{errors};
+    if ($result->{errors}) {
+        $c->debug($c->dumper($result));
+        return $c->render(
+            status => $result->{json}{code},
+            json   => $result->{json}
+        );
+    }
 
     #Search by name
     my $c_uid = $c->user->id;
