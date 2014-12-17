@@ -5,8 +5,6 @@ use Test::Mojo;
 use Mojo::Util;
 use List::Util qw(shuffle);
 
-
-my $OE  = $^O =~ /win/i ? 'cp866' : 'utf8';
 my $t1  = Test::Mojo->new('Ado');
 my $app = $t1->app;
 my $dbh = $app->dbix->dbh;
@@ -56,10 +54,12 @@ subtest 't2_login' => sub {
 
 # find a user
     $t2->get_ok("$vest_base_url/users.json?name=est 1")->status_is(200)
-      ->json_is('/data/0/name' => undef)    #'Test1 is already in contacts'
+      ->json_is('/data/0/name' => undef, 'Test1 is already in contacts')
       ->json_like('/links/0/href' => qr/users.json\?limit=50&offset=0/);
+    $t2->get_ok("$vest_base_url/users.json?name=guest")->status_is(200)
+      ->json_is('/data/0' => undef, 'Guest can not be found.')    #'Guest'
 
-    #warn $app->dumper($t2->tx->res->json);
+      #warn $app->dumper($t2->tx->res->json);
 };
 
 #reload
@@ -82,10 +82,12 @@ $t1->get_ok("$vest_base_url/list.json")->status_is('200', 'Status is 200')
 
 #Play with several messages.
 #{route => '/вест', via => ['POST'], to => 'vest#add',},
+my $t1_uid = $app->dbix->query('SELECT id from users where login_name=?', 'test1')->hash->{id};
+my $t2_uid = $app->dbix->query('SELECT id from users where login_name=?', 'test2')->hash->{id};
 $t1->post_ok(
     $vest_base_url,
     form => {
-        from_uid           => 3,
+        from_uid           => $t1_uid,
         subject_message_id => 0,
 
         #to_uid   => 4,
@@ -104,7 +106,7 @@ $t1->post_ok(
 $t1->post_ok(
     $vest_base_url,
     form => {
-        from_uid           => 3,
+        from_uid           => $t1_uid,
         subject_message_id => 0,
 
         #to_uid   => 4,
@@ -116,7 +118,7 @@ $t1->post_ok(
 $t1->post_ok(
     $vest_base_url,
     form => {
-        from_uid           => 3,
+        from_uid           => $t1_uid,
         subject_message_id => 0,
         to_uid             => 'не число',
         subject            => 'Какъв приятен разговор!',
@@ -126,12 +128,15 @@ $t1->post_ok(
   ->content_like(qr/"message"\:\{"to_uid"\:\["like"/x, 'erros ok: to_uid is not alike ');
 
 my $s_m_id = 0;
-for my $id (1, 3, 5) {
+my $maxSQL = 'SELECT MAX(id) as id from vest';
+
+for (1, 2, 3) {
+    my $id = $app->dbix->query($maxSQL)->hash->{id} + 1;
     $t1->post_ok(
         $vest_base_url,
         form => {
-            from_uid => 3,
-            to_uid   => 4,
+            from_uid => $t1_uid,
+            to_uid   => $t2_uid,
             subject  => 'разговор' . time,
 
             # $s_m_id==0 =>new talk
@@ -154,15 +159,15 @@ for my $id (1, 3, 5) {
     $t2->get_ok("$vest_base_url/$id.json")
       ->status_is('200', "$vest_base_url/$id.json" . ' Status is 200')
       ->json_is('/data/message', "Здравей, Приятел! $id", "ok created $id");
-    my $next = $id + 1;
+    my $next = $app->dbix->query($maxSQL)->hash->{id} + 1;
 
 
     #reply from a friend
     $t2->post_ok(
         $vest_base_url,
         form => {
-            from_uid           => 4,
-            to_uid             => 3,
+            from_uid           => $t2_uid,
+            to_uid             => $t1_uid,
             subject            => 'Какъв приятен разговор',
             subject_message_id => $s_m_id,
             message            => "Oh, salut mon ami! $next"
@@ -183,8 +188,8 @@ for my $id (1, 3, 5) {
 $t1->put_ok(
     "$vest_base_url/5",
     form => {
-        to_uid             => 4,
-        from_uid           => 3,
+        to_uid             => $t2_uid,
+        from_uid           => $t1_uid,
         subject            => 'Какъв приятен разговор',
         subject_message_id => 1,
         message            => "Let's speak some English."
@@ -193,8 +198,8 @@ $t1->put_ok(
 
 $t1->get_ok("$vest_base_url/5.json")->status_is('200', 'Status is 200')
   ->json_is('/data/message',  "Let's speak some English.", 'ok message 5 is updated')
-  ->json_is('/data/to_uid',   4,                           'ok message 5 to_uid is unchanged')
-  ->json_is('/data/from_uid', 3,                           'ok message 5 from_uid is unchanged')
+  ->json_is('/data/to_uid',   $t2_uid,                     'ok message 5 to_uid is unchanged')
+  ->json_is('/data/from_uid', $t1_uid,                     'ok message 5 from_uid is unchanged')
   ->json_is(    #becuse it belongs to a talk with id 1
     '/data/subject', '', 'ok message 5 subject is empty'
   )->json_is('/data/subject_message_id', 1, 'ok message 5 subject_message_id is unchanged');
@@ -225,26 +230,26 @@ my @message = qw(
 # Setup: Add some talks and messages in them.
 # Visible by both users test1(3), and test2(4)
 my @talk_x = (
-    {   from_uid           => 3,
-        to_uid             => 4,
+    {   from_uid           => $t1_uid,
+        to_uid             => $t2_uid,
         subject            => 'разговор',
         subject_message_id => 0,
         message            => "Здравей, Приятел!"
     },
-    {   from_uid           => 4,
-        to_uid             => 3,
+    {   from_uid           => $t2_uid,
+        to_uid             => $t1_uid,
         subject            => 'разговор' . time,
         subject_message_id => 1,
         message            => "Здрасти!"
     },
-    {   from_uid           => 4,
-        to_uid             => 3,
+    {   from_uid           => $t2_uid,
+        to_uid             => $t1_uid,
         subject            => 'разговор' . time,
         subject_message_id => 1,
         message            => "Как си?"
     },
-    {   from_uid           => 3,
-        to_uid             => 4,
+    {   from_uid           => $t1_uid,
+        to_uid             => $t2_uid,
         subject            => 'разговор' . time,
         subject_message_id => 1,
         message            => "Благодаря, добре. А ти?"
@@ -256,7 +261,7 @@ my @talk_y    = ();
 my $talk_y_id = scalar(@talk_x) + 1;
 for ($talk_y_id .. 25) {
     push @talk_y,
-      { from_uid           => 3,
+      { from_uid           => $t1_uid,
         to_uid             => 0,
         subject            => ($talk_y_id == $_ ? 'topic Y' : ''),
         subject_message_id => ($talk_y_id == $_ ? 0 : $talk_y_id),
@@ -269,7 +274,7 @@ my @talk_z    = ();
 my $talk_z_id = scalar(@talk_y) + scalar(@talk_x) + 1;
 for ($talk_z_id .. 40) {
     push @talk_z,
-      { from_uid           => 3,
+      { from_uid           => $t1_uid,
         to_uid             => 0,
         subject            => ($talk_z_id == $_ ? 'topic Z' : ''),
         subject_message_id => ($talk_z_id == $_ ? 0 : $talk_z_id),
@@ -311,8 +316,8 @@ $t1->get_ok("$vest_base_url/messages/5.json?limit=10")->json_is(
 note('Creating more messages in many talks. This may take a while...');
 
 for my $talk (14 .. 25) {
-    my $to_uid   = 4;                      #Test 2
-    my $from_uid = 3;                      #Test 1
+    my $to_uid   = $t2_uid;                #Test 2
+    my $from_uid = $t1_uid;                #Test 1
     my @from_to  = ($from_uid, $to_uid);
     my $subject     = "Разговор " . ucfirst(join(' ', shuffle(@message[0 .. 6])) . '.');
     my $lastmessage = 2;

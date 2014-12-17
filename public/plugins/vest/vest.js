@@ -26,7 +26,6 @@
     $('#message_form').submit(validate_and_send_message);
     // Send message by pressing Enter.
     $('#message_form [name="message"]').keydown(function(e){
-      console.log(e.key)
       if ( (!e.ctrlKey && !e.shiftKey ) && (e.key =='Enter'|| e.which == 13) ){
         $('#message_form').submit();
       }
@@ -67,8 +66,6 @@
     messages.html('');
     //Save it for later use by validate_and_send_message
     VestTalk.json_messages = json_messages;
-    //
-    //console.log(json_messages);
     var prev_msg = {};
     $(json_messages.data).each(function(i, msg) {
 
@@ -210,7 +207,7 @@
       //TODO: replace the alert with a beautiful SemanticUI popup or box
       alert('error:' + data.responseText);
       message_field.addClass('error');
-      //console.log(data);
+
     });
     return false;
   } // end function validate_message(e){
@@ -290,7 +287,6 @@
   function find_contacts(e) {
     var name = $(e.target);
     var form = name.parent().parent();
-    console.log(form.attr('action'),form.serialize());
     $.get(
       form.attr('action'),
       form.serialize(),
@@ -298,28 +294,28 @@
         $('#contacts .results li').remove();
         for (var i = results.data.length - 1; i >= 0; i--) {
           var template = $($('#search_template').html()); //copy
-          template.attr('id', 'r' + results.data[i].id);
           template.attr('data-id',results.data[i].id);
           template.attr('data-name',results.data[i].name);
           template.text(results.data[i].name);
-          template.click(add_contact);
+          template.click(function(e){add_contact(e,template)});
           $('#contacts .results').append(template);
         };
     });
   }//end function find_contacts(e)
-  function add_contact (e) {
+  function add_contact (e, user_item_template) {
     //add to vest_contacts_$user->id
     var user = $(e.target);
-    console.log(user);
     $.post(
       user.data('href'),
-      $({id: user.data('id')}).serialize(),
+      {id: user.data('id')},
       // success
-      function add_contact_success (data) {
-        console.log('ok',data);
+      function add_contact_success (data,textStatus, xhr) {
+        user_item_template.click(new_talk);
+        //prepend to contacts
+        $('#contacts ul.contacts').prepend(user_item_template);
+        $('#contacts ul.results').html('');//clean results
       }
     );
-    console.log(e);
     return false
   }
 })(jQuery); //execute

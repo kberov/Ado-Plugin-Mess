@@ -16,11 +16,16 @@ sub add_contact {
     $c->require_formats('json') || return;
     my $vresult = $c->validate_input($add_contact_validation_template);
 
+    state $log = $c->app->log;
+
     #400 Bad Request
-    return $c->render(
-        status => $vresult->{json}{code},
-        json   => $vresult->{json}
-    ) if $vresult->{errors};
+    if ($vresult->{errors}) {
+        $log->error('Validation error:' . $c->dumper($vresult));
+        return $c->render(
+            status => $vresult->{json}{code},
+            json   => $vresult->{json}
+        );
+    }
     state $GR  = 'Ado::Model::Groups';
     state $UG  = 'Ado::Model::UserGroup';
     state $SQL = $UG->SQL('SELECT') . ' WHERE user_id=? AND group_id=?';
@@ -321,7 +326,8 @@ $U->SQL('find_users_by_name' => <<"SQL");
        (disabled=0 AND (stop_date>? OR stop_date=0) AND start_date<?) AND
       (
         (upper(first_name) LIKE upper(?) AND upper(last_name) LIKE upper(?)) OR
-        (upper(last_name) LIKE upper(?) AND upper(first_name) LIKE upper(?))
+        (upper(last_name) LIKE upper(?) AND upper(first_name) LIKE upper(?)) OR
+        (upper(email) LIKE upper(?))
       )
        ${\ $U->SQL_LIMIT('?', '?')}
 SQL
@@ -332,10 +338,11 @@ sub users {
     $c->require_formats('json') || return;
     $c->req->param(name => $c->stash('name') // '') if !$c->req->param('name');
     my $result = $c->validate_input($users_validation_template);
+    state $log = $c->app->log;
 
     #400 Bad Request
     if ($result->{errors}) {
-        $c->debug($c->dumper($result));
+        $log->error($c->dumper($result));
         return $c->render(
             status => $result->{json}{code},
             json   => $result->{json}
@@ -348,12 +355,20 @@ sub users {
     my ($first_name, $last_name) = map { uc($_) } split /\s+/, $name;
     $last_name //= '';
 
+    #Remove everything after "@" to prevent searching for all users @gmail
+    $first_name =~ s/\@.+//;
+
     my $limit  = 50;
     my $offset = 0;
     my $time   = time;
-    my @a      = $U->query($U->SQL('find_users_by_name'),
-        "vest_contacts_$c_uid", $c_uid, $time, $time, "\%$first_name\%", "\%$last_name\%",
-        "\%$first_name\%", "\%$last_name\%", $limit, $offset);
+    my @a      = $U->query(
+        $U->SQL('find_users_by_name'), "vest_contacts_$c_uid",
+        $c_uid,                        $time,
+        $time,                         "\%$first_name\%",
+        "\%$last_name\%",              "\%$first_name\%",
+        "\%$last_name\%",              "\%$first_name\%\@%",
+        $limit,                        $offset
+    );
     my @data = map { +{%{$_->data}, name => $_->name} } @a;
     return $c->respond_to(json => $c->list_for_json([$limit, $offset], \@data));
 }
@@ -371,13 +386,13 @@ Ado::Control::Vest - The controller to manage messages.
 =head1 SYNOPSIS
 
   #in your browser go to
-  http://your-host/vest/list
-  #or
   http://your-host/vest
   #and
   http://your-host/vest/edit/$id
   #and
-  http://your-host/vest/add
+  http://your-host/vest/create
+  
+  #OR just have a chat with a friend.
 
 =head1 DESCRIPTION
 
@@ -393,6 +408,13 @@ L<Ado::Control::Vest> inherits all the attributes from L<Ado::Control>.
 L<Ado::Control::Vest> inherits all methods from L<Ado::Control> and implements
 the following new ones. These methods are mapped to actions.
 See C<etc/plugins/vest.conf>.
+
+=head2 add_contact
+
+Adds a contact to the list of contacts for the current user.
+Invoked only via POST request. The only parameter is C<id> - the id of the user to be added. See C<Ado-Plugin-Vest/public/plugins/vest/vest.js> for example usage.
+Reenders no content with header 204 in case the user is added or 302 if the
+user was already added before.
 
 =head2 create
 

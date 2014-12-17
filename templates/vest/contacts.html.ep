@@ -30,18 +30,18 @@ referred by $login_name.
 //$('#contacts .search .prompt').api({url: $('#contacts .search').attr('action') +'?name={value}'});
 %=end
 
-  <div class="ui horizontal section divider" style="margin-top:2em">
+  <div class="ui horizontal section divider">
     <i class="circular vede icon"></i>
   </div>
 
-  <ul class="ui selection list">
+  <ul class="ui selection list contacts">
     % for my $u (@$contacts){
     <li class="item" id="u<%= $u->{id} %>"
     data-id="<%= $u->{id} %>" data-name="<%= $u->{name} %>"><%= $u->{name} %></li>
     % }
   </ul>
     <template id="search_template"
-    ><li class="item" id="r12345" title="Add" data-id="" data-name=""
+    ><li class="item" data-id="" data-name=""
     data-href="<%= url_for("$vest_base_url/add_contact") %>">
       Jon Smith</li>
   </template>

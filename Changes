@@ -1,5 +1,4 @@
 Revision history for Ado-Plugin-Vest
-0.09 2014-12-10
 0.09 2014-12-17
     - Improved distribution Kwalitee by adding Perl 5.14 as prerequisite.
     - Mention Ado explicitly and link to it in the documentation.
@@ -7,6 +6,9 @@ Revision history for Ado-Plugin-Vest
       See Ado::Plugin::Vest/after_user_add
     - Upgraded to Ado 0.76
     - Added links to the menu under user name.
+    - Implemented search for contacts by name and email.
+    - Implemented adding of contacts.
+    - Improved tests.
 
 0.08 2014-11-17
     - Upgraded to Ado 0.73
