@@ -70,8 +70,9 @@ sub list {
     $c->res->headers->content_range(
         "messages $$args{offset}-${\($$args{limit} + $$args{offset})}/*");
     $c->debug("rendering json only [$$args{limit}, $$args{offset}]");
+    return $c->render(json => []) unless $Ado::Control::DEV_MODE;
 
-    #content negotiation
+    #content negotiation somewhere in the future...
     return $c->respond_to(
         json => $c->list_for_json(
             [$$args{limit}, $$args{offset}],
@@ -253,7 +254,6 @@ sub update {
             data    => 'resource_not_found'
         }
     ) unless $data;
-    $c->debug('$data:', $c->dumper($data));
 
     #Only the message can be updated. This logic belongs to the model maybe?!?
     my $update_template = {message => $$create_validation_template{message},};

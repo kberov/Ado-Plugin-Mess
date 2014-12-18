@@ -17,6 +17,12 @@ $app->routes->find('controlleractionid')->remove();
 
 isa_ok($app->plugin('vest'), 'Ado::Plugin::Vest');
 my $vest_base_url = $app->config('Ado::Plugin::Vest')->{vest_base_url};
+my $t1_uid = $app->dbix->query('SELECT id from users where login_name=?', 'test1')->hash->{id};
+my $t2_uid = $app->dbix->query('SELECT id from users where login_name=?', 'test2')->hash->{id};
+$app->dbix->query(
+    "DELETE FROM user_group where group_id=(SELECT id FROM groups WHERE name='vest_contacts_'||?)",
+    $t2_uid
+);
 
 #$t1 login first
 subtest 't1_login' => sub {
@@ -54,7 +60,8 @@ subtest 't2_login' => sub {
 
 # find a user
     $t2->get_ok("$vest_base_url/users.json?name=est 1")->status_is(200)
-      ->json_is('/data/0/name' => undef, 'Test1 is already in contacts')
+      ->json_is('/data/0/name' => 'Test 1', 'Test1 found by name')
+      ->json_is('/data/1/name' => 'Application Вест', 'vest@localhost found by email')
       ->json_like('/links/0/href' => qr/users.json\?limit=50&offset=0/);
     $t2->get_ok("$vest_base_url/users.json?name=guest")->status_is(200)
       ->json_is('/data/0' => undef, 'Guest can not be found.')    #'Guest'
@@ -65,25 +72,28 @@ subtest 't2_login' => sub {
 #reload
 #{route => '/$vest_base_url', via => ['GET'],  to => 'vest#list',}
 #no format
-
-=pod
-$t1->get_ok("$vest_base_url/list")->status_is('415', '415 - Unsupported Media Type ')
-  ->content_type_is('text/html;charset=UTF-8')->header_like('Content-Location' => qr|\.json$|x)
-  ->content_like(qr|\.json</a>\!|x);
+$t1->get_ok("$vest_base_url/list", {Accept => 'text/html'})
+  ->status_is('415', '415 - Unsupported Media Type ')->content_type_is('text/html;charset=UTF-8')
+  ->header_like('Content-Location' => qr|\.json$|x)->content_like(qr|\.json!|x);
 
 #with format
 $t1->get_ok("$vest_base_url/list.json")->status_is('200', 'Status is 200')
   ->content_type_is('application/json')->json_has('/data')->json_has('/links')
   ->json_is('/links/0/rel' => 'self', '/links/0/rel is self')
   ->json_like('/links/0/href' => qr'\.json\?limit=20\&offset=0')
-  ->json_is('/links/1' => undef, '/links/1 is not present')
-  ->json_is('/data'    => [],    '/data is empty');
-=cut
+  ->json_is('/links/1' => undef, '/links/1 is not present');
 
 #Play with several messages.
 #{route => '/вест', via => ['POST'], to => 'vest#add',},
-my $t1_uid = $app->dbix->query('SELECT id from users where login_name=?', 'test1')->hash->{id};
-my $t2_uid = $app->dbix->query('SELECT id from users where login_name=?', 'test2')->hash->{id};
+
+#add_contact
+$t2->post_ok("$vest_base_url/add_contact", form => {id => $t1_uid})->status_is('204')
+  ->content_is('');
+$t2->post_ok("$vest_base_url/add_contact", form => {id => $t1_uid})->status_is('302')
+  ->content_is('');
+$t2->post_ok("$vest_base_url/add_contact")->status_is('400')
+  ->json_is('/message/id' => ['required']);
+
 $t1->post_ok(
     $vest_base_url,
     form => {
@@ -126,12 +136,10 @@ $t1->post_ok(
     }
   )->status_is('400', 'Status is 400')->json_is('/message/to_uid/0/', 'like')
   ->content_like(qr/"message"\:\{"to_uid"\:\["like"/x, 'erros ok: to_uid is not alike ');
-
-my $s_m_id = 0;
+my ($last_id, $s_m_id) = (0, 0);
 my $maxSQL = 'SELECT MAX(id) as id from vest';
 
 for (1, 2, 3) {
-    my $id = $app->dbix->query($maxSQL)->hash->{id} + 1;
     $t1->post_ok(
         $vest_base_url,
         form => {
@@ -141,12 +149,13 @@ for (1, 2, 3) {
 
             # $s_m_id==0 =>new talk
             subject_message_id => $s_m_id,
-            message            => "Здравей, Приятел! $id"
+            message            => "Здравей, Приятел!"
         }
       )->status_is('201', 'ok 201 - Created')->header_like(Location => qr/\/id\/\d+/)
       ->content_is('');
     my $location = $t1->tx->res->headers->header('Location');
     ($s_m_id) = $location =~ qr/\/id\/(\d+)/ unless $s_m_id;
+    my ($id) = $location =~ qr/\/id\/(\d+)/;
 
 =pod
 {   route  => '/вест/:id',
@@ -158,23 +167,23 @@ for (1, 2, 3) {
 
     $t2->get_ok("$vest_base_url/$id.json")
       ->status_is('200', "$vest_base_url/$id.json" . ' Status is 200')
-      ->json_is('/data/message', "Здравей, Приятел! $id", "ok created $id");
+      ->json_is('/data/message', "Здравей, Приятел!", "ok created $id");
     my $next = $app->dbix->query($maxSQL)->hash->{id} + 1;
 
 
     #reply from a friend
-    $t2->post_ok(
-        $vest_base_url,
-        form => {
-            from_uid           => $t2_uid,
-            to_uid             => $t1_uid,
-            subject            => 'Какъв приятен разговор',
-            subject_message_id => $s_m_id,
-            message            => "Oh, salut mon ami! $next"
-        }
-      )->status_is('201', 'ok 201 - Created')->header_like(Location => qr"/id/$next")
-      ->content_is('');
+    my $form = {
+        from_uid           => $t2_uid,
+        to_uid             => $t1_uid,
+        subject            => 'Какъв приятен разговор',
+        subject_message_id => $s_m_id,
+        message            => "Oh, salut mon ami! $next"
+    };
+    $t2->post_ok($vest_base_url, form => $form)->status_is('201', 'ok 201 - Created')
+      ->header_like(Location => qr"/id/$next")->content_is('');
+    $last_id = $next;
 
+    #note "$last_id, form:".$app->dumper($form);
 }    #end for my $id (1, 3, 5)
 
 =pod
@@ -186,23 +195,26 @@ for (1, 2, 3) {
 =cut
 
 $t1->put_ok(
-    "$vest_base_url/5",
+    "$vest_base_url/$last_id",
     form => {
         to_uid             => $t2_uid,
         from_uid           => $t1_uid,
         subject            => 'Какъв приятен разговор',
-        subject_message_id => 1,
+        subject_message_id => $s_m_id,
         message            => "Let's speak some English."
     }
-)->status_is('204', 'Status is 204')->content_is('', 'ok updated id 5');
+)->status_is('204', 'Status is 204')->content_is('', "ok updated id $last_id");
 
-$t1->get_ok("$vest_base_url/5.json")->status_is('200', 'Status is 200')
-  ->json_is('/data/message',  "Let's speak some English.", 'ok message 5 is updated')
-  ->json_is('/data/to_uid',   $t2_uid,                     'ok message 5 to_uid is unchanged')
-  ->json_is('/data/from_uid', $t1_uid,                     'ok message 5 from_uid is unchanged')
-  ->json_is(    #becuse it belongs to a talk with id 1
-    '/data/subject', '', 'ok message 5 subject is empty'
-  )->json_is('/data/subject_message_id', 1, 'ok message 5 subject_message_id is unchanged');
+$t1->get_ok("$vest_base_url/$last_id.json")->status_is('200', 'Status is 200')
+  ->json_is('/data/message', "Let's speak some English.", "ok message $last_id is updated")
+  ->json_is('/data/to_uid',   $t1_uid, "ok message $last_id to_uid is unchanged")
+  ->json_is('/data/from_uid', $t2_uid, "ok message $last_id from_uid is unchanged")
+  ->json_is(    #because it belongs to a talk with id $last_id
+    '/data/subject', '', "ok message $last_id subject is empty"
+  )
+  ->json_is('/data/subject_message_id', $s_m_id,
+    "ok message $last_id subject_message_id is unchanged");
+#note $app->dumper($t1->tx->res->json);
 
 #=pod
 #{   route  => '/вест/:id',
@@ -212,7 +224,7 @@ $t1->get_ok("$vest_base_url/5.json")->status_is('200', 'Status is 200')
 #},
 #=cut
 
-$t1->delete_ok("$vest_base_url/1")->status_is('200', 'Status is 200')
+$t1->delete_ok("$vest_base_url/$last_id")->status_is('200', 'Status is 200')
   ->content_is('not implemented...', 'ok not implemented...yet');
 ok($app->dbix->dbh->do('DROP TABLE IF EXISTS vest'), "Table vest was dropped.");
 
