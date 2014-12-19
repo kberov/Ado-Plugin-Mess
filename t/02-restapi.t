@@ -19,6 +19,8 @@ isa_ok($app->plugin('vest'), 'Ado::Plugin::Vest');
 my $vest_base_url = $app->config('Ado::Plugin::Vest')->{vest_base_url};
 my $t1_uid = $app->dbix->query('SELECT id from users where login_name=?', 'test1')->hash->{id};
 my $t2_uid = $app->dbix->query('SELECT id from users where login_name=?', 'test2')->hash->{id};
+
+#for test2 to add test1 to his contacts
 $app->dbix->query(
     "DELETE FROM user_group where group_id=(SELECT id FROM groups WHERE name='vest_contacts_'||?)",
     $t2_uid
@@ -65,28 +67,14 @@ subtest 't2_login' => sub {
       ->json_like('/links/0/href' => qr/users.json\?limit=50&offset=0/);
     $t2->get_ok("$vest_base_url/users.json?name=guest")->status_is(200)
       ->json_is('/data/0' => undef, 'Guest can not be found.')    #'Guest'
-
-      #warn $app->dumper($t2->tx->res->json);
 };
-
-#reload
-#{route => '/$vest_base_url', via => ['GET'],  to => 'vest#list',}
-#no format
-$t1->get_ok("$vest_base_url/list", {Accept => 'text/html'})
-  ->status_is('415', '415 - Unsupported Media Type ')->content_type_is('text/html;charset=UTF-8')
-  ->header_like('Content-Location' => qr|\.json$|x)->content_like(qr|\.json!|x);
-
-#with format
-$t1->get_ok("$vest_base_url/list.json")->status_is('200', 'Status is 200')
-  ->content_type_is('application/json')->json_has('/data')->json_has('/links')
-  ->json_is('/links/0/rel' => 'self', '/links/0/rel is self')
-  ->json_like('/links/0/href' => qr'\.json\?limit=20\&offset=0')
-  ->json_is('/links/1' => undef, '/links/1 is not present');
 
 #Play with several messages.
 #{route => '/вест', via => ['POST'], to => 'vest#add',},
 
 #add_contact
+$t2->post_ok("$vest_base_url/add_contact", {Accept => 'text/html'}, form => {id => $t1_uid})
+  ->status_is('415');
 $t2->post_ok("$vest_base_url/add_contact", form => {id => $t1_uid})->status_is('204')
   ->content_is('');
 $t2->post_ok("$vest_base_url/add_contact", form => {id => $t1_uid})->status_is('302')
@@ -136,6 +124,7 @@ $t1->post_ok(
     }
   )->status_is('400', 'Status is 400')->json_is('/message/to_uid/0/', 'like')
   ->content_like(qr/"message"\:\{"to_uid"\:\["like"/x, 'erros ok: to_uid is not alike ');
+
 my ($last_id, $s_m_id) = (0, 0);
 my $maxSQL = 'SELECT MAX(id) as id from vest';
 
@@ -214,8 +203,8 @@ $t1->get_ok("$vest_base_url/$last_id.json")->status_is('200', 'Status is 200')
   )
   ->json_is('/data/subject_message_id', $s_m_id,
     "ok message $last_id subject_message_id is unchanged");
-#note $app->dumper($t1->tx->res->json);
 
+#note $app->dumper($t1->tx->res->json);
 #=pod
 #{   route  => '/вест/:id',
 #    params => {id => qr/\d+/},
@@ -251,19 +240,19 @@ my @talk_x = (
     {   from_uid           => $t2_uid,
         to_uid             => $t1_uid,
         subject            => 'разговор' . time,
-        subject_message_id => 1,
+        subject_message_id => $s_m_id,
         message            => "Здрасти!"
     },
     {   from_uid           => $t2_uid,
         to_uid             => $t1_uid,
         subject            => 'разговор' . time,
-        subject_message_id => 1,
+        subject_message_id => $s_m_id,
         message            => "Как си?"
     },
     {   from_uid           => $t1_uid,
         to_uid             => $t2_uid,
         subject            => 'разговор' . time,
-        subject_message_id => 1,
+        subject_message_id => $s_m_id,
         message            => "Благодаря, добре. А ти?"
     }
 );
@@ -302,18 +291,19 @@ Ado::Model::Vest->create(%$_, tstamp => $time) for (@talk_x, @talk_y, @talk_z);
 # Listing talks of the current user - usually in the left sidebar
 $t1->get_ok("$vest_base_url/talks.json")->status_is('200', 'Status is 200')
   ->content_type_is('application/json')->json_has('/data')
-  ->json_is('/data/2/id' => 1, 'my first talk')->json_is('/data/1/id' => 5, 'my second talk')
-  ->json_is('/data/0/id' => 26, 'my third talk');
-$t2->get_ok("$vest_base_url/talks.json")->json_is('/data/0/id' => 1, 'my first talk')
-  ->json_is('/data/1/id' => undef, 'no second talk')
-  ->json_is('/data/2/id' => undef, 'no third talk');
+  ->json_is('/data/2/id' => $s_m_id, 'my first talk')
+  ->json_is('/data/1/id' => 5, 'my second talk')->json_is('/data/0/id' => 26, 'my third talk');
+$t2->get_ok("$vest_base_url/talks.json")->json_has('/data/0/id', 'my first talk');
 
 # Listing messages from a talk for the current user
+$t2->get_ok("$vest_base_url/messages/1", {Accept => 'text/html'})->status_is('415');
+$t2->get_ok("$vest_base_url/messages/0")->status_is('400')
+  ->json_is('/message/id' => ['required']);
+$t2->get_ok("$vest_base_url/messages/1?offset=1");
 $t1->get_ok("$vest_base_url/messages/1.json")->status_is('200', 'Status is 200')
   ->content_type_is('application/json')->json_has('/data')
   ->json_is('/links/1'        => undef,              '/links/1 is not present')
   ->json_is('/data/0/id'      => 1,                  '/data is sorted properly')
-  ->json_is('/data/3/id'      => 4,                  '/data is sorted properly')
   ->json_is('/data/0/subject' => 'разговор', '/data/0/subject is ok');
 
 $t1->get_ok("$vest_base_url/messages/5.json?limit=10")->json_is(
@@ -363,7 +353,11 @@ for my $talk (14 .. 25) {
       ->json_is('/talks/0/subject' => $subject);
 
 }
+$t2->get_ok("$vest_base_url/talks", {Accept => 'text/html'})->status_is('415');
+$t2->get_ok("$vest_base_url/talks.json?offset=1&limit=2")->json_has('/data/1/id')
+  ->json_hasnt('/data/2/id');
 
+#note $app->dumper($t2->tx->res->json);
 #HTML UI
 $t1->get_ok("$vest_base_url")->element_exists('main.ui.container', 'main.ui.container');
 

@@ -1,5 +1,5 @@
 Revision history for Ado-Plugin-Vest
-0.09 2014-12-18
+0.09 2014-12-19
     - Improved distribution Kwalitee by adding Perl 5.14 as prerequisite.
     - Mention Ado explicitly and link to it in the documentation.
     - Added "wellcome" message for all new users in after_user_add hook.

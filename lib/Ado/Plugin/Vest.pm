@@ -23,7 +23,6 @@ sub register {
 sub _add_data {
     my ($self, $app, $conf) = @_;
     return unless $conf->{vest_data_sql_file};
-
     return $self->_do_sql_file($app->dbix->dbh, $conf->{vest_data_sql_file});
 }
 
@@ -126,7 +125,7 @@ for any web-application based on L<Ado>. It can be used as a chat between
 two users, as commenting widget under articles, for showing system messages etc.
 Other uses are also possible. You can create your client (HTML5 or desktop)
 application and start making Ajax (or Websocket - TODO) requests.
-Currently a HTTP based chat application is being implemented as a proof of concept.
+Currently a HTTP based chat application is being implemented as a proof of concept. Go to C<http://yourdomain/vest> and try it.
 
 Combined with the OAuth2 authentication support in Ado this can be a good
 foundation for a community or intranet site. Any Google+ or Facebook

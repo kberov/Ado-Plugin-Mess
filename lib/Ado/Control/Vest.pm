@@ -56,31 +56,6 @@ my $list_args_checks = {
     },
 };
 
-#available messages on this system - disabled
-sub list {
-    my $c = shift;
-    $c->require_formats('json') || return;
-    my $args = Params::Check::check(
-        $list_args_checks,
-        {   limit  => $c->req->param('limit')  || 20,
-            offset => $c->req->param('offset') || 0,
-        }
-    );
-
-    $c->res->headers->content_range(
-        "messages $$args{offset}-${\($$args{limit} + $$args{offset})}/*");
-    $c->debug("rendering json only [$$args{limit}, $$args{offset}]");
-    return $c->render(json => []) unless $Ado::Control::DEV_MODE;
-
-    #content negotiation somewhere in the future...
-    return $c->respond_to(
-        json => $c->list_for_json(
-            [$$args{limit}, $$args{offset}],
-            [Ado::Model::Vest->select_range($$args{limit}, $$args{offset})]
-        )
-    );
-}
-
 #Lists last 20 messages from a talk of the current user (by subject_message_id)
 sub list_messages {
     my ($c) = @_;
@@ -428,18 +403,6 @@ and L<Ado::Model::Vest/create>.
 =head2 disable
 
 Disables a message . Not implemented yet
-
-
-=head2 list
-
-Displays the messages this system has.
-Uses the request parameters C<limit> and C<offset> to display a range of items
-starting at C<offset> and ending at C<offset>+C<limit>.
-This method serves the resource C</вест/list.json>.
-If other format is requested returns status 415 with C<Content-location> header
-pointing to the proper URI.
-See L<http://www.w3.org/Protocols/rfc2616/rfc2616-sec10.html#sec10.4.16> and
-L<http://www.w3.org/Protocols/rfc2616/rfc2616-sec14.html#sec14.14>.
 
 =head2 list_messages
 

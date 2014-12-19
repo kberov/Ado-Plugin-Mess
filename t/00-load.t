@@ -12,7 +12,7 @@ for (qw(register config name app)) {
 use_ok('Ado::Control::Vest');
 isa_ok('Ado::Control::Vest', 'Ado::Control');
 
-for (qw(list create update show disable screen)) {
+for (qw(create update show disable screen)) {
     can_ok('Ado::Control::Vest', $_);
 }
 
