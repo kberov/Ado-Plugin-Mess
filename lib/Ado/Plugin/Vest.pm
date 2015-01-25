@@ -3,7 +3,7 @@ use Mojo::Base qw(Ado::Plugin);
 use Mojo::Util qw(decamelize slurp decode);
 File::Spec::Functions->import(qw(catfile));
 
-our $VERSION = '0.09';
+our $VERSION = '0.10';
 my $VEST = 'vest';
 
 sub register {

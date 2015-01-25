@@ -16,7 +16,7 @@ my $builder = Ado::BuildPlugin->new(
         'Ado'                             => '0.73',
         'Mojolicious'                     => '0',
         'Mojolicious::Plugin::DSC'        => '0',
-        'Mojolicious::Plugin::SemanticUI' => '0.08'
+        'Mojolicious::Plugin::SemanticUI' => '0.11'
     },
     recursive_test_files => 1,
     meta_merge           => {
