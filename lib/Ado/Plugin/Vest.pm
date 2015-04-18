@@ -1,7 +1,6 @@
 package Ado::Plugin::Vest;
 use Mojo::Base qw(Ado::Plugin);
-use Mojo::Util qw(decamelize slurp decode);
-File::Spec::Functions->import(qw(catfile));
+File::Spec::Functions->import(qw(catfile catdir));
 
 our $VERSION = '0.10';
 my $VEST = 'vest';
@@ -23,7 +22,7 @@ sub register {
 sub _add_data {
     my ($self, $app, $conf) = @_;
     return unless $conf->{vest_data_sql_file};
-    return $self->_do_sql_file($app->dbix->dbh, $conf->{vest_data_sql_file});
+    return $app->do_sql_file(catfile($self->config_dir, $conf->{vest_data_sql_file}));
 }
 
 #hook after_user_add
@@ -74,39 +73,9 @@ sub _create_table {
     my $table =
       $dbh->table_info(undef, undef, $VEST, "'TABLE'")->fetchall_arrayref({});
     return if @$table;
-    return $self->_do_sql_file($dbh, $conf->{vest_schema_sql_file});
+    return $app->do_sql_file(catfile($self->config_dir, $conf->{vest_schema_sql_file}));
 }
 
-sub _do_sql_file {
-    my ($self, $dbh, $sql_file) = @_;
-    $self->app->log->debug('_do_sql_file:' . $sql_file)
-      if $Ado::Control::DEV_MODE;
-
-    my $SQL = decode('UTF-8', slurp(catfile($self->config_dir, $sql_file)));
-
-    #Remove multi-line comments
-    $SQL =~ s|/\*+.+?\*/\s+?||gsmx;
-    $self->app->log->debug('$SQL:' . $SQL)
-      if $Ado::Control::DEV_MODE;
-    local $dbh->{RaiseError} ||= 1;
-    my $statement = '';
-    eval {
-        $dbh->begin_work;
-        for my $st (split /;/smx, $SQL) {
-            $statement = $st;
-
-            #$self->app->log->debug('$statement:'.$statement);
-            $dbh->do($st) if $st =~ /\S+/smx;
-        }
-        $dbh->commit;
-    } || do {
-        $dbh->rollback;
-        my $e = "\nError in statement:$statement\n$@";
-        $self->app->log->error($e);
-        Carp::croak($e);
-    };
-    return 1;
-}
 
 1;
 

@@ -35,15 +35,14 @@ sub add_contact {
     my $ug         = $UG->query($SQL, $contact_id, $group->id);
 
     #already a contact
-    return $c->render(text => '', status => 302)
+    return $c->rendered(302)
       if $ug->user_id;
 
     $ug = $UG->create(
         user_id  => $contact_id,
         group_id => $group->id,
     );
-
-    $c->render(text => '', status => 204);
+    $c->rendered(204);
     return;
 }
 
@@ -165,7 +164,7 @@ sub create {
         #201 Created
         $c->res->headers->location(
             $c->url_for('/' . $c->current_route . '/id/' . $message->id => format => 'json'));
-        return $c->render(status => 201, text => '');
+        return $c->rendered(201);
     }
     else {
         my $err_data = 'Error in POST ' . $c->current_route;
@@ -243,11 +242,14 @@ sub update {
 
 
     $vest->save(%{$result->{output}}, tstamp => time);
-    return shift->render(status => 204, text => '');
+    return $c->rendered(204);
 }
 
 sub disable {
-    return shift->render(text => 'not implemented...');
+    my ($c) = @_;
+    $c->res->body('not implemented...');
+    $c->rendered(200);
+    return;
 }
 
 sub screen {

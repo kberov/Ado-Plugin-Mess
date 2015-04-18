@@ -13,7 +13,8 @@ $app->routes->post('/vest/uadd')->to(
 
         #invoking after_user_add on user Guest
         $c->app->plugins->emit_hook(after_user_add => $c, $c->user, {});
-        $c->render(text => $c->user->ingroup('vest') || '');
+        $c->res->body($c->user->ingroup('vest') || '');
+        $c->rendered(200);
     }
 );
 

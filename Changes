@@ -1,7 +1,8 @@
 Revision history for Ado-Plugin-Vest
 
-0.10 2015-01-25
-    - Upgraded to Mojolicious::Plugin::SemanticUI 0.11
+0.10 2015-04-18
+    - Upgraded to Ado 0.88.
+    - Upgraded to Mojolicious::Plugin::SemanticUI 0.15
     - Other cleanups.
 
 0.09 2014-12-19
