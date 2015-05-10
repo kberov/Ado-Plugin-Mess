@@ -13,10 +13,10 @@ my $builder = Ado::BuildPlugin->new(
     build_requires => {'Test::More' => '0',},
     requires       => {
         'perl'                            => '5.14.0',
-        'Ado'                             => '0.88',
-        'Mojolicious'                     => '0',
+        'Ado'                             => '0.901',
+        'Mojolicious'                     => '6.10',
         'Mojolicious::Plugin::DSC'        => '0',
-        'Mojolicious::Plugin::SemanticUI' => '0.15'
+        'Mojolicious::Plugin::SemanticUI' => '0.17'
     },
     recursive_test_files => 1,
     meta_merge           => {
