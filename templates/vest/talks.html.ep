@@ -1,4 +1,8 @@
 <!-- talks.html.ep -->
+<% 
+head_css($sui_path.'/sidebar.min.css');
+head_javascript($sui_path.'/sidebar.min.js');
+%>
 <aside id="talks" class="ui left push sidebar">
   <ul>
 % foreach my $talk (@$talks) {

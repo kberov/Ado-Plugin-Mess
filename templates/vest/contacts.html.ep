@@ -1,11 +1,16 @@
-<!-- contacts.html.ep 
-TODO: Contacts implementation.
-For every user there must be a group named vest_contacts_$id
-where $id is the user's id "users.id".
-This sidebar will list the members of this group.
-By adding some user to this group it is added to the user's contact
-referred by $login_name.
--->
+<!-- contacts.html.ep -->
+<% 
+head_css([
+  $sui_path.'/sidebar.min.css', $sui_path.'/menu.min.css', 
+  $sui_path.'/input.min.css', $sui_path.'/icon.min.css',
+  $sui_path.'/divider.min.css', $sui_path.'/list.min.css',
+  $sui_path.'/search.min.css',
+]);
+head_javascript([
+  $sui_path.'/sidebar.min.js',$sui_path.'/search.min.js',
+]);
+%>
+
 <aside id="contacts" class="ui right menu push sidebar">
   <form class="ui search" action="<%= $vest_base_url .'/users.json' %>">
     <div class="ui fluid icon input">

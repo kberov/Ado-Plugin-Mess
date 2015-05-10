@@ -2,8 +2,6 @@
 % state $description = l('Messaging services for an Ado system!');
 % state $base_url = url_for('/')->base;
 % state $av = Ado::Plugin::Vest->VERSION;
-% state $suiv = Mojolicious::Plugin::SemanticUI->VERSION;
-% state $mv = Mojolicious->VERSION;
     <meta charset="utf-8" />
     <base href="<%= $base_url %>" />
     <meta http-equiv="X-UA-Compatible" content="IE=edge,chrome=1" />
@@ -12,14 +10,10 @@
     <meta name="description" content="<%= $description %>" />
     <title><%= title %></title>
     <link rel="icon" href="<%=$base_url%>/favicon.png" type="image/png" />
-    <link href="/vendor/SemanticUI/components/reset.min.css?v=<%=$suiv%>"
-        rel="stylesheet" type="text/css" />
-    <link href="/vendor/SemanticUI/semantic.min.css?v=<%=$suiv%>"
-        rel="stylesheet" type="text/css" />
-    <link href="/plugins/vest/vest.css?v=<%=$av%>"
-        rel="stylesheet" type="text/css" />
-    %= javascript "/mojo/jquery/jquery.js?v=$mv"
-    %= javascript "/vendor/SemanticUI/semantic.min.js?v=$suiv"
+    %== head_css
+    <link href="plugins/vest/vest.css" rel='stylesheet' type='text/css' />
+    %== head_javascript
+
 %= javascript begin
 'use strict';
 var user = <%== Mojo::JSON::to_json($user) %>;

@@ -1,4 +1,12 @@
 <!-- Messages in the current talk: messages.html.ep -->
+<% 
+head_css([
+  $sui_path.'/message.min.css', $sui_path.'/form.min.css',
+  $sui_path.'/segment.min.css',$sui_path.'/header.min.css',
+]);
+head_javascript($sui_path.'/form.min.js');
+%>
+
 <main class="ui container pusher">
   <h5 id="talk_topic" class="ui header">
     Talk:Here is the topik of the talk

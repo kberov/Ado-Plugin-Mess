@@ -1,4 +1,13 @@
 <!-- the top menu with buttons menu.html.ep -->
+<% 
+head_css([
+    $sui_path.'/menu.min.css',$sui_path.'/icon.min.css',
+    $sui_path.'/item.min.css', $sui_path.'/button.min.css',
+    $sui_path.'/dropdown.min.css'
+]);
+ head_javascript($sui_path.'/dropdown.min.js');
+%>
+
 <nav id="vestbar" class="ui inverted fixed small menu">
   <a class="item" href="<%= current_route %>"><i class="circular vede icon"></i></a>
   <div id="talks_button" class="item ui labeled icon button">
