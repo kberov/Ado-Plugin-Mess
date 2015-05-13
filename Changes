@@ -1,5 +1,11 @@
 Revision history for Ado-Plugin-Vest
 
+0.11 2015-05-14
+    - Fixed list of talks to be ordered by id 
+        of the last message in the talk - LIFO.
+    - Upgraded to Ado 0.91.
+    - Upgraded to Mojolicious 6.10.
+
 0.10 2015-04-18
     - Upgraded to Ado 0.88.
     - Upgraded to Mojolicious::Plugin::SemanticUI 0.15

@@ -290,7 +290,7 @@ Ado::Model::Vest->create(%$_, tstamp => $time) for (@talk_x, @talk_y, @talk_z);
 
 # Listing talks of the current user - usually in the left sidebar
 $t1->get_ok("$vest_base_url/talks.json")->status_is('200', 'Status is 200')
-  ->content_type_is('application/json')->json_has('/data')
+  ->content_type_is('application/json;charset=UTF-8')->json_has('/data')
   ->json_is('/data/2/id' => $s_m_id, 'my first talk')
   ->json_is('/data/1/id' => 5, 'my second talk')->json_is('/data/0/id' => 26, 'my third talk');
 $t2->get_ok("$vest_base_url/talks.json")->json_has('/data/0/id', 'my first talk');
@@ -301,7 +301,7 @@ $t2->get_ok("$vest_base_url/messages/0")->status_is('400')
   ->json_is('/message/id' => ['required']);
 $t2->get_ok("$vest_base_url/messages/1?offset=1");
 $t1->get_ok("$vest_base_url/messages/1.json")->status_is('200', 'Status is 200')
-  ->content_type_is('application/json')->json_has('/data')
+  ->content_type_is('application/json;charset=UTF-8')->json_has('/data')
   ->json_is('/links/1'        => undef,              '/links/1 is not present')
   ->json_is('/data/0/id'      => 1,                  '/data is sorted properly')
   ->json_is('/data/0/subject' => 'разговор', '/data/0/subject is ok');
@@ -347,7 +347,7 @@ for my $talk (14 .. 25) {
       ->element_exists('template#message_template')
       ->element_exists("form#message_form[action\$=\"$vest_base_url\"]")
       ->element_exists('h5#talk_topic')->element_exists('div#messages div.ui.list');
-    $t2->get_ok("$vest_base_url.json")->content_type_is('application/json')
+    $t2->get_ok("$vest_base_url.json")->content_type_is('application/json;charset=UTF-8')
       ->json_is('/user/id' => $to_uid)->json_is('/routes/0/params' => undef)
       ->json_is('/talks/0/to_guid' => 0)->json_is('/contacts/0/id' => $from_uid)
       ->json_is('/talks/0/subject' => $subject);
@@ -360,6 +360,44 @@ $t2->get_ok("$vest_base_url/talks.json?offset=1&limit=2")->json_has('/data/1/id'
 #note $app->dumper($t2->tx->res->json);
 #HTML UI
 $t1->get_ok("$vest_base_url")->element_exists('main.ui.container', 'main.ui.container');
+
+subtest last_talks_are_those_with_most_recent_messages => sub {
+
+# Back to first talks.
+# As there will be most recent messages they must be displayed as last (on top of) the talks list.
+    my $minSQL =
+      'SELECT id , subject FROM vest WHERE subject_message_id=0 ORDER BY id ASC LIMIT 3';
+    my $first_talks = $app->dbix->query($minSQL)->hashes;
+
+    # Add some new messages in the oldest talks
+    for my $talk (@$first_talks) {
+        $t2->post_ok(
+            $vest_base_url,
+            form => {
+                from_uid           => $t2_uid,
+                to_uid             => $t1_uid,
+                subject            => $talk->{subject},
+                subject_message_id => $talk->{id},
+                message =>
+                  "Здравей, Приятел! Пиша ти в разговор $talk->{id}."
+            }
+        )->status_is('201', 'ok 201 - Created');
+    }
+
+    # Now these talks should be the last in the list of talks in reversed order
+    $t1->get_ok("$vest_base_url/talks.json")->status_is('200', 'Status is 200')
+      ->content_type_is('application/json;charset=UTF-8')->json_has('/data')->json_is(
+        '/data/0/id' => $first_talks->[-1]->{id},
+        'my third talk is first - id: ' . $first_talks->[-1]->{id}
+      )->json_is(
+        '/data/1/id' => $first_talks->[-2]->{id},
+        'my second talk is second - id: ' . $first_talks->[-2]->{id}
+      )->json_is(
+        '/data/2/id' => $first_talks->[-3]->{id},
+        'my first talk is last - id: ' . $first_talks->[-3]->{id}
+      );
+
+};    #end last_talks_are_with_most_recent_messages
 
 done_testing();
 
