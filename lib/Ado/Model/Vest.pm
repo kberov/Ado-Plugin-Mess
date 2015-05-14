@@ -146,20 +146,22 @@ sub talks {
     my ($class, $user, $limit, $offset) = @_;
     my $uid = $user->id;
     state $SQL = <<SQL;
-    SELECT *, (SELECT max(id) FROM vest WHERE
-                -- regular messages
-                subject_message_id != 0 AND 
-                subject_message_id = t.id AND (
-                    -- to a group to which the user belongs
-                    to_guid IN(SELECT group_id FROM user_group WHERE user_id=?)  
-                    --or to the user, or from the user
-                    OR(to_uid =?) OR(from_uid =?)
-                )
-
+    SELECT *, (SELECT max(id) FROM vest AS m -- messages 
+                WHERE
+                -- regular messages to the current user
+                (m.subject_message_id != 0 AND
+                m.subject_message_id = t.id AND m.to_uid = ?)
+                -- or the talk id if no other messages
+                OR (m.id = t.id)
         ) as last_id
     -- TODO: add yet annother column: count of unseen messages
-    FROM      vest as t -- talks
-    WHERE subject_message_id = 0 
+    FROM      vest AS t -- talks
+    WHERE t.subject_message_id = 0 AND (
+        -- to a group to which the user belongs.. TODO: group talks - later
+        -- to_guid IN(SELECT group_id FROM user_group WHERE user_id=?)
+        --or to the user, or from the user
+        (t.to_uid = ?) OR (t.from_uid = ?)
+    )
     -- LIFO reasonably limited
     ORDER BY last_id DESC ${\ $class->SQL_LIMIT('?', '?') }
 SQL
