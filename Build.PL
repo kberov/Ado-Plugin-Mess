@@ -13,7 +13,7 @@ my $builder = Ado::BuildPlugin->new(
     build_requires => {'Test::More' => '0',},
     requires       => {
         'perl'                            => '5.14.0',
-        'Ado'                             => '0.901',
+        'Ado'                             => '0.91',
         'Mojolicious'                     => '6.10',
         'Mojolicious::Plugin::DSC'        => '0',
         'Mojolicious::Plugin::SemanticUI' => '0.17'
