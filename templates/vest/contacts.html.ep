@@ -4,10 +4,12 @@ head_css([
   $sui_path.'/sidebar.min.css', $sui_path.'/menu.min.css', 
   $sui_path.'/input.min.css', $sui_path.'/icon.min.css',
   $sui_path.'/divider.min.css', $sui_path.'/list.min.css',
-  $sui_path.'/search.min.css',
+  $sui_path.'/search.min.css', $sui_path.'/popup.min.css',
+  $sui_path.'/button.min.css',
 ]);
 head_javascript([
   $sui_path.'/sidebar.min.js',$sui_path.'/search.min.js',
+  $sui_path.'/popup.min.js',
 ]);
 %>
 
