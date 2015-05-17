@@ -142,6 +142,7 @@ sub count_messages {
         $uid)->hash->{count};
 }
 
+#talks for a user
 sub talks {
     my ($class, $user, $limit, $offset) = @_;
     my $uid = $user->id;
