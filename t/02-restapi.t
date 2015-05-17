@@ -367,7 +367,7 @@ subtest last_talks_are_those_with_most_recent_messages => sub {
 # As there will be most recent messages they must be displayed as last (on top of) the talks list.
     my $minSQL =
       'SELECT id , subject FROM vest WHERE subject_message_id=0 AND ((to_uid =?) OR(from_uid =?)) ORDER BY id ASC LIMIT 3';
-    my $first_talks = $app->dbix->query($minSQL,$t1_uid,$t1_uid)->hashes;
+    my $first_talks = $app->dbix->query($minSQL, $t1_uid, $t1_uid)->hashes;
 
     # Add some new messages in the oldest talks
     for my $talk (@$first_talks) {
