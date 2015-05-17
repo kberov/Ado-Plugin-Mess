@@ -8,8 +8,8 @@ head_javascript($sui_path.'/sidebar.min.js');
 % foreach my $talk (@$talks) {
 % # TODO: add group talks in case to_guid !=0
     <li>
-      <%= link_to 
-      $vest_base_url.'/messages/'.$talk->{id}.'.json', (id=>'talk'.$talk->{id}), 
+      <%= link_to
+      $vest_base_url.'/messages/'.$talk->{id}.'.json', (id=>'talk' . $talk->{id}, data => $talk), 
       begin %>
       %# show the name of the other partisipant in the talk
       <%= $talk->{from_uid} eq $user->{id} ? $talk->{to_uid_name} : $talk->{from_uid_name} %>
