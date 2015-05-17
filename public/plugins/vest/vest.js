@@ -2,6 +2,7 @@
 (function($) {
   //https://developer.mozilla.org/en-US/docs/Web/JavaScript/Reference/Strict_mode
   'use strict';
+
   // Functionality related to talks
   // Object used to store various data
   var VestTalk = {
@@ -10,18 +11,22 @@
     }
   };
   $(function($) {
-      $('#contacts').sidebar('attach events', '#contacts_button');
-      $('#talks').sidebar('attach events', '#talks_button');
+    $('#contacts').sidebar('attach events', '#contacts_button');
+    $('#talks').sidebar('attach events', '#talks_button');
 
     // Fill in #messages with the last talk and
     // bind onclick to filling-in messages in the #messages
     $('#talks ul li a').click(get_messages);
+
     // List messages from the last talk.
     $('#talks ul li a:first').click();
+
     $(window).blur(stop_polling);
     $(window).focus(start_polling);
 
-    $('#contacts .list .item').click(new_talk);
+    //bind click on icons in the contacts sidebar
+    $('#contacts .list .item .comment.outline.icon').click(new_talk);
+
     // To send or not to send the message?
     $('#message_form').submit(validate_and_send_message);
     // Send message by pressing Enter.
@@ -34,7 +39,7 @@
     $('#contacts form').submit(function(){return false});
     $('#contacts form .prompt').keydown(function(e){
       if ( e.altKey ){return false}
-      if ( this.value.length > 3 ){
+      if ( this.value.length > 2 ){
         find_contacts(e)
       }
     });
@@ -161,6 +166,8 @@
 
   /**
    * Starts a new talk with a contact.
+   * Gets the contact id(user.id) from the data-id attribute of
+   * the element to which it is bound.
    * @return false
    */
   function new_talk() {
@@ -294,23 +301,34 @@
         $('#contacts .results li').remove();
         for (var i = results.data.length - 1; i >= 0; i--) {
           var template = $($('#search_template').html()); //copy
-          template.attr('data-id',results.data[i].id);
-          template.attr('data-name',results.data[i].name);
-          template.text(results.data[i].name);
-          template.click(function(e){add_contact(e,template)});
+          template.attr('id', 'u' + results.data[i].id);
+          template.attr('data-id', results.data[i].id);
+          template.attr('data-name', results.data[i].name);
+          template.find('i.icon').attr('data-id', results.data[i].id);
+          template.find('span.label').text(results.data[i].name);
+          template.click(function(e){
+            $(this).unbind('click'); //only once
+            add_contact(template);
+            return false;
+          });
           $('#contacts .results').append(template);
         };
     });
   }//end function find_contacts(e)
-  function add_contact (e, user_item_template) {
+
+  /**
+    Adds a new contact to the list of contacts.
+   */
+  function add_contact (user_item_template) {
     //add to vest_contacts_$user->id
-    var user = $(e.target);
+    var user = user_item_template; 
+    console.log('Asking the server to add contact ' , user )
     $.post(
       user.data('href'),
       {id: user.data('id')},
       // success
-      function add_contact_success (data,textStatus, xhr) {
-        user_item_template.click(new_talk);
+      function add_contact_success (data, textStatus, xhr) {
+        user_item_template.find('.comment.outline.icon').click(new_talk);
         //prepend to contacts
         $('#contacts ul.contacts').prepend(user_item_template);
         $('#contacts ul.results').html('');//clean results

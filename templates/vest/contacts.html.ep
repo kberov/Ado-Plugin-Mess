@@ -14,7 +14,8 @@ head_javascript([
 %>
 
 <aside id="contacts" class="ui right menu push sidebar">
-  <form class="ui search" action="<%= $vest_base_url .'/users.json' %>">
+
+  <form class="ui search item" action="<%= $vest_base_url .'/users.json' %>">
     <div class="ui fluid icon input">
       <input class="prompt" placeholder="Search:  Иван Петров"
         name="name" type="text" autocomplete="off" />
@@ -33,7 +34,7 @@ head_javascript([
   </form>
   -->
 %=javascript begin
-// TODO: Wait for proper documentation and rewrite using th Semantic API
+// TODO: Wait for proper documentation and rewrite using the Semantic API
 //$('#contacts .search .prompt').api({url: $('#contacts .search').attr('action') +'?name={value}'});
 %=end
 
@@ -41,15 +42,36 @@ head_javascript([
     <i class="circular vede icon"></i>
   </div>
 
-  <ul class="ui selection list contacts">
+  <ul class="ui list contacts">
     % for my $u (@$contacts){
     <li class="item" id="u<%= $u->{id} %>"
-    data-id="<%= $u->{id} %>" data-name="<%= $u->{name} %>"><%= $u->{name} %></li>
+    data-id="<%= $u->{id} %>" data-name="<%= $u->{name} %>">
+      <div class="content">
+        <i class="large circular comment outline link icon" data-id="<%= $u->{id} %>"
+          style="float:right" title="<%= l('Start talk witn [_1]', $u->{name}) %>"></i>
+          % if($u->{last_talk_id}) {
+        <i class="large circular comments link icon" data-last_talk_id="<%= $u->{last_talk_id} %>"
+          style="float:right" title="<%= l('Continue talk') %>"></i>
+          % }
+        <span class="label"><%= $u->{name} %></span>
+      </div>
+    </li>
     % }
   </ul>
     <template id="search_template"
-    ><li class="item" data-id="" data-name=""
-    data-href="<%= url_for("$vest_base_url/add_contact") %>">
-      Jon Smith</li>
+    ><li class="item" id="" data-id="" data-name=""
+        data-href="<%= url_for("$vest_base_url/add_contact") %>">
+        <div class="content">
+          <i class="large circular comment outline link icon" data-id=""
+            style="float:right"></i>
+          <span class="label"></span>
+        </div>
+      </li>
   </template>
 </aside>
+%= javascript begin
+$('ul.contacts i.comments, ul.contacts i.comment').popup({
+  position : 'bottom right'
+})
+
+%= end

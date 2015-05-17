@@ -85,6 +85,8 @@ sub list_messages {
             offset => $offset,
         }
     );
+    $c->debug('Looking for messages in talk ' . $s_m_id . ' for user ' . $user->id)
+      if $Ado::Control::DEV_MODE;
     my $messages =
       Ado::Model::Vest->by_subject_message_id($user, $s_m_id, $$args{limit}, $$args{offset});
     $c->res->headers->content_range(
@@ -256,6 +258,7 @@ sub screen {
     my ($c) = @_;
     $c->require_formats('html', 'json') || return;
     my $user   = $c->user;
+    my $uid    = $user->id;
     my $routes = [
         map {
             +{  authz       => $_->{over},
@@ -267,10 +270,27 @@ sub screen {
         } @{$c->app->config('Ado::Plugin::Vest')->{routes}}
     ];
 
+    my $contacts = [Ado::Model::Users->by_group_name('vest_contacts_' . $uid)];
+
+    # Get last talk with each of the contacts
+    state $talk_with_contact_SQL = <<'SQL';
+            SELECT MAX(id) AS id FROM vest
+                WHERE (to_uid=? OR from_uid=?)
+                    AND (to_uid=? OR from_uid=?)
+                    AND subject_message_id = 0
+SQL
+
+    foreach my $contact (@$contacts) {
+        my $cid = $contact->{id};
+        my $last_talk_with_contact =
+          $c->dbix->query($talk_with_contact_SQL, $uid, $uid, $cid, $cid)->hash;
+        $contact->{last_talk_id} = $last_talk_with_contact->{id};
+    }
+
     my $to_json = {
         user => {%{$user->data}, name => $user->name},
         talks => Ado::Model::Vest->talks($user, int($c->param('limit') || 20), 0),
-        contacts => [Ado::Model::Users->by_group_name('vest_contacts_' . $user->id)],
+        contacts => $contacts,
         routes   => $routes,
     };
 
@@ -280,6 +300,7 @@ sub screen {
     );
     return;
 }
+
 my $users_validation_template = {
     name => {
         'required' => 1,
@@ -299,12 +320,10 @@ $U->SQL('find_users_by_name' => <<"SQL");
        --exclude the current user
        u.id != ? AND
        -- from group vest
-    
-       (disabled=0 AND (stop_date>? OR stop_date=0) AND start_date<?) AND
+       (u.disabled=0 AND (u.stop_date>? OR u.stop_date=0) AND u.start_date<?) AND
       (
-        (upper(first_name) LIKE upper(?) AND upper(last_name) LIKE upper(?)) OR
-        (upper(last_name) LIKE upper(?) AND upper(first_name) LIKE upper(?)) OR
-        (upper(email) LIKE upper(?))
+        (upper(u.first_name) LIKE upper(?) OR upper(u.last_name) LIKE upper(?)) OR
+        (upper(u.last_name) LIKE upper(?) OR upper(u.first_name) LIKE upper(?))
       )
        ${\ $U->SQL_LIMIT('?', '?')}
 SQL
@@ -325,27 +344,34 @@ sub users {
             json   => $result->{json}
         );
     }
+    my $user = $c->user;
 
     #Search by name
-    my $c_uid = $c->user->id;
+    my $c_uid = $user->id;
     my $name  = Mojo::Util::trim($result->{output}{name});
     my ($first_name, $last_name) = map { uc($_) } split /\s+/, $name;
-    $last_name //= '';
+    $last_name //= '' . $user;    #stupid unfindable random string
 
     #Remove everything after "@" to prevent searching for all users @gmail
     $first_name =~ s/\@.+//;
 
-    my $limit  = 50;
-    my $offset = 0;
-    my $time   = time;
-    my @a      = $U->query(
-        $U->SQL('find_users_by_name'), "vest_contacts_$c_uid",
-        $c_uid,                        $time,
-        $time,                         "\%$first_name\%",
-        "\%$last_name\%",              "\%$first_name\%",
-        "\%$last_name\%",              "\%$first_name\%\@%",
-        $limit,                        $offset
-    );
+    my $limit                    = 50;
+    my $offset                   = 0;
+    my $time                     = time;
+    my $user_contacts_group_name = "vest_contacts_$c_uid";
+    $c->debug("Searching in contacts of ${\ $user->login_name} (group $user_contacts_group_name) "
+          . "to find if a user \%$first_name\% \%$last_name\% Does not belong to it")
+      if $Ado::Control::DEV_MODE;
+    my @a = $U->query($U->SQL('find_users_by_name'),
+        $user_contacts_group_name, $c_uid, $time, $time, "\%$first_name\%",
+        "\%$last_name\%", "\%$first_name\%", "\%$last_name\%", $limit, $offset);
+    $c->debug('found '
+          . @a
+          . ' users matching ('
+          . "\%$first_name\% \%$last_name\%"
+          . ') AND NOT IN group '
+          . $user_contacts_group_name)
+      if $Ado::Control::DEV_MODE;
     my @data = map { +{%{$_->data}, name => $_->name} } @a;
     return $c->respond_to(json => $c->list_for_json([$limit, $offset], \@data));
 }
