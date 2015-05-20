@@ -307,7 +307,6 @@
           template.find('i.icon').attr('data-id', results.data[i].id);
           template.find('span.label').text(results.data[i].name);
           template.click(function(e){
-            $(this).unbind('click'); //only once
             add_contact(template);
             return false;
           });
@@ -317,20 +316,24 @@
   }//end function find_contacts(e)
 
   /**
-    Adds a new contact to the list of contacts.
+   * Adds a new contact to the list of contacts.
+   * Removes the add_contact 'click' binding from the 
+   * contacts menu item after adding the user.
+   * Empties the search html() '#contacts ul.results'.
+   * @return false
    */
-  function add_contact (user_item_template) {
+  function add_contact (user_item) {
     //add to vest_contacts_$user->id
-    var user = user_item_template; 
-    console.log('Asking the server to add contact ' , user )
     $.post(
-      user.data('href'),
-      {id: user.data('id')},
+      user_item.data('href'), // /add_contact
+      {id: user_item.data('id')},//form data
       // success
       function add_contact_success (data, textStatus, xhr) {
-        user_item_template.find('.comment.outline.icon').click(new_talk);
+        user_item.unbind('click'); //only once
+        user_item.find('.comment.outline.icon').click(new_talk);
+
         //prepend to contacts
-        $('#contacts ul.contacts').prepend(user_item_template);
+        $('#contacts ul.contacts').prepend(user_item);
         $('#contacts ul.results').html('');//clean results
       }
     );

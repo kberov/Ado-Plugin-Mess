@@ -34,10 +34,11 @@ sub add_contact {
     my $group      = $GR->by_name('vest_contacts_' . $user->id);
     my $ug         = $UG->query($SQL, $contact_id, $group->id);
 
-    #already a contact
-    return $c->rendered(302)
-      if $ug->user_id;
+    # avoid Firefox complaining about "no element found"
+    $c->res->headers->content_type('text/plain');
 
+    #already a contact
+    return $c->rendered(302) if $ug->user_id;
     $ug = $UG->create(
         user_id  => $contact_id,
         group_id => $group->id,

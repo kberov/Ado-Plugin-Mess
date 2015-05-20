@@ -22,7 +22,7 @@ head_javascript([
       <i class="search icon" ></i>
     </div>
   </form>
-  <ul class="ui results selection list"></ul>
+  <ul class="ui search results selection list"></ul>
   <!--
   <form class="ui remote search" action="<%= $vest_base_url .'/users.json' %>">
     <div class="ui fluid icon input">
