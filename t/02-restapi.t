@@ -63,7 +63,6 @@ subtest 't2_login' => sub {
 # find a user
     $t2->get_ok("$vest_base_url/users.json?name=est 1")->status_is(200)
       ->json_is('/data/0/name' => 'Test 1', 'Test1 found by name')
-      ->json_is('/data/1/name' => 'Application Вест', 'vest@localhost found by email')
       ->json_like('/links/0/href' => qr/users.json\?limit=50&offset=0/);
     $t2->get_ok("$vest_base_url/users.json?name=guest")->status_is(200)
       ->json_is('/data/0' => undef, 'Guest can not be found.')    #'Guest'

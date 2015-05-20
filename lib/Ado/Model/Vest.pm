@@ -146,8 +146,8 @@ sub count_messages {
 sub talks {
     my ($class, $user, $limit, $offset) = @_;
     my $uid = $user->id;
-    state $SQL = <<SQL;
-    SELECT *, (SELECT max(id) FROM vest AS m -- messages 
+    state $SQL = <<"SQL";
+    SELECT *, (SELECT max(id) FROM vest AS m -- messages
                 WHERE
                 -- regular messages to the current user
                 (m.subject_message_id != 0 AND
