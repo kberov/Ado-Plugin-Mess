@@ -1,5 +1,9 @@
 Revision history for Ado-Plugin-Vest
 
+0.12 2015-05-20
+    - Fix. When starting a new talk, get_new_messages() in vest.js
+        will not try to get new messages from the server.
+
 0.11 2015-05-20
     - Fixed searching for and adding contacts.
       Improved contacts sidebar section HTML - and JavaScript.

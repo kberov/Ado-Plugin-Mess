@@ -250,9 +250,15 @@
   /**
    * Gets new messages from a talk.
    * Similar to get_messages but only gets last 5 messages.
-   * @param {obj} form The form object from which we will get everything we need.
+   * Will not try to get new messages if the talk is brand new
+   * (i.e. has not started yet === is not saved in the database).
+   * @param {obj} form The form object from which we will get 
+   * the name-value pairs to be send.
+   * @param {int} limit  The number of messages to get - 5 by default.
    */
   function get_new_messages(form, limit) {
+    if(form.subject_message_id.value == 0) { return; }
+
     limit = limit ? limit : 5;
     var url = form.action + '/messages/' + form.subject_message_id.value +
       '.json?limit=' + limit;

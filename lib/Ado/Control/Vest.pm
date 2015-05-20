@@ -35,7 +35,7 @@ sub add_contact {
     my $ug         = $UG->query($SQL, $contact_id, $group->id);
 
     # avoid Firefox complaining about "no element found"
-    $c->res->headers->content_type('text/plain');
+    $c->res->headers->header('Content-Type' => 'text/plain');
 
     #already a contact
     return $c->rendered(302) if $ug->user_id;
@@ -164,9 +164,13 @@ sub create {
       eval { Ado::Model::Vest->create(%{$result->{output}}, tstamp => time) };
     if ($message) {
 
+        # avoid Firefox complaining about "no element found"
+        my $h = $c->res->headers;
+        $h->header('Content-Type' => 'text/plain');
+
         #201 Created
-        $c->res->headers->location(
-            $c->url_for('/' . $c->current_route . '/id/' . $message->id => format => 'json'));
+        $h->header(Location =>
+              $c->url_for('/' . $c->current_route . '/id/' . $message->id => format => 'json'));
         return $c->rendered(201);
     }
     else {
