@@ -1,8 +1,10 @@
 Revision history for Ado-Plugin-Vest
 
-0.12 2015-05-20
+0.12 2015-05-21
     - Fix. When starting a new talk, get_new_messages() in vest.js
         will not try to get new messages from the server.
+    - Implemented delayed polling for new messages when window is blurred.
+      Each next request is delayed with 5 seconds more.
 
 0.11 2015-05-20
     - Fixed searching for and adding contacts.

@@ -21,7 +21,10 @@
     // List messages from the last talk.
     $('#talks ul li a:first').click();
 
-    $(window).blur(stop_polling);
+    $(window).blur(function () {
+      stop_polling();
+      delay_polling(15, 5, 5);
+    });
     $(window).focus(start_polling);
 
     //bind click on icons in the contacts sidebar
@@ -58,7 +61,7 @@
     $('#talks').sidebar('hide');
 
     // get the messages
-    $.get(link.href, list_messages_from_json);
+    $.get(link.href, list_messages_from_json, 'json');
     return false;
   }
 
@@ -95,9 +98,33 @@
    * Stop polling for new messages from previous talk.
    */
   function stop_polling() {
-    if (window.new_messages_interval_id) {
+    if (window.new_messages_interval_id > 0) {
       window.clearInterval(window.new_messages_interval_id);
+      window.new_messages_interval_id = 0;
     }
+  }
+
+  /**
+   * Starts to call 'get_new_messages'
+   * with an increasing delay of 5 seconds more each next time.
+   * Before each window.setTimeout  window.new_messages_interval_id
+   * will be checked and the delayed execution will be interrupted if
+   * it is defined
+   * @param times {int} Times new messages will be get
+   * @param interval {int} The first delay in seconds.
+   * @param delay {int} seconds added each next time to the interval.
+   * Example:
+   * start_delayed_polling (5, 5, 5)
+   * 'get_new_messages' will be executed after 10, 15, 20, 25, 30
+  */
+  function delay_polling (times, interval, delay) {
+    console.log('start_delayed_polling:',(new Date()).getSeconds()); 
+    console.log('times, interval, delay:',times, interval, delay); 
+    if (window.new_messages_interval_id > 0 || times==0) {return};
+    window.setTimeout(function () {
+      get_new_messages($('#message_form').get(0),10);
+      delay_polling(times - 1, interval += delay, delay);
+    }, interval * 1000);
   }
 
   /**
@@ -257,21 +284,25 @@
    * @param {int} limit  The number of messages to get - 5 by default.
    */
   function get_new_messages(form, limit) {
+    //console.log(form)
     if(form.subject_message_id.value == 0) { return; }
+
 
     limit = limit ? limit : 5;
     var url = form.action + '/messages/' + form.subject_message_id.value +
       '.json?limit=' + limit;
-    $.get(url, append_messages_from_json, 'json');
+    $.get(url, function (json_data) {
+      append_messages_from_json(json_data)
+    } , 'json');
   }
 
   /**
-   * Gets new messages from a talk.
+   * Appends messages received from the server to the list on the screen.
    * Similar to list_messages_from_json but only appends messages to the messages box.
    * @param {obj} form The form object from which we will get everything we need.
    */
   function append_messages_from_json(new_json_messages) {
-    //remove the local message
+    //remove the local message if it exists
     $('#msg0').remove();
     var js_messages = new_json_messages.data;
     var messages = $('#messages .ui.list');
