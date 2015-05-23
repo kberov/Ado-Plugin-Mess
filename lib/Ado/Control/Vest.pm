@@ -381,6 +381,40 @@ sub users {
     return $c->respond_to(json => $c->list_for_json([$limit, $offset], \@data));
 }
 
+sub seen {
+    my ($c) = @_;
+    state $set_seen_validation_template = {
+        unseen => {
+            required => 1,
+            like     => qr/^[\d\,]+\d$/
+        }
+    };
+    my $result = $c->validate_input($set_seen_validation_template);
+
+    #400 Bad Request
+    if ($result->{errors}) {
+        $c->app->log->error($c->dumper($result));
+        return $c->render(
+            status => $result->{json}{code},
+            json   => $result->{json}
+        );
+    }
+
+    #set messages as seen
+    my $id = $c->stash('id');
+    my @ids = (split /\,\s?/, $result->{output}{unseen});
+    my $sql =
+      'UPDATE vest SET seen = 1 WHERE to_uid=? AND (subject_message_id = ? OR id=?) AND id IN('
+      . (join ',', map {'?'} @ids) . ')';
+    $c->debug($sql, $id, $c->dumper(\@ids));
+    $c->dbix->query($sql, $c->user->id, $id, $id, @ids);
+
+    # avoid Firefox complaining about "no element found"
+    $c->res->headers->header('Content-Type' => 'text/plain');
+    $c->rendered(204);
+    return;
+}
+
 1;
 
 =pod

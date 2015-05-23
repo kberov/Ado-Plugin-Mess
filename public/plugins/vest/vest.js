@@ -25,7 +25,9 @@
       stop_polling();
       delay_polling(15, 5, 5);
     });
-    $(window).focus(start_polling);
+    $(window).focus(function () {
+      start_polling()
+    });
 
     //bind click on icons in the contacts sidebar
     $('#contacts .list .item .comment.outline.icon').click(new_talk);
@@ -75,8 +77,10 @@
     //Save it for later use by validate_and_send_message
     VestTalk.json_messages = json_messages;
     var prev_msg = {};
+    var unseen = [];
     $(json_messages.data).each(function(i, msg) {
-
+      // collect yet unseen messages sent to the current user.
+      if(user.id === msg.to_uid && (msg.seen === null || msg.seen === 0)) { unseen.push(msg.id) }
       // This is the message defining the topic (the parent message).
       if (msg.subject_message_id === 0) {
         set_talk_form(msg); // Set the topic
@@ -92,6 +96,7 @@
     });
     // Scroll down to the last message
     messages.parent().scrollTop(messages.height());
+    set_seen((json_messages.data[1] ? json_messages.data[1].subject_message_id : 0 ), unseen);
   } // end function list_talk_messages_from_json
 
   /**
@@ -109,7 +114,7 @@
    * with an increasing delay of 5 seconds more each next time.
    * Before each window.setTimeout  window.new_messages_interval_id
    * will be checked and the delayed execution will be interrupted if
-   * it is defined
+   * it is greater than 0.
    * @param times {int} Times new messages will be get
    * @param interval {int} The first delay in seconds.
    * @param delay {int} seconds added each next time to the interval.
@@ -118,8 +123,8 @@
    * 'get_new_messages' will be executed after 10, 15, 20, 25, 30
   */
   function delay_polling (times, interval, delay) {
-    console.log('start_delayed_polling:',(new Date()).getSeconds()); 
-    console.log('times, interval, delay:',times, interval, delay); 
+    //console.log('start_delayed_polling:',(new Date()).getSeconds()); 
+    //console.log('times, interval, delay:',times, interval, delay); 
     if (window.new_messages_interval_id > 0 || times==0) {return};
     window.setTimeout(function () {
       get_new_messages($('#message_form').get(0),10);
@@ -129,6 +134,7 @@
 
   /**
    * Start polling for new messages from the buddy
+   * @return {void}
    */
   function start_polling() {
     stop_polling();
@@ -137,6 +143,22 @@
       window.setInterval(function() {
         get_new_messages($('#message_form').get(0));
       }, 5000);
+  }
+
+  /**
+   * Sets messages from the messages list as 'seen=1'.
+   * Performs a POST request with parameters 
+   * 'subject_message_id'(int) and 'unseen' (comma separated string of message IDs).
+   * @param subject_message_id {int} id of the talk
+   * @param unseen {Array} arry of message IDs.
+   */
+  function set_seen (subject_message_id, unseen) {
+    if(!subject_message_id || unseen.length == 0) { return };
+    $.ajax({
+      url: '/vest/talks/' + subject_message_id + '/seen',
+      method: 'PUT',
+      data: {"unseen": unseen.join(',')}
+      });
   }
 
   /**
@@ -151,13 +173,16 @@
     template.attr('id', 'msg' + msg.id);
     //just to debug order by
     template.attr('title', 'msg' + msg.id);
-
+    if (msg.to_uid == user.id) { template.addClass('ui info message'); }
     var date =
       typeof(msg.tstamp) === 'object' ?
       msg.tstamp :
       new Date(parseInt(msg.tstamp + '000')); //milliseconds
     template.find('.date').html(date.toLocaleString());
     template.find('.message').html(msg.message);
+    if(msg.seen && msg.to_uid != user.id){
+      template.find('.message').prepend('<i title="seen" class="check circle outline icon"></i>');
+    }
     if (prev_msg.from_uid == msg.from_uid) {
       template.find('.from_uid_name').html('...');
     } else {
@@ -306,8 +331,11 @@
     $('#msg0').remove();
     var js_messages = new_json_messages.data;
     var messages = $('#messages .ui.list');
+    var unseen = [];
     for (var i in js_messages) {
       var msg = js_messages[i];
+      // collect yet unseen messages sent to the current user.
+      if(user.id === msg.to_uid && (msg.seen === null || msg.seen === 0)) { unseen.push(msg.id) }
       //skip the parent message
       if (msg.subject_message_id === 0) {
         continue;
@@ -323,6 +351,8 @@
         messages.parent().scrollTop(messages.height());
       }
     } // end for( var i in...
+      set_seen((js_messages[1] ? js_messages[1].subject_message_id : 0 ), unseen);
+      //console.log(unseen);
   } //end function append_messages_from_json(new_json_messages)
   /**
    * Finds new contacts for a user and displays them in div.results.
