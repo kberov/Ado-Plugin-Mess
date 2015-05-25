@@ -147,16 +147,21 @@ sub talks {
     my ($class, $user, $limit, $offset) = @_;
     my $uid = $user->id;
     state $SQL = <<"SQL";
-    SELECT *, (SELECT max(id) FROM vest AS m -- messages
+    SELECT *, 
+        (SELECT max(id) FROM vest AS m -- messages
                 WHERE
                 -- regular messages to the current user
                 (m.subject_message_id != 0 AND
                 m.subject_message_id = t.id AND m.to_uid = ?)
                 -- or the talk id if no other messages
                 OR (m.id = t.id)
-        ) as last_id
-    -- TODO: add yet annother column: count of unseen messages
-    FROM      vest AS t -- talks
+        ) as last_id,
+        (SELECT count(1) FROM vest AS m
+            WHERE (m.subject_message_id = t.id OR m.id = t.id)
+            AND m.to_uid = ?
+            AND seen IS NULL
+        ) AS unseen
+    FROM vest AS t -- talks
     WHERE t.subject_message_id = 0 AND (
         -- to a group to which the user belongs.. TODO: group talks - later
         -- to_guid IN(SELECT group_id FROM user_group WHERE user_id=?)
@@ -167,7 +172,7 @@ sub talks {
     ORDER BY last_id DESC ${\ $class->SQL_LIMIT('?', '?') }
 SQL
 
-    my $hashes = $class->dbix->query($SQL, $uid, $uid, $uid, $limit, $offset)->hashes;
+    my $hashes = $class->dbix->query($SQL, $uid, $uid, $uid, $uid, $limit, $offset)->hashes;
     return _map_hashes($hashes);
 }
 
