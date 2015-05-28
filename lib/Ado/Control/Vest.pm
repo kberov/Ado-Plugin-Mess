@@ -281,18 +281,17 @@ sub screen {
 
     # Get last talk with each of the contacts
     state $talk_with_contact_SQL = <<'SQL';
-            SELECT MAX(id) AS id FROM vest
-                WHERE (to_uid=? OR from_uid=?)
-                    AND (to_uid=? OR from_uid=?)
-                    AND subject_message_id = 0
+            SELECT subject_message_id, MAX(id) AS id FROM vest
+                WHERE ((to_uid=? AND from_uid=?) OR (to_uid=? AND from_uid=?))
 SQL
 
     foreach my $contact (@$contacts) {
         my $cid = $contact->{id};
-        my $last_talk_with_contact =
-          $c->dbix->query($talk_with_contact_SQL, $uid, $uid, $cid, $cid)->hash;
-        $contact->{last_talk_id} = $last_talk_with_contact->{id};
+        my $last_talk =
+          $c->dbix->query($talk_with_contact_SQL, $uid, $cid, $cid, $uid)->hash;
+        $contact->{last_talk_id} = ($last_talk->{subject_message_id}||$last_talk->{id});
     }
+
 
     my $to_json = {
         user => {%{$user->data}, name => $user->name},

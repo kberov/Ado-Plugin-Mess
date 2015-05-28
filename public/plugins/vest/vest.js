@@ -5,18 +5,14 @@
 
   // Functionality related to talks
   // Object used to store various data
-  var VestTalk = {
-    json_messages: {
-      data: []
-    }
-  };
+  var VestTalk = { messages:[] };
   $(function($) {
     $('#contacts').sidebar('attach events', '#contacts_button');
     $('#talks').sidebar('attach events', '#talks_button');
 
     // Fill in #messages with the last talk and
     // bind onclick to filling-in messages in the #messages
-    $('#talks ul li a').click(get_messages);
+    $('#talks ul li a, #contacts ul.contacts li a.last_talk').click(get_messages);
 
     // List messages from the last talk.
     $('#talks ul li a:first').click();
@@ -30,7 +26,7 @@
     });
 
     //bind click on icons in the contacts sidebar
-    $('#contacts .list .item .comment.outline.icon').click(new_talk);
+    $('#contacts .list .item .comment.outline.link.icon').click(new_talk);
 
     // To send or not to send the message?
     $('#message_form').submit(validate_and_send_message);
@@ -58,35 +54,34 @@
    * @return bool false - to prevent the default behaviour of the 'a' tag.
    */
   function get_messages(e) {
-    var link = e.target;
-    // close the sidebar
-    $('#talks').sidebar('hide');
+    e.preventDefault();
+    var link = this.href;
+    // close the sidebars
+    $('#talks,#contacts').sidebar('hide');
 
     // get the messages
-    $.get(link.href, list_messages_from_json, 'json');
-    return false;
+    $.get(link, list_messages_from_json, 'json');
   }
 
   /**
    * Populates in #mesages list box with the messages found in
    * the received json.
    */
-  function list_messages_from_json(json_messages) {
+  function list_messages_from_json(JSON) {
     var messages = $('#messages .ui.list');
     messages.html('');
     //Save it for later use by validate_and_send_message
-    VestTalk.json_messages = json_messages;
+    VestTalk.messages = JSON.data;
     var prev_msg = {};
     var unseen = [];
-    $(json_messages.data).each(function(i, msg) {
+    $(VestTalk.messages).each(function(i, msg) {
       // collect yet unseen messages sent to the current user.
       if(user.id === msg.to_uid && (msg.seen === null || msg.seen === 0)) { unseen.push(msg.id) }
       // This is the message defining the topic (the parent message).
       if (msg.subject_message_id === 0) {
         set_talk_form(msg); // Set the topic
         //append the first message if there is no offset
-        if (json_messages.links[0].href.match('offset=[1-9]'))
-          return;
+        if (JSON.links[0].href.match('offset=[1-9]')) { return; }
       }
 
       // fill in template and display the message
@@ -96,7 +91,7 @@
     });
     // Scroll down to the last message
     messages.parent().scrollTop(messages.height());
-    set_seen((json_messages.data[1] ? json_messages.data[1].subject_message_id : 0 ), unseen);
+    set_seen((VestTalk.messages[1] ? VestTalk.messages[1].subject_message_id : 0 ), unseen);
   } // end function list_talk_messages_from_json
 
   /**
@@ -147,7 +142,7 @@
 
   /**
    * Sets messages from the messages list as 'seen=1'.
-   * Performs a POST request with parameters 
+   * Performs a PUT request with parameters 
    * 'subject_message_id'(int) and 'unseen' (comma separated string of message IDs).
    * @param subject_message_id {int} id of the talk
    * @param unseen {Array} arry of message IDs.
@@ -173,7 +168,7 @@
     template.attr('id', 'msg' + msg.id);
     //just to debug order by
     template.attr('title', 'msg' + msg.id);
-    if (msg.to_uid == user.id) { template.addClass('ui info message'); }
+    if (msg.to_uid == user.id) { template.addClass('ui message'); }
     var date =
       typeof(msg.tstamp) === 'object' ?
       msg.tstamp :
@@ -181,7 +176,7 @@
     template.find('.date').html(date.toLocaleString());
     template.find('.message').html(msg.message);
     if(msg.seen && msg.to_uid != user.id){
-      template.find('.message').prepend('<i title="seen" class="check circle outline icon"></i>');
+      template.find('.message').append(' <i title="displayed" style="color: #876A38;" class="small checkmark outline icon"></i>');
     }
     if (prev_msg.from_uid == msg.from_uid) {
       template.find('.from_uid_name').html('...');
@@ -237,6 +232,19 @@
     return false;
   } //end function new_talk()
 
+  /**
+   * Refresh the list of talks in the left sidebar
+   * with new unseen messages and the talks button
+   * with the sum of unseen messages. Prepend the
+   * list of talks with new talks.
+   * @param talks {Array} - list of talks
+   * @return {void}
+   */
+   function refresh_talks (talks) {
+      var talk_list = $('#talks ul');
+     // body...
+   }
+
   // Functionality related to messages
   /**
    * Validates the message form and sends the message.
@@ -287,8 +295,8 @@
     $.each(form, function(i) {
       msg[form[i].name] = form[i].value;
     });
-    var last_i = VestTalk.json_messages.data.length - 1;
-    var prev_msg = VestTalk.json_messages.data[last_i] || {};
+    var last_i = VestTalk.messages.length - 1;
+    var prev_msg = VestTalk.messages[last_i] || {};
     var messages = $('#messages .ui.list');
     // fill in template and display the message
     fill_in_message_template(msg, prev_msg).appendTo(messages);
@@ -326,10 +334,10 @@
    * Similar to list_messages_from_json but only appends messages to the messages box.
    * @param {obj} form The form object from which we will get everything we need.
    */
-  function append_messages_from_json(new_json_messages) {
+  function append_messages_from_json(JSON) {
     //remove the local message if it exists
     $('#msg0').remove();
-    var js_messages = new_json_messages.data;
+    var js_messages = JSON.data;
     var messages = $('#messages .ui.list');
     var unseen = [];
     for (var i in js_messages) {
@@ -342,18 +350,20 @@
       }
       //append the new message
       if (document.getElementById('msg' + msg.id) === null) {
-        var prev_msg = VestTalk.json_messages.data[VestTalk.json_messages.data.length -
+        var prev_msg = VestTalk.messages[VestTalk.messages.length -
           1];
         // fill in template and display the message
         fill_in_message_template(msg, prev_msg).appendTo(messages);
-        VestTalk.json_messages.data.push(msg);
+        VestTalk.messages.push(msg);
         // Scroll down to the last message
         messages.parent().scrollTop(messages.height());
       }
     } // end for( var i in...
       set_seen((js_messages[1] ? js_messages[1].subject_message_id : 0 ), unseen);
-      //console.log(unseen);
+      refresh_talks(JSON.meta.talks);
+      //console.log(js_messages,unseen);
   } //end function append_messages_from_json(new_json_messages)
+
   /**
    * Finds new contacts for a user and displays them in div.results.
    * TODO: Replace this with Semantic UI Search module when API docs are ready.

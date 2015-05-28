@@ -42,16 +42,19 @@ head_javascript([
     <i class="circular vede icon"></i>
   </div>
 
-  <ul class="ui list contacts">
+  <ul class="ui contacts list">
     % for my $u (@$contacts){
     <li class="item" id="u<%= $u->{id} %>"
-    data-id="<%= $u->{id} %>" data-name="<%= $u->{name} %>">
+    data-id="<%= $u->{id} %>" data-name="<%= $u->{name} %>"
       <div class="content">
         <i class="large circular comment outline link icon" data-id="<%= $u->{id} %>"
           style="float:right" title="<%= l('Start talk witn [_1]', $u->{name}) %>"></i>
-          % if($u->{last_talk_id}) {
-        <i class="large circular comments link icon" data-last_talk_id="<%= $u->{last_talk_id} %>"
-          style="float:right" title="<%= l('Continue talk') %>"></i>
+          % if($u->{last_talk_id} ) {
+            <a style="float:right" class="link last_talk"
+              href="<%= url_for $vest_base_url . '/messages/' . $u->{last_talk_id} . '.json' %>"
+              data-last_id="<%= $u->{last_talk_id} %>"><i 
+                class="large circular comments icon"
+                title="<%= l('Continue talk') %>"></i></a>
           % }
         <span class="label"><%= $u->{name} %></span>
       </div>

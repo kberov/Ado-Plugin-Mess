@@ -4,10 +4,10 @@ head_css($sui_path.'/sidebar.min.css');
 head_javascript($sui_path.'/sidebar.min.js');
 %>
 <aside id="talks" class="ui left push sidebar">
-  <ul>
+  <ul class="ui list talks">
 % foreach my $talk (@$talks) {
 % # TODO: add group talks in case to_guid !=0
-    <li>
+    <li class="item">
       <%= link_to
       $vest_base_url.'/messages/'.$talk->{id}.'.json', (id=>'talk' . $talk->{id}, data => $talk), 
       begin %>
@@ -15,9 +15,24 @@ head_javascript($sui_path.'/sidebar.min.js');
       <%= $talk->{from_uid} eq $user->{id} ? $talk->{to_uid_name} : $talk->{from_uid_name} %>
       (<%= $talk->{subject} %>)
       %= end
+      <% if($talk->{unseen}) { %>
+        <b style="display:inline" class="ui right center popup"><%=$talk->{unseen}%></b>
+        <% } %>
     </li>
 %}
   </ul>
 % # TODO: add previous X and next X talks menu 
 % # at the bottom of the sidebar
 </aside>
+% #Template used by refresh_talks(talks) in vest.js to append new talks.
+<template id="talk_item">
+    <li>
+      <%= link_to
+      $vest_base_url.'/messages/'.$talks->[0]{id}.'.json', (id=>'talk' . $talks->[0]{id}, data => $talks->[0]), 
+      begin %>
+      %# show the name of the other partisipant in the talk
+      <%= $talks->[0]{from_uid} eq $user->{id} ? $talks->[0]{to_uid_name} : $talks->[0]{from_uid_name} %>
+      (<%= $talks->[0]{subject} %>)
+      %= end
+    </li>
+</template>
