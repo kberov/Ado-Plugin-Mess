@@ -92,10 +92,13 @@ sub list_messages {
       Ado::Model::Vest->by_subject_message_id($user, $s_m_id, $$args{limit}, $$args{offset});
     $c->res->headers->content_range(
         "messages $$args{offset}-${\($$args{limit} + $$args{offset})}/*");
-    $c->debug("rendering json only [$$args{limit}, $$args{offset}]");
+
+    #notifications about new messages and talks
+    my $meta = {talks => Ado::Model::Vest->talks($user, $$args{limit}, 0)};
 
     #content negotiation (json only for now)
-    return $c->respond_to(json => $c->list_for_json([$$args{limit}, $$args{offset}], $messages));
+    return $c->respond_to(
+        json => $c->list_for_json([$$args{limit}, $$args{offset}], $messages, $meta));
 
 }
 
@@ -112,7 +115,6 @@ sub list_talks {
     my $talks = Ado::Model::Vest->talks($c->user, $$args{limit}, $$args{offset});
     $c->res->headers->content_range(
         "messages $$args{offset}-${\($$args{limit} + $$args{offset})}/*");
-    $c->debug("rendering json only [$$args{limit}, $$args{offset}]");
 
     #content negotiation (json only for now)
     return $c->respond_to(json => $c->list_for_json([$$args{limit}, $$args{offset}], $talks));
