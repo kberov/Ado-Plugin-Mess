@@ -31,8 +31,9 @@ head_javascript($sui_path.'/sidebar.min.js');
       $vest_base_url.'/messages/'.$talks->[0]{id}.'.json', (id=>'talk' . $talks->[0]{id}, data => $talks->[0]), 
       begin %>
       %# show the name of the other partisipant in the talk
-      <%= $talks->[0]{from_uid} eq $user->{id} ? $talks->[0]{to_uid_name} : $talks->[0]{from_uid_name} %>
+      <%= $talks->[0]{from_uid} == $user->{id} ? $talks->[0]{to_uid_name} : $talks->[0]{from_uid_name} %>
       (<%= $talks->[0]{subject} %>)
       %= end
+      <b style="display:inline;z-index:0" class="ui right center popup"><%=$talks->[0]->{unseen}%></b>
     </li>
 </template>

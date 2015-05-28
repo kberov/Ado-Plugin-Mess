@@ -75,7 +75,8 @@ sub list_messages {
 
     # Count the messages in a talk
     my $count = Ado::Model::Vest->count_messages($user, $s_m_id);
-    my $limit = ($c->req->param('limit') || 20);
+    state $default_limit = 20;
+    my $limit = ($c->req->param('limit') || $default_limit);
     my $offset = $c->req->param('offset') || 0;
 
     # Default to last 20 messages (including first message)
@@ -93,8 +94,8 @@ sub list_messages {
     $c->res->headers->content_range(
         "messages $$args{offset}-${\($$args{limit} + $$args{offset})}/*");
 
-    #notifications about new messages and talks
-    my $meta = {talks => Ado::Model::Vest->talks($user, $$args{limit}, 0)};
+    #notifications about new messages in talks
+    my $meta = {talks => Ado::Model::Vest->talks($user, $default_limit, 0)};
 
     #content negotiation (json only for now)
     return $c->respond_to(

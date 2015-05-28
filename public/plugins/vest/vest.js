@@ -6,6 +6,7 @@
   // Functionality related to talks
   // Object used to store various data
   var VestTalk = { messages:[] };
+  var user = window.user;
   $(function($) {
     $('#contacts').sidebar('attach events', '#contacts_button');
     $('#talks').sidebar('attach events', '#talks_button');
@@ -22,7 +23,7 @@
       delay_polling(15, 5, 5);
     });
     $(window).focus(function () {
-      start_polling()
+      start_polling();
     });
 
     //bind click on icons in the contacts sidebar
@@ -37,11 +38,11 @@
       }
     });
     //behavior for contact form
-    $('#contacts form').submit(function(){return false});
+    $('#contacts form').submit(function(){return false;});
     $('#contacts form .prompt').keydown(function(e){
-      if ( e.altKey ){return false}
+      if ( e.altKey ){return false;}
       if ( this.value.length > 2 ){
-        find_contacts(e)
+        find_contacts(e);
       }
     });
   }); // end $(document).ready(function($)
@@ -51,21 +52,22 @@
    * Performs a GET request to the url found in the 'href' attribute
    * of a talk item and invokes list_messages_from_json() to populate the
    * #messages box.
-   * @return bool false - to prevent the default behaviour of the 'a' tag.
+   * @return void.
    */
   function get_messages(e) {
     e.preventDefault();
-    var link = this.href;
+
     // close the sidebars
     $('#talks,#contacts').sidebar('hide');
 
     // get the messages
-    $.get(link, list_messages_from_json, 'json');
+    $.get(this.href, list_messages_from_json, 'json');
   }
 
   /**
    * Populates in #mesages list box with the messages found in
-   * the received json.
+   * the received json. Invokes set_seen() and refresh_talks()
+   * @return void
    */
   function list_messages_from_json(JSON) {
     var messages = $('#messages .ui.list');
@@ -76,7 +78,7 @@
     var unseen = [];
     $(VestTalk.messages).each(function(i, msg) {
       // collect yet unseen messages sent to the current user.
-      if(user.id === msg.to_uid && (msg.seen === null || msg.seen === 0)) { unseen.push(msg.id) }
+      if(user.id === msg.to_uid && (msg.seen === null || msg.seen === 0)) { unseen.push(msg.id); }
       // This is the message defining the topic (the parent message).
       if (msg.subject_message_id === 0) {
         set_talk_form(msg); // Set the topic
@@ -92,6 +94,7 @@
     // Scroll down to the last message
     messages.parent().scrollTop(messages.height());
     set_seen((VestTalk.messages[1] ? VestTalk.messages[1].subject_message_id : 0 ), unseen);
+    refresh_talks(JSON.meta.talks);
   } // end function list_talk_messages_from_json
 
   /**
@@ -120,7 +123,7 @@
   function delay_polling (times, interval, delay) {
     //console.log('start_delayed_polling:',(new Date()).getSeconds()); 
     //console.log('times, interval, delay:',times, interval, delay); 
-    if (window.new_messages_interval_id > 0 || times==0) {return};
+    if ((window.new_messages_interval_id > 0) || (times==0)) {return;}
     window.setTimeout(function () {
       get_new_messages($('#message_form').get(0),10);
       delay_polling(times - 1, interval += delay, delay);
@@ -146,9 +149,10 @@
    * 'subject_message_id'(int) and 'unseen' (comma separated string of message IDs).
    * @param subject_message_id {int} id of the talk
    * @param unseen {Array} arry of message IDs.
+   * @return void
    */
   function set_seen (subject_message_id, unseen) {
-    if(!subject_message_id || unseen.length == 0) { return };
+    if(!subject_message_id || unseen.length == 0) { return; }
     $.ajax({
       url: '/vest/talks/' + subject_message_id + '/seen',
       method: 'PUT',
@@ -176,7 +180,7 @@
     template.find('.date').html(date.toLocaleString());
     template.find('.message').html(msg.message);
     if(msg.seen && msg.to_uid != user.id){
-      template.find('.message').append(' <i title="displayed" style="color: #876A38;" class="small checkmark outline icon"></i>');
+      template.find('.message').append(' <i title="displayed" style="color: #876A38" class="small checkmark outline icon"></i>');
     }
     if (prev_msg.from_uid == msg.from_uid) {
       template.find('.from_uid_name').html('...');
@@ -241,9 +245,43 @@
    * @return {void}
    */
    function refresh_talks (talks) {
-      var talk_list = $('#talks ul');
-     // body...
-   }
+      var talk_list = $('#talks ul ');
+      var unseen_sum = 0;
+      talk_list.find('li').remove();//empty talks list
+      for (var i = 0; i < talks.length; i++) {
+        var talk = talks[i];
+        var template = $($('#talk_item').html()); //copy
+        var a = template.find('a').first();
+        a.attr('id', 'u' + talk.id);
+        a.data(talk);
+        a.attr('href','/vest/messages/' + talk.id+'.json');
+        a.html(
+          (talk.from_uid == user.id? talk.to_uid_name: talk.from_uid_name) +
+          '(' + talk.subject + ')');
+        var b = template.find('b');
+        if(talk.unseen > 0 ){
+          b.html(talk.unseen);
+          unseen_sum = unseen_sum + talk.unseen;
+        }
+        else{
+          b.remove();
+        }
+        talk_list.append(template);
+      }//end for
+      var b = $($('#talk_item').html()).find('b');
+      if (unseen_sum > 0) {
+        if($('#talks_button b').text().length)
+          $('#talks_button b').text(unseen_sum);
+        else
+          $('#talks_button').append(b.text(unseen_sum));
+      }
+      else {
+        $('#talks_button b').remove(); 
+      }
+    // re-bind onclick to filling-in messages in the #messages
+    $('#talks ul li a').click(get_messages);
+    return;
+  }
 
   // Functionality related to messages
   /**
@@ -318,20 +356,21 @@
    */
   function get_new_messages(form, limit) {
     //console.log(form)
-    if(form.subject_message_id.value == 0) { return; }
+    if(form.subject_message_id.value === 0) { return; }
 
 
     limit = limit ? limit : 5;
     var url = form.action + '/messages/' + form.subject_message_id.value +
       '.json?limit=' + limit;
     $.get(url, function (json_data) {
-      append_messages_from_json(json_data)
+      append_messages_from_json(json_data);
     } , 'json');
   }
 
   /**
    * Appends messages received from the server to the list on the screen.
    * Similar to list_messages_from_json but only appends messages to the messages box.
+   * Invokes set_seen() and refresh_talks().
    * @param {obj} form The form object from which we will get everything we need.
    */
   function append_messages_from_json(JSON) {
@@ -343,7 +382,7 @@
     for (var i in js_messages) {
       var msg = js_messages[i];
       // collect yet unseen messages sent to the current user.
-      if(user.id === msg.to_uid && (msg.seen === null || msg.seen === 0)) { unseen.push(msg.id) }
+      if(user.id === msg.to_uid && (msg.seen === null || msg.seen === 0)) { unseen.push(msg.id); }
       //skip the parent message
       if (msg.subject_message_id === 0) {
         continue;
@@ -383,12 +422,12 @@
           template.attr('data-name', results.data[i].name);
           template.find('i.icon').attr('data-id', results.data[i].id);
           template.find('span.label').text(results.data[i].name);
-          template.click(function(e){
+          template.click(function(){
             add_contact(template);
             return false;
           });
           $('#contacts .results').append(template);
-        };
+        }
     });
   }//end function find_contacts(e)
 
@@ -414,6 +453,6 @@
         $('#contacts ul.results').html('');//clean results
       }
     );
-    return false
+    return false;
   }
 })(jQuery); //execute
