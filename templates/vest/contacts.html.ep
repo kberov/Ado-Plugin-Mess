@@ -14,10 +14,9 @@ head_javascript([
 %>
 
 <aside id="contacts" class="ui right menu push sidebar">
-
   <form class="ui search item" action="<%= $vest_base_url .'/users.json' %>">
     <div class="ui fluid icon input">
-      <input class="prompt" placeholder="Search:  Иван Петров"
+      <input class="prompt" placeholder="<%= l('Search')%>:  Иван Петров"
         name="name" type="text" autocomplete="off" />
       <i class="search icon" ></i>
     </div>

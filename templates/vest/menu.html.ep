@@ -11,7 +11,7 @@ head_css([
 <nav id="vestbar" class="ui inverted fixed small menu">
   <a class="item" href="<%= current_route %>"><i class="circular vede icon"></i></a>
   <div id="talks_button" class="item ui labeled icon button">
-    <i class="comments icon"></i>  Talks
+    <i class="comments icon"></i>  <%= l('Talks') %>
   </div>
 
   <!-- user menu -->
@@ -20,14 +20,14 @@ head_css([
     %= $user->{name}
     <i class="dropdown icon"></i>
     <div class="menu">
-      <a class="item" href="<%= url_for('/') %>"><i class="home icon"></i>Home</a>
-      <a class="item"><i class="user icon"></i>Profile</a>
-      <a class="item" href="<%= url_for('logout') %>"><i class="sign out icon"></i>Signout</a>      
+      <a class="item" href="<%= url_for('/') %>"><i class="home icon"></i><%= l('Home') %></a>
+      <a class="item"><i class="user icon"></i><%= l('Profile') %></a>
+      <a class="item" href="<%= url_for('logout') %>"><i class="sign out icon"></i><%= l('Signout') %></a>      
     </div>
   </div>
   <!-- contacts/friends -->
   <div id="contacts_button" class="right item ui labeled icon button ">
-    <i class="users icon"></i>  Contacts
+    <i class="users icon"></i>  <%= l('Contacts') %>
   </div>
 </nav>
 %= javascript begin

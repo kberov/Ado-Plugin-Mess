@@ -9,7 +9,7 @@ head_javascript($sui_path.'/form.min.js');
 
 <main class="ui container pusher">
   <h5 id="talk_topic" class="ui header">
-    Talk:Here is the topik of the talk
+    <%= l('Topik') %>
   </h5>
   <div id="messages" class="ui segment">
     <div class="ui list">
@@ -27,9 +27,9 @@ head_javascript($sui_path.'/form.min.js');
     <input type="hidden" name="message_assets" value="" /><!-- TODO -->
     <input type="hidden" name="sent" value="0" /><!-- TODO -->
     <div class="field">
-      <label>Message</label>
+      <label><%= l('Message') %></label>
       <textarea name="message" autofocus="autofocus"></textarea>
-      <button type="submit" class="ui button"><i class="send icon"></i>Submit</button>
+      <button type="submit" class="ui button"><i class="send icon"></i><%= l('Submit') %></button>
     </div>
   </form><!-- form class="ui form segment" -->
   <template id="message_template"
