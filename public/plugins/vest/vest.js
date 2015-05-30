@@ -54,7 +54,7 @@
    * #messages box.
    * @return void.
    */
-  function get_messages(e) {
+  function get_messages(e) {/* jshint validthis: true */
     e.preventDefault();
 
     // close the sidebars
@@ -123,7 +123,7 @@
   function delay_polling (times, interval, delay) {
     //console.log('start_delayed_polling:',(new Date()).getSeconds()); 
     //console.log('times, interval, delay:',times, interval, delay); 
-    if ((window.new_messages_interval_id > 0) || (times==0)) {return;}
+    if ((window.new_messages_interval_id > 0) || (times===0)) {return;}
     window.setTimeout(function () {
       get_new_messages($('#message_form').get(0),10);
       delay_polling(times - 1, interval += delay, delay);
@@ -152,13 +152,14 @@
    * @return void
    */
   function set_seen (subject_message_id, unseen) {
-    if(!subject_message_id || unseen.length == 0) { return; }
+    if(!subject_message_id || unseen.length === 0) { return; }
     $.ajax({
       url: '/vest/talks/' + subject_message_id + '/seen',
       method: 'PUT',
-      data: {"unseen": unseen.join(',')}
+      data: {'unseen': unseen.join(',')}
       });
   }
+
 
   /**
    * Prepares the HTML for the message and returns it.
@@ -221,8 +222,9 @@
    * the element to which it is bound.
    * @return false
    */
-  function new_talk() {
+  function new_talk() {/* jshint validthis: true */
     $('#messages .ui.list p').remove(); //empty messages list
+
     set_talk_form({
       id: 0, // this will be the value of subject_message_id in the form
       subject: '',
@@ -268,12 +270,14 @@
         }
         talk_list.append(template);
       }//end for
-      var b = $($('#talk_item').html()).find('b');
+      var bt = $($('#talk_item').html()).find('b');
       if (unseen_sum > 0) {
-        if($('#talks_button b').text().length)
+        if($('#talks_button b').text().length){
           $('#talks_button b').text(unseen_sum);
-        else
-          $('#talks_button').append(b.text(unseen_sum));
+        }
+        else {
+          $('#talks_button').append(bt.text(unseen_sum));
+        }
       }
       else {
         $('#talks_button b').remove(); 
@@ -310,7 +314,7 @@
       post_message_success
     ).fail(function(data) {
       //TODO: replace the alert with a beautiful SemanticUI popup or box
-      alert('error:' + data.responseText);
+      window.alert('error:' + data.responseText);
       message_field.addClass('error');
 
     });
@@ -322,7 +326,7 @@
    * Executed upon succes of a sent message.
    * @param {Object} data the JSON returned by the server.
    */
-  function post_message_success(data) {
+  function post_message_success() {
     // Prepare the sent message to be appended to the list of messages.
     var form = $('#message_form').get(0);
     var msg = {
@@ -444,7 +448,7 @@
       user_item.data('href'), // /add_contact
       {id: user_item.data('id')},//form data
       // success
-      function add_contact_success (data, textStatus, xhr) {
+      function add_contact_success () {
         user_item.unbind('click'); //only once
         user_item.find('.comment.outline.icon').click(new_talk);
 
