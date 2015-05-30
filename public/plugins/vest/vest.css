@@ -35,3 +35,21 @@ form#message_form.ui.form.segment .field textarea {
   height: 5em;
   padding: 1ex;
 }
+
+.ui.inline.popup {
+  display: inline;
+  position: relative;
+  top: 0px;
+  right: 0px;
+  z-index: 0;
+  border: 1px solid #cccccc;
+  max-width: 250px;
+  background-color: #ffffff;
+  padding: 0.5ex 0.5ex;
+  font-weight: normal;
+  font-style: normal;
+  font-size:small;
+  color: rgba(0, 0, 0, 0.8);
+  border-radius: 0.5em;
+  box-shadow: 0px 2px 4px rgba(0, 0, 0, 0.1);
+}

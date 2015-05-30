@@ -16,7 +16,7 @@ head_javascript($sui_path.'/sidebar.min.js');
       (<%= $talk->{subject} %>)
       %= end
       <% if($talk->{unseen}) { %>
-        <b style="display:inline" class="ui right center popup"><%=$talk->{unseen}%></b>
+        <b class="ui right center inline popup"><%=$talk->{unseen}%></b>
         <% } %>
     </li>
 %}
@@ -34,6 +34,6 @@ head_javascript($sui_path.'/sidebar.min.js');
       <%= $talks->[0]{from_uid} == $user->{id} ? $talks->[0]{to_uid_name} : $talks->[0]{from_uid_name} %>
       (<%= $talks->[0]{subject} %>)
       %= end
-      <b style="display:inline;z-index:0" class="ui right center popup"><%=$talks->[0]->{unseen}%></b>
+      <b class="ui right center inline popup"><%=$talks->[0]->{unseen}%></b>
     </li>
 </template>
