@@ -45,7 +45,7 @@ form#message_form.ui.form.segment .field textarea {
   border: 1px solid #cccccc;
   max-width: 250px;
   background-color: #ffffff;
-  padding: 0.5ex 0.5ex;
+  padding: 0.5ex 1ex;
   font-weight: normal;
   font-style: normal;
   font-size:small;
