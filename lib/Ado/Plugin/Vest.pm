@@ -52,8 +52,8 @@ sub _add_user_to_vest {
             subject            => $c->l('Wellcome [_1]!', $user->name),
             subject_message_id => 0,
             message            => $c->l(
-                'Wellcome [_1]! Use the Contacts sidebar to find users by name and have a chat.',
-                $user->name
+                'Wellcome [_1]! Use the [_2] sidebar to find users by name and have a chat.',
+                $user->name, $c->l('Contacts')
             ),
             tstamp => time
         );

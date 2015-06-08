@@ -54,7 +54,64 @@ VALUES(
   (SELECT id FROM groups WHERE name='vest_contacts_'
     ||(SELECT id FROM users WHERE login_name='test1'))
 );
-
 INSERT OR IGNORE INTO groups (name,description,created_by,changed_by,disabled)
   SELECT 'vest_contacts_'||id, 'Contacts of user test2', id, id,0
     FROM users WHERE login_name='test2';
+
+/**
+ Translate some messages!
+  INSERT OR IGNORE INTO i18n VALUES('bg','message key','lib/Path/To/File.pm:54,templates/controller/template.html.ep:12',
+    'Преведен текст',0);
+
+ */
+INSERT OR IGNORE INTO i18n VALUES('en','Wellcome_have_a_chat','lib/Ado/Plugin/Vest.pm:54',
+  'Wellcome [_1]! Click on the "[_2]" button to find users by name and have a chat.',0);
+INSERT OR IGNORE INTO i18n VALUES('bg','Wellcome_have_a_chat','lib/Ado/Plugin/Vest.pm:54',
+  'Добре дошли [_1]! Натиснете бутона "[_2]", за да намерите потребители по име и да си пишете.',0);
+INSERT OR IGNORE INTO i18n VALUES('en','Search','templates/vest/contacts.html.ep:19',
+  'Search',0);
+INSERT OR IGNORE INTO i18n VALUES('en','Start talk witn [_1]','templates/vest/contacts.html.ep:50',
+  'Start talk witn [_1]',0);
+INSERT OR IGNORE INTO i18n VALUES('bg','Start talk witn [_1]','templates/vest/contacts.html.ep:50',
+  'Започнете разговор с [_1]',0);
+INSERT OR IGNORE INTO i18n VALUES('en','Continue talk','templates/vest/contacts.html.ep:56',
+  'Continue talk',0);
+INSERT OR IGNORE INTO i18n VALUES('bg','Continue talk','templates/vest/contacts.html.ep:56',
+  'Продължаване на разговор',0);
+INSERT OR IGNORE INTO i18n VALUES('en','Talks','templates/vest/menu.html.ep:14',
+  'Talks',0);
+INSERT OR IGNORE INTO i18n VALUES('bg','Talks','templates/vest/menu.html.ep:14',
+  'Разговори',0);
+INSERT OR IGNORE INTO i18n VALUES('en','Home','templates/vest/menu.html.ep:23',
+  'Home',0);
+INSERT OR IGNORE INTO i18n VALUES('bg','Home','templates/vest/menu.html.ep:23',
+  'Начало',0);
+INSERT OR IGNORE INTO i18n VALUES('en','Profile','templates/vest/menu.html.ep:24',
+  'Profile',0);
+INSERT OR IGNORE INTO i18n VALUES('bg','Profile','templates/vest/menu.html.ep:24',
+  'За мен',0);
+INSERT OR IGNORE INTO i18n VALUES('en','Signout','templates/vest/menu.html.ep:25',
+  'Signout',0);
+INSERT OR IGNORE INTO i18n VALUES('bg','Signout','templates/vest/menu.html.ep:25',
+  'Отписване',0);
+INSERT OR IGNORE INTO i18n VALUES('en','Contacts','lib/Ado/Plugin/Vest.pm:56,templates/vest/menu.html.ep:30',
+  'Contacts',0);
+INSERT OR IGNORE INTO i18n VALUES('bg','Contacts','lib/Ado/Plugin/Vest.pm:56,templates/vest/menu.html.ep:30',
+  'Контакти',0);
+INSERT OR IGNORE INTO i18n VALUES('en','Topik','templates/vest/messages.html.ep:12',
+  'Topic',0);
+INSERT OR IGNORE INTO i18n VALUES('bg','Topik','templates/vest/messages.html.ep:12',
+  'Тема',0);
+INSERT OR IGNORE INTO i18n VALUES('en','Message','templates/vest/messages.html.ep:30',
+  'Message',0);
+INSERT OR IGNORE INTO i18n VALUES('bg','Message','templates/vest/messages.html.ep:30',
+  'Съобщение',0);
+INSERT OR IGNORE INTO i18n VALUES('en','Submit','templates/vest/messages.html.ep:32',
+  'Submit',0);
+INSERT OR IGNORE INTO i18n VALUES('bg','Submit','templates/vest/messages.html.ep:32',
+  'Изпращане',0);
+INSERT OR IGNORE INTO i18n VALUES('en','Messaging services for an Ado system!','templates/vest/head.html.ep:2',
+  'Messaging services for an Ado system!',0);
+INSERT OR IGNORE INTO i18n VALUES('bg','Messaging services for an Ado system!','templates/vest/head.html.ep:2',
+  'Услуга за съобщения в системи, изградени върху Суматоха!',0);
+
