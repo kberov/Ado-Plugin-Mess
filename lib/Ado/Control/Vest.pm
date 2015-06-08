@@ -288,9 +288,8 @@ SQL
 
     foreach my $contact (@$contacts) {
         my $cid = $contact->{id};
-        my $last_talk =
-          $c->dbix->query($talk_with_contact_SQL, $uid, $cid, $cid, $uid)->hash;
-        $contact->{last_talk_id} = ($last_talk->{subject_message_id}||$last_talk->{id});
+        my $last_talk = $c->dbix->query($talk_with_contact_SQL, $uid, $cid, $cid, $uid)->hash;
+        $contact->{last_talk_id} = ($last_talk->{subject_message_id} || $last_talk->{id});
     }
 
 
@@ -497,6 +496,14 @@ Accepts parameters C<limit> (20 by default) and C<offset> (0).
 =head2 show
 
 Displays a message. Not implemented yet
+
+=head2 seen
+
+Updates the seen column to 1 for a list of message IDs. Invoked via a PUT
+request. Mapped to route C</talks/:id/seen>. The list is expected to be comma
+separated string of message IDs in the request body. ":id" is the id of the
+talk. Current user can set as "seen" only messages sent to him. Responds with
+empty body and status 204.
 
 =head2 update
 
