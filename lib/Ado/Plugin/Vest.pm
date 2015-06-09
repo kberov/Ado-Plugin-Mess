@@ -2,7 +2,7 @@ package Ado::Plugin::Vest;
 use Mojo::Base qw(Ado::Plugin);
 File::Spec::Functions->import(qw(catfile catdir));
 
-our $VERSION = '0.11';
+our $VERSION = '0.12';
 my $VEST = 'vest';
 
 sub register {
