@@ -87,8 +87,7 @@ sub list_messages {
             offset => $offset,
         }
     );
-    $c->debug('Looking for messages in talk ' . $s_m_id . ' for user ' . $user->id)
-      if $Ado::Control::DEV_MODE;
+    $c->debug('Looking for messages in talk ' . $s_m_id . ' for user ' . $user->id);
     my $messages =
       Ado::Model::Vest->by_subject_message_id($user, $s_m_id, $$args{limit}, $$args{offset});
     $c->res->headers->content_range(
@@ -177,8 +176,8 @@ sub create {
         return $c->rendered(201);
     }
     else {
-        my $err_data = 'Error in POST ' . $c->current_route;
-        $c->app->log->error($err_data . ': ' . $@);
+        my $err = 'Error in POST ' . $c->current_route;
+        $c->app->log->error($err . ': ' . $@);
         return $c->render(
             status => 500,
             json   => {
@@ -186,7 +185,7 @@ sub create {
                 status  => 'error',
                 message => 'The message could not be created on the server. '
                   . 'The administrator is informed about the error.',
-                data => ($c->app->mode eq 'development' ? $@ : $err_data)
+                data => $err
             }
         );
     }

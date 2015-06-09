@@ -149,7 +149,7 @@ for (1, 2, 3) {
 {   route  => '/вест/:id',
     params => {id => qr/\d+/},
     via    => ['GET'],
-    to     => 'messshow',
+    to     => 'vest#show',
 },
 =cut
 
@@ -173,6 +173,12 @@ for (1, 2, 3) {
 
     #note "$last_id, form:".$app->dumper($form);
 }    #end for my $id (1, 3, 5)
+
+$t2->get_ok("$vest_base_url/3.html")
+  ->status_is('415', "$vest_base_url/3.html" . '3.html ok status is 415 - Unsupported Media Type');
+
+$t2->get_ok("$vest_base_url/333.json")
+  ->status_is('404', "$vest_base_url/333.json" . '333.json ok status is 404 - Not Found');
 
 =pod
 {   route  => '/вест/:id',
