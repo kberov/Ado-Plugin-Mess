@@ -5,9 +5,10 @@ use Test::Mojo;
 use Mojo::Util;
 use List::Util qw(shuffle);
 
-my $t1  = Test::Mojo->new('Ado');
-my $app = $t1->app;
-my $dbh = $app->dbix->dbh;
+my $t1   = Test::Mojo->new('Ado');
+my $app  = $t1->app;
+my $dbix = $app->dbix;
+my $dbh  = $dbix->dbh;
 ok($dbh->do('DROP TABLE IF EXISTS vest'), "Table vest was dropped.");
 
 # Remove generic routes (for this test only) so newly generated routes can match.
@@ -17,11 +18,11 @@ $app->routes->find('controlleractionid')->remove();
 
 isa_ok($app->plugin('vest'), 'Ado::Plugin::Vest');
 my $vest_base_url = $app->config('Ado::Plugin::Vest')->{vest_base_url};
-my $t1_uid = $app->dbix->query('SELECT id from users where login_name=?', 'test1')->hash->{id};
-my $t2_uid = $app->dbix->query('SELECT id from users where login_name=?', 'test2')->hash->{id};
+my $t1_uid        = $dbix->query('SELECT id from users where login_name=?', 'test1')->hash->{id};
+my $t2_uid        = $dbix->query('SELECT id from users where login_name=?', 'test2')->hash->{id};
 
 #for test2 to add test1 to his contacts
-$app->dbix->query(
+$dbix->query(
     "DELETE FROM user_group where group_id=(SELECT id FROM groups WHERE name='vest_contacts_'||?)",
     $t2_uid
 );
@@ -65,7 +66,15 @@ subtest 't2_login' => sub {
       ->json_is('/data/0/name' => 'Test 1', 'Test1 found by name')
       ->json_like('/links/0/href' => qr/users.json\?limit=50&offset=0/);
     $t2->get_ok("$vest_base_url/users.json?name=guest")->status_is(200)
-      ->json_is('/data/0' => undef, 'Guest can not be found.')    #'Guest'
+      ->json_is('/data/0' => undef, 'Guest can not be found.');    #'Guest'
+    $t2->get_ok("$vest_base_url/users.html?name=est 1")
+      ->status_is('415',
+        $vest_base_url . '/users.html ok status is 415 - Unsupported Media Type');
+    $t2->get_ok("$vest_base_url/users.json")->status_is(400)
+      ->json_is('/data' => 'validate_input', '/data is "validate_input"')->json_is(
+        '/message' => {"name" => ["required"]},
+        '"name" is required'
+      );
 };
 
 #Play with several messages.
@@ -156,7 +165,7 @@ for (1, 2, 3) {
     $t2->get_ok("$vest_base_url/$id.json")
       ->status_is('200', "$vest_base_url/$id.json" . ' Status is 200')
       ->json_is('/data/message', "Здравей, Приятел!", "ok created $id");
-    my $next = $app->dbix->query($maxSQL)->hash->{id} + 1;
+    my $next = $dbix->query($maxSQL)->hash->{id} + 1;
 
 
     #reply from a friend
@@ -175,7 +184,8 @@ for (1, 2, 3) {
 }    #end for my $id (1, 3, 5)
 
 $t2->get_ok("$vest_base_url/3.html")
-  ->status_is('415', "$vest_base_url/3.html" . '3.html ok status is 415 - Unsupported Media Type');
+  ->status_is('415',
+    "$vest_base_url/3.html" . '3.html ok status is 415 - Unsupported Media Type');
 
 $t2->get_ok("$vest_base_url/333.json")
   ->status_is('404', "$vest_base_url/333.json" . '333.json ok status is 404 - Not Found');
@@ -187,6 +197,32 @@ $t2->get_ok("$vest_base_url/333.json")
     to     => 'messupdate',
 },
 =cut
+
+
+$t1->put_ok(
+    "$vest_base_url/333",
+    form => {
+        to_uid             => $t2_uid,
+        from_uid           => $t1_uid,
+        subject            => 'Какъв приятен разговор',
+        subject_message_id => $s_m_id,
+        message            => "Let's speak some English."
+    }
+  )->status_is('404', 'Status is 404')->json_is('/data' => 'resource_not_found')
+  ->json_is('/code' => 404);
+
+$t1->put_ok(
+    "$vest_base_url/$last_id",
+    form => {
+        to_uid             => $t2_uid,
+        from_uid           => $t1_uid,
+        subject            => 'Какъв приятен разговор',
+        subject_message_id => $s_m_id,
+        message            => ('Б' x 5120)
+    }
+  )->status_is('400', 'Status is 400')->json_is('/data' => 'validate_input')
+  ->json_is('/code' => 400)->json_is('/message' => {message => ["size", 1, 1, 5119]});
+
 
 $t1->put_ok(
     "$vest_base_url/$last_id",
@@ -220,7 +256,7 @@ $t1->get_ok("$vest_base_url/$last_id.json")->status_is('200', 'Status is 200')
 
 $t1->delete_ok("$vest_base_url/$last_id")->status_is('200', 'Status is 200')
   ->content_is('not implemented...', 'ok not implemented...yet');
-ok($app->dbix->dbh->do('DROP TABLE IF EXISTS vest'), "Table vest was dropped.");
+ok($dbh->do('DROP TABLE IF EXISTS vest'), "Table vest was dropped.");
 
 # Reload plugin to recreate the table
 $app->plugin('vest');
@@ -357,7 +393,24 @@ for my $talk (14 .. 25) {
       ->json_is('/talks/0/to_guid' => 0)->json_is('/contacts/0/id' => $from_uid)
       ->json_is('/talks/0/subject' => $subject);
 
+=pod
+
+    #set seen
+   my @message_ids = $dbix->query('SELECT id from vest WHERE to_uid=? AND (subject_message_id = ? OR id=?)', $to_uid,$talk,$talk)->flat;
+   warn "$to_uid,$talk,$talk:@message_ids";
+    $t2->put_ok(
+    "$vest_base_url/talks/$talk/seen",
+    form => {unseen=>  join(',',@message_ids) }
+    )->status_is('204', 'Status is 204');
+done_testing;exit;
+
+=cut
+
+
 }
+$t2->get_ok("$vest_base_url.txt")
+  ->status_is('415', "$vest_base_url.txt" . '.txt ok status is 415 - Unsupported Media Type');
+
 $t2->get_ok("$vest_base_url/talks", {Accept => 'text/html'})->status_is('415');
 $t2->get_ok("$vest_base_url/talks.json?offset=1&limit=2")->json_has('/data/1/id')
   ->json_hasnt('/data/2/id');
@@ -372,7 +425,7 @@ subtest last_talks_are_those_with_most_recent_messages => sub {
 # As there will be most recent messages they must be displayed as last (on top of) the talks list.
     my $minSQL =
       'SELECT id , subject FROM vest WHERE subject_message_id=0 AND ((to_uid =?) OR(from_uid =?)) ORDER BY id ASC LIMIT 3';
-    my $first_talks = $app->dbix->query($minSQL, $t1_uid, $t1_uid)->hashes;
+    my $first_talks = $dbix->query($minSQL, $t1_uid, $t1_uid)->hashes;
 
     # Add some new messages in the oldest talks
     for my $talk (@$first_talks) {

@@ -140,7 +140,7 @@ my $create_validation_template = {
     },
     message => {
         'required' => 1,
-        size       => [1, 5120]    #up to 5KB messages
+        size       => [1, 5119]    #up to 5KB messages
     },
     message_assets => {
         'required' => 0,
@@ -337,7 +337,6 @@ SQL
 sub users {
     my ($c) = @_;
     $c->require_formats('json') || return;
-    $c->req->param(name => $c->stash('name') // '') if !$c->req->param('name');
     my $result = $c->validate_input($users_validation_template);
     state $log = $c->app->log;
 
@@ -365,22 +364,16 @@ sub users {
     my $time                     = time;
     my $user_contacts_group_name = "vest_contacts_$c_uid";
     $c->debug("Searching in contacts of ${\ $user->login_name} (group $user_contacts_group_name) "
-          . "to find if a user \%$first_name\% \%$last_name\% Does not belong to it")
-      if $Ado::Control::DEV_MODE;
+          . "to find if a user \%$first_name\% \%$last_name\% Does not belong to it");
     my @a = $U->query($U->SQL('find_users_by_name'),
         $user_contacts_group_name, $c_uid, $time, $time, "\%$first_name\%",
         "\%$last_name\%", "\%$first_name\%", "\%$last_name\%", $limit, $offset);
-    $c->debug('found '
-          . @a
-          . ' users matching ('
-          . "\%$first_name\% \%$last_name\%"
-          . ') AND NOT IN group '
-          . $user_contacts_group_name)
-      if $Ado::Control::DEV_MODE;
+
     my @data = map { +{%{$_->data}, name => $_->name} } @a;
     return $c->respond_to(json => $c->list_for_json([$limit, $offset], \@data));
 }
 
+#/talks/:id/seen
 sub seen {
     my ($c) = @_;
     state $set_seen_validation_template = {
